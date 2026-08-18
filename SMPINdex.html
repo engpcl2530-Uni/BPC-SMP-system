@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- แท็กนี้ป้องกันไม่ให้ Google, Bing หรือ Search Engine อื่นๆ ค้นหาเว็บนี้เจอ -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  
+  <title>SMP Management System</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body { background-color: #F8F9FA; padding-bottom: 90px; font-family: 'Prompt', sans-serif; color: #333; }
+    .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #E5E7EB; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; }
+    .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background-color: #2563EB; color: white; text-align: center; line-height: 56px; font-size: 32px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); cursor: pointer; z-index: 1000; transition: all 0.3s; }
+    .fab:hover { transform: scale(1.05); background-color: #1D4ED8; }
+    .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .section-view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card-custom { background: white; border: 1px solid #F3F4F6; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 24px; }
+    .section-title { font-weight: 600; color: #111827; margin-bottom: 24px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: #2563EB; }
+    .card-smp { cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; border-radius: 12px; }
+    .card-smp:hover { border-color: #2563EB; box-shadow: 0 8px 16px rgba(37,99,235,0.08); transform: translateY(-3px); }
+    .form-label { font-size: 0.9rem; font-weight: 500; color: #4B5563; }
+    .form-control, .form-select { border-radius: 10px; border: 1px solid #D1D5DB; padding: 10px 15px; font-size: 0.95rem; background-color: #F9FAFB; }
+    .form-control:focus, .form-select:focus { border-color: #2563EB; background-color: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+    .required-star { color: #EF4444; }
+    .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 85px; height: 85px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; }
+    .icon-checkbox:hover { background: #E5E7EB; }
+    .icon-checkbox .material-icons { font-size: 32px; color: #2563EB; transition: 0.2s; }
+    .icon-checkbox span.label { font-size: 12px; margin-top: 6px; color: #374151; font-weight: 500; text-align: center; line-height: 1.2; }
+    .icon-checkbox.not-used { background: white; border: 2px dashed #D1D5DB; opacity: 0.6; }
+    .icon-checkbox.not-used .material-icons { color: #9CA3AF; }
+    .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 46px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; }
+    .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+    .btn-main { background: #2563EB; color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; }
+    .btn-main:hover { background: #1D4ED8; color: white; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="app-header d-flex justify-content-between align-items-center">
+    <h5 class="m-0 fw-bold text-dark" id="headerTitle">ระบบจัดการ SMP</h5>
+    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
+  </div>
+
+  <div class="container mt-4">
+
+    <!-- ================= VIEW 1: Home ================= -->
+    <div id="homeView" class="section-view active">
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()">
+        </div>
+      </div>
+      <div id="smpListContainer" class="row">
+        <div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div>
+      </div>
+      <div class="fab" onclick="showForm()">+</div>
+    </div>
+
+    <!-- ================= VIEW 2: Form ================= -->
+    <div id="formView" class="section-view">
+      <form id="smpForm">
+        <div class="card-custom">
+          <div class="section-title"><i class="material-icons">article</i> ข้อมูลทั่วไป</div>
+          <div class="row">
+            <div class="col-md-8 mb-3"><label class="form-label">ชื่อเรื่อง SMP <span class="required-star">*</span></label><input type="text" class="form-control" id="f_title" required></div>
+            <div class="col-md-4 mb-3"><label class="form-label">SMP ID <span class="required-star">*</span></label><input type="text" class="form-control text-primary fw-bold bg-light" id="f_smpId" readonly required></div>
+            <div class="col-md-6 mb-3"><label class="form-label">นำเสนอโดย <span class="required-star">*</span></label><input type="text" class="form-control" id="f_presenter" required></div>
+            <div class="col-md-6 mb-3"><label class="form-label">อนุมัติโดย</label><input type="text" class="form-control" id="f_approver"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">ไลน์ / แผนก</label><input type="text" class="form-control" id="f_line"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">เครื่องจักร</label><input type="text" class="form-control" id="f_machine"></div>
+            
+            <div class="col-md-12 mb-4 mt-2">
+              <label class="form-label">ประเภทของ SMP <span class="required-star">*</span></label>
+              <div class="d-flex flex-wrap gap-4 mt-1">
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="เครื่องกล" id="t1"><label class="form-check-label" for="t1">เครื่องกล</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label" for="t2">ไฟฟ้าและการควบคุม</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="อื่นๆ" id="t3" onchange="toggleOtherType(this.checked)"><label class="form-check-label" for="t3">อื่นๆ</label></div>
+              </div>
+              <input type="text" class="form-control mt-2" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none; animation: fadeIn 0.3s;">
+            </div>
+
+            <div class="col-md-4 mb-3"><label class="form-label">จำนวนช่างเทคนิค</label><input type="number" class="form-control" id="f_techCount"></div>
+            <div class="col-md-4 mb-3"><label class="form-label">เวลาที่ช่างทำงานรวม (นาที)</label><input type="number" class="form-control" id="f_techTime"></div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">ประเภทบำรุงรักษา <span class="required-star">*</span></label>
+              <select class="form-select" id="f_maintType" required>
+                <option value="">-- เลือก --</option><option value="TBM">TBM</option><option value="CBM">CBM</option><option value="BDM">BDM</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4 mb-3"><label class="form-label">เวลาที่ใช้งาน (นาที)</label><input type="number" class="form-control" id="f_workTime"></div>
+            <div class="col-md-4 mb-3"><label class="form-label">เวลาหยุดเครื่องจักร (นาที)</label><input type="number" class="form-control" id="f_downtime"></div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">ความถี่</label>
+              <select class="form-select" id="f_frequency">
+                <option value="">-- เลือก --</option><option value="กะ">กะ</option><option value="วัน">วัน</option><option value="เดือน">เดือน</option><option value="ไตรมาส">ไตรมาส</option><option value="ปี">ปี</option>
+              </select>
+            </div>
+            <div class="col-md-12 mt-2">
+              <label class="form-label"><i class="material-icons align-middle fs-5">photo_camera</i> รูปภาพการทำงานหลัก</label>
+              <input type="file" class="form-control bg-white" accept="image/*" capture="environment" onchange="compressMainImage(this)">
+              <input type="hidden" id="f_mainImageBase64">
+              <div id="mainImagePreview" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-custom">
+          <div class="section-title"><i class="material-icons text-warning">security</i> ความปลอดภัย (Safety)</div>
+          
+          <label class="form-label mb-2">อุปกรณ์ป้องกันส่วนบุคคล (PPE) <span class="text-muted fw-normal fs-6">- คลิกไอคอนเพื่อกากบาทหาก "ไม่ใช้งาน"</span></label>
+          <div id="ppeBox" class="d-flex flex-wrap gap-2 mb-4">
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ถุงมือ"><i class="material-icons">front_hand</i><span class="label">ถุงมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หมวกนิรภัย"><i class="material-icons">engineering</i><span class="label">หมวกนิรภัย</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หน้ากาก"><i class="material-icons">masks</i><span class="label">หน้ากาก</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง"><i class="material-icons">accessibility_new</i><span class="label">กันตกที่สูง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา"><i class="material-icons">visibility</i><span class="label">แว่นตา</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู"><i class="material-icons">hearing</i><span class="label">ที่อุดหู</span></div>
+          </div>
+
+          <div class="mb-4 bg-light p-3 rounded-3 border">
+            <label class="form-label">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ต้องการ" required><label class="form-check-label">ต้องการ</label></div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ไม่ต้องการ"><label class="form-check-label">ไม่ต้องการ</label></div>
+          </div>
+
+          <label class="form-label mb-2">ความเสี่ยงอันตราย <span class="text-muted fw-normal fs-6">- คลิกไอคอนเพื่อกากบาทหาก "ไม่มีความเสี่ยงนี้"</span></label>
+          <div id="riskBox" class="d-flex flex-wrap gap-2 mb-4">
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ"><i class="material-icons">compress</i><span class="label">จุดหนีบ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ"><i class="material-icons">build</i><span class="label">อุปกรณ์/เครื่องมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ยกด้วยมือ"><i class="material-icons">fitness_center</i><span class="label">ยกด้วยมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ทำงานที่สูง"><i class="material-icons">height</i><span class="label">ที่สูง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="สารเคมี"><i class="material-icons">science</i><span class="label">สารเคมี</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสียงดัง"><i class="material-icons">volume_up</i><span class="label">เสียงดัง</span></div>
+          </div>
+
+          <div class="mb-2 bg-light p-3 rounded-3 border">
+            <label class="form-label">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ใช่" required><label class="form-check-label">ใช่</label></div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่ใช่"><label class="form-check-label">ไม่ใช่</label></div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่เกี่ยวข้อง"><label class="form-check-label">ไม่เกี่ยวข้อง</label></div>
+          </div>
+        </div>
+
+        <div class="card-custom">
+          <div class="section-title d-flex justify-content-between align-items-center w-100">
+            <div><i class="material-icons text-success">format_list_numbered</i> ขั้นตอนการทำงาน</div>
+            <button type="button" class="btn btn-sm btn-outline-success rounded-pill fw-bold" onclick="addStepCard()">+ เพิ่มขั้นตอน</button>
+          </div>
+          <div id="stepsContainer"></div>
+        </div>
+
+        <button type="submit" class="btn w-100 btn-main fs-5 shadow-sm" id="btnSubmit">บันทึกข้อมูล SMP</button>
+      </form>
+    </div>
+
+    <!-- ================= VIEW 3: Detail ================= -->
+    <div id="detailView" class="section-view">
+      <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success rounded-pill shadow-sm" onclick="downloadCSV()"><i class="material-icons align-middle fs-6">download</i> โหลด CSV</button>
+      </div>
+      <div id="docContent" class="card-custom">
+        <div class="text-center text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดเอกสาร...</p></div>
+      </div>
+    </div>
+
+  </div> <!-- End Container -->
+
+<script>
+  // =========================================================
+  // 🔴 เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App จาก Apps Script ของคุณ 🔴
+  // =========================================================
+  const API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; 
+
+  let smpDataList = [];
+  let currentDetailData = null;
+  let stepCounter = 0;
+
+  window.onload = () => { loadSMPList(); };
+
+  function toggleOtherType(isChecked) {
+    const inputOther = document.getElementById('f_smpTypeOther');
+    inputOther.style.display = isChecked ? 'block' : 'none';
+    if(isChecked) { inputOther.focus(); } else { inputOther.value = ''; }
+  }
+
+  function showHome() {
+    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+    document.getElementById('homeView').classList.add('active');
+    document.getElementById('headerTitle').innerText = "ระบบจัดการ SMP";
+    document.getElementById('btnBackHome').style.display = 'none';
+    loadSMPList();
+  }
+
+  function showForm() {
+    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+    document.getElementById('formView').classList.add('active');
+    document.getElementById('headerTitle').innerText = "สร้าง SMP ใหม่";
+    document.getElementById('btnBackHome').style.display = 'block';
+    
+    document.getElementById('f_smpId').value = "กำลังดึง ID...";
+    fetch(API_URL + "?action=generateId")
+      .then(res => res.json())
+      .then(data => document.getElementById('f_smpId').value = data.id)
+      .catch(err => console.error("Error fetching ID:", err));
+
+    if(stepCounter === 0) addStepCard();
+  }
+
+  function showDetail(smpId) {
+    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+    document.getElementById('detailView').classList.add('active');
+    document.getElementById('headerTitle').innerText = "เอกสาร: " + smpId;
+    document.getElementById('btnBackHome').style.display = 'block';
+    document.getElementById('docContent').innerHTML = `<div class="text-center text-muted mt-4"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลด...</p></div>`;
+    
+    fetch(API_URL + "?action=getDetails&smpId=" + smpId)
+      .then(res => res.json())
+      .then(data => renderDetail(data))
+      .catch(err => console.error("Error fetching details:", err));
+  }
+
+  function loadSMPList() {
+    fetch(API_URL + "?action=getList")
+      .then(res => res.json())
+      .then(data => { smpDataList = data; renderList(data); })
+      .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger mt-4">ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบ API URL</p>`; });
+  }
+
+  function renderList(list) {
+    let html = '';
+    if(!list || list.length === 0) { html = '<p class="text-center mt-4 text-muted">ยังไม่มีข้อมูล SMP ในระบบ</p>'; }
+    else {
+      list.forEach(item => {
+        html += `
+        <div class="col-md-6 col-lg-4">
+          <div class="card p-3 card-smp mb-3 bg-white" onclick="showDetail('${item.smpId}')">
+            <h5 class="mb-1 text-primary fw-bold">${item.smpId}</h5>
+            <div class="fw-bold mb-2 text-dark text-truncate">${item.title}</div>
+            <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">calendar_today</i> ${item.date}</div>
+            <div class="text-muted small text-truncate"><i class="material-icons align-middle" style="font-size:14px;">precision_manufacturing</i> ${item.line || '-'}</div>
+            <div class="mt-2"><span class="badge bg-light text-dark border">${item.type || '-'}</span></div>
+          </div>
+        </div>`;
+      });
+    }
+    document.getElementById('smpListContainer').innerHTML = html;
+  }
+
+  function filterList() {
+    let kw = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = smpDataList.filter(o => o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.line && o.line.toLowerCase().includes(kw)));
+    renderList(filtered);
+  }
+
+  function addStepCard() {
+    stepCounter++;
+    const html = `
+      <div class="step-card" id="step_row_${stepCounter}">
+        <div class="d-flex justify-content-between mb-3 align-items-center">
+          <h6 class="text-primary m-0 fw-bold">ขั้นตอนที่ <span class="step-number">${stepCounter}</span></h6>
+          <button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>
+        </div>
+        <div class="mb-3"><label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="form-control s-task" required></div>
+        <div class="row mb-3">
+          <div class="col-6"><label class="form-label">เวลา (นาที)</label><input type="number" class="form-control s-time"></div>
+          <div class="col-6">
+            <label class="form-label">ประเภท <span class="required-star">*</span></label>
+            <select class="form-select s-type" required>
+              <option value="">-- เลือก --</option>
+              <option value="➕ ความปลอดภัย">➕ ความปลอดภัย</option>
+              <option value="🔷 คุณภาพ">🔷 คุณภาพ</option>
+              <option value="🟩 สิ่งแวดล้อม">🟩 สิ่งแวดล้อม</option>
+              <option value="⚫ การผลิต">⚫ การผลิต</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3"><label class="form-label">คำอธิบายเพิ่มเติม</label><textarea class="form-control s-desc" rows="2"></textarea></div>
+        <div class="mb-2">
+          <label class="form-label"><i class="material-icons align-middle fs-6">image</i> ภาพถ่าย / สเก็ตช์ (สูงสุด 10 รูป)</label>
+          <input type="file" class="form-control s-imgs bg-white" accept="image/*" multiple capture="environment" onchange="compressStepImages(this)">
+          <div class="img-preview-box d-flex gap-2 mt-2 overflow-auto"></div>
+        </div>
+      </div>`;
+    document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
+  }
+
+  function updateStepNumbers() {
+    let cards = document.querySelectorAll('.step-card .step-number');
+    cards.forEach((el, index) => { el.innerText = index + 1; });
+    stepCounter = cards.length;
+  }
+
+  async function compressFile(file) {
+    return new Promise((resolve) => {
+      let reader = new FileReader();
+      reader.onload = e => {
+        let img = new Image();
+        img.onload = () => {
+          let canvas = document.createElement('canvas');
+          let MAX_W = 800; let scale = img.width > MAX_W ? MAX_W / img.width : 1;
+          canvas.width = img.width * scale; canvas.height = img.height * scale;
+          let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function compressMainImage(input) {
+    if(input.files.length > 0) {
+      const b64 = await compressFile(input.files[0]);
+      document.getElementById('f_mainImageBase64').value = b64;
+      document.getElementById('mainImagePreview').innerHTML = `<img src="${b64}" style="height:120px; border-radius:8px; border:1px solid #ccc; box-shadow:0 2px 5px rgba(0,0,0,0.1);">`;
+    }
+  }
+
+  async function compressStepImages(input) {
+    const previewBox = input.nextElementSibling;
+    previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัดรูปภาพ...</span>';
+    input.compressedArray = [];
+    let files = Array.from(input.files).slice(0, 10);
+    for(let f of files) { let b64 = await compressFile(f); input.compressedArray.push(b64); }
+    previewBox.innerHTML = '';
+    input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}" style="height:70px; border-radius:6px; border:1px solid #e5e7eb;">`; });
+  }
+
+  document.getElementById('smpForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let smpTypes = [];
+    document.querySelectorAll('.chk-smptype:checked').forEach(el => {
+      if(el.value === 'อื่นๆ') { let otherVal = document.getElementById('f_smpTypeOther').value; if(otherVal.trim() !== '') smpTypes.push(otherVal); } 
+      else { smpTypes.push(el.value); }
+    });
+    if(smpTypes.length === 0) { alert("กรุณาเลือกประเภทของ SMP อย่างน้อย 1 ข้อ"); return; }
+
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังบันทึกข้อมูล...';
+
+    let formData = {
+      title: document.getElementById('f_title').value, smpId: document.getElementById('f_smpId').value,
+      presenter: document.getElementById('f_presenter').value, approver: document.getElementById('f_approver').value,
+      line: document.getElementById('f_line').value, machine: document.getElementById('f_machine').value,
+      smpType: smpTypes.join(', '), techCount: document.getElementById('f_techCount').value,
+      techTime: document.getElementById('f_techTime').value, maintType: document.getElementById('f_maintType').value,
+      workTime: document.getElementById('f_workTime').value, downtime: document.getElementById('f_downtime').value,
+      frequency: document.getElementById('f_frequency').value, mainImage: document.getElementById('f_mainImageBase64').value,
+      ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
+      risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
+      loto: document.querySelector('input[name="r_loto"]:checked').value, riskAssessed: document.querySelector('input[name="r_riskAssessed"]:checked').value
+    };
+
+    let stepsData = [];
+    document.querySelectorAll('.step-card').forEach((card, i) => {
+      let fileInput = card.querySelector('.s-imgs');
+      stepsData.push({
+        stepNo: i + 1, stepName: card.querySelector('.s-task').value, timeTaken: card.querySelector('.s-time').value,
+        typeSymbol: card.querySelector('.s-type').value, description: card.querySelector('.s-desc').value, images: fileInput.compressedArray || []
+      });
+    });
+
+    fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ formData: formData, stepsData: stepsData })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if(res.status === 'success'){
+        alert("บันทึกสำเร็จ! รหัสเอกสาร: " + res.smpId); 
+        document.getElementById('smpForm').reset();
+        document.getElementById('mainImagePreview').innerHTML = ''; 
+        document.getElementById('stepsContainer').innerHTML = '';
+        toggleOtherType(false); stepCounter = 0; showHome();
+      } else {
+        alert("ผิดพลาด: " + res.message);
+      }
+    })
+    .catch(err => alert("การเชื่อมต่อล้มเหลว: " + err))
+    .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
+  });
+
+  // การกำหนดไอคอน
+  function getPPEIcon(name) {
+    switch(name) {
+      case 'ถุงมือ': return 'front_hand'; case 'หมวกนิรภัย': return 'engineering'; case 'หน้ากาก': return 'masks';
+      case 'กันตกจากที่สูง': return 'accessibility_new'; case 'แว่นตา': return 'visibility'; case 'ที่อุดหู': return 'hearing';
+      default: return 'verified';                   
+    }
+  }
+
+  function getRiskIcon(name) {
+    switch(name) {
+      case 'จุดหนีบ': return 'compress'; case 'อุปกรณ์เครื่องมือ': return 'build'; case 'ยกด้วยมือ': return 'fitness_center';    
+      case 'ทำงานที่สูง': return 'height'; case 'สารเคมี': return 'science'; case 'เสียงดัง': return 'volume_up';           
+      default: return 'warning';                    
+    }
+  }
+
+  function renderDetail(data) {
+    currentDetailData = data;
+    let m = data.main;
+    
+    let ppeHtml = m.ppe.filter(p => p.used).map(p => `
+      <div class="d-inline-flex flex-column align-items-center justify-content-center me-4 mb-2">
+        <i class="material-icons text-primary" style="font-size: 38px;">${getPPEIcon(p.name)}</i>
+        <span class="small fw-bold mt-1 text-secondary" style="font-size: 13px;">${p.name}</span>
+      </div>
+    `).join('') || '<span class="text-muted">ไม่มีการระบุ PPE</span>';
+
+    let riskHtml = m.risks.filter(r => r.risk).map(r => `
+      <div class="d-inline-flex flex-column align-items-center justify-content-center me-4 mb-2">
+        <i class="material-icons text-danger" style="font-size: 38px;">${getRiskIcon(r.name)}</i>
+        <span class="small fw-bold mt-1 text-secondary" style="font-size: 13px;">${r.name}</span>
+      </div>
+    `).join('') || '<span class="text-muted">ไม่มีความเสี่ยง</span>';
+
+    let html = `
+      <div class="d-flex align-items-center border-bottom pb-3 mb-4">
+        <img src="logo.png" alt="Company Logo" style="height: 60px; object-fit: contain;">
+        <div class="flex-grow-1 text-center pe-5">
+          <h3 class="fw-bold text-dark mb-1">${m.title}</h3>
+          <h5 class="text-primary m-0">${m.smpId}</h5>
+        </div>
+      </div>
+      
+      <div class="row mb-4 text-dark">
+        <div class="col-md-6 mb-2"><span class="text-muted small">วันที่:</span> <br><b>${m.date}</b></div>
+        <div class="col-md-6 mb-2"><span class="text-muted small">ประเภท SMP:</span> <br><b>${m.smpType}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">นำเสนอโดย:</span> <br><b>${m.presenter}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">อนุมัติโดย:</span> <br><b>${m.approver || '-'}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">แผนก / ไลน์:</span> <br><b>${m.line || '-'}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">เครื่องจักร:</span> <br><b>${m.machine || '-'}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">ประเภทบำรุงรักษา:</span> <br><b>${m.maintType}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">ความถี่:</span> <br><b>${m.frequency || '-'}</b></div>
+      </div>
+      
+      <div class="p-4 bg-light rounded-4 border mb-4">
+        <h6 class="fw-bold text-dark mb-3"><i class="material-icons text-warning align-middle">security</i> ความปลอดภัย & การป้องกัน</h6>
+        <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">PPE ที่ใช้งาน:</p><div class="d-flex flex-wrap">${ppeHtml}</div></div>
+        <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">ความเสี่ยง:</p><div class="d-flex flex-wrap">${riskHtml}</div></div>
+        <div class="mt-2 text-dark"><span><b>ต้องการ LOTO:</b> ${m.loto}</span> &nbsp;|&nbsp; <span><b>ประเมินความเสี่ยงแล้ว:</b> ${m.riskAssessed}</span></div>
+      </div>
+
+      ${m.mainImage ? `<div class="mb-5 text-center"><img src="${m.mainImage}" style="max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>` : ''}
+
+      <h5 class="fw-bold mb-3 border-start border-4 border-success ps-2">ขั้นตอนการทำงาน</h5>
+      <div class="table-responsive">
+        <table class="table table-hover border align-middle">
+          <thead class="table-light"><tr><th width="5%" class="text-center">#</th><th width="25%">ขั้นตอน</th><th width="15%">ประเภท</th><th width="10%">เวลา(นาที)</th><th width="45%">รายละเอียด & รูปภาพ</th></tr></thead>
+          <tbody>
+    `;
+
+    data.steps.forEach(s => {
+      let badgeClass = "bg-white text-dark border";
+      if(s.typeSymbol.includes('ความปลอดภัย')) badgeClass = "bg-danger text-white border-danger";
+      else if(s.typeSymbol.includes('คุณภาพ')) badgeClass = "bg-primary text-white border-primary";
+      else if(s.typeSymbol.includes('สิ่งแวดล้อม')) badgeClass = "bg-success text-white border-success";
+      else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
+
+      let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
+      html += `<tr><td class="text-center fw-bold text-muted">${s.stepNo}</td><td class="fw-bold">${s.stepName}</td>
+               <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
+               <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
+    });
+
+    html += `</tbody></table></div>`;
+    document.getElementById('docContent').innerHTML = html;
+  }
+
+  function downloadCSV() {
+    if(!currentDetailData) return;
+    let m = currentDetailData.main;
+    let csvData = [
+      ["ข้อมูล SMP"], ["รหัส", m.smpId, "ชื่อเรื่อง", m.title], ["วันที่", m.date, "ประเภท SMP", m.smpType],
+      ["นำเสนอโดย", m.presenter, "อนุมัติโดย", m.approver], ["แผนก", m.line, "เครื่องจักร", m.machine],
+      ["ประเภทการบำรุงรักษา", m.maintType, "ความถี่", m.frequency], ["LOTO", m.loto, "ประเมินความเสี่ยง", m.riskAssessed],
+      [], ["ขั้นตอนการทำงาน"], ["ลำดับ", "ขั้นตอน", "ประเภท", "เวลา", "รายละเอียด", "ลิงก์รูปภาพ"]
+    ];
+    currentDetailData.steps.forEach(s => { csvData.push([s.stepNo, s.stepName, s.typeSymbol, s.timeTaken, s.description, s.images.join(", ")]); });
+    let csvContent = "\uFEFF";
+    csvData.forEach(row => { let rowString = row.map(item => `"${(item || '').toString().replace(/"/g, '""')}"`).join(","); csvContent += rowString + "\r\n"; });
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SMP_${m.smpId}.csv`;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  }
+</script>
+</body>
+</html>
