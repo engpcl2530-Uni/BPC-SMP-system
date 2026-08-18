@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- แท็กนี้ป้องกันไม่ให้ Google, Bing หรือ Search Engine อื่นๆ ค้นหาเว็บนี้เจอ -->
   <meta name="robots" content="noindex, nofollow">
   <meta name="googlebot" content="noindex, nofollow">
   
@@ -31,13 +29,26 @@
     .form-control, .form-select { border-radius: 10px; border: 1px solid #D1D5DB; padding: 10px 15px; font-size: 0.95rem; background-color: #F9FAFB; }
     .form-control:focus, .form-select:focus { border-color: #2563EB; background-color: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
     .required-star { color: #EF4444; }
-    .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 85px; height: 85px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; }
+    
+    /* 🔴 CSS สำหรับ Icon แบบรูปภาพ (อัปเดตใหม่) */
+    .icon-checkbox { 
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center; 
+      width: 105px; height: 110px; cursor: pointer; position: relative; 
+      background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; 
+      padding: 10px;
+    }
     .icon-checkbox:hover { background: #E5E7EB; }
-    .icon-checkbox .material-icons { font-size: 32px; color: #2563EB; transition: 0.2s; }
-    .icon-checkbox span.label { font-size: 12px; margin-top: 6px; color: #374151; font-weight: 500; text-align: center; line-height: 1.2; }
-    .icon-checkbox.not-used { background: white; border: 2px dashed #D1D5DB; opacity: 0.6; }
-    .icon-checkbox.not-used .material-icons { color: #9CA3AF; }
-    .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 46px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; }
+    .custom-icon-img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; transition: all 0.2s; }
+    .icon-checkbox span.label { font-size: 12px; color: #374151; font-weight: 500; text-align: center; line-height: 1.1; }
+    
+    .icon-checkbox.not-used { background: white; border: 2px dashed #D1D5DB; opacity: 0.7; }
+    .icon-checkbox.not-used .custom-icon-img { filter: grayscale(100%); opacity: 0.25; }
+    .icon-checkbox.not-used span.label { color: #9CA3AF; }
+    .icon-checkbox.not-used::after { 
+      content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; 
+      position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px;
+    }
+
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
     .btn-main { background: #2563EB; color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; }
     .btn-main:hover { background: #1D4ED8; color: white; transform: translateY(-2px); }
@@ -118,37 +129,86 @@
         <div class="card-custom">
           <div class="section-title"><i class="material-icons text-warning">security</i> ความปลอดภัย (Safety)</div>
           
-          <label class="form-label mb-2">อุปกรณ์ป้องกันส่วนบุคคล (PPE) <span class="text-muted fw-normal fs-6">- คลิกไอคอนเพื่อกากบาทหาก "ไม่ใช้งาน"</span></label>
+          <label class="form-label mb-2">อุปกรณ์ป้องกันส่วนบุคคล (PPE) <span class="text-muted fw-normal fs-6">- คลิกเพื่อกากบาทหาก "ไม่ใช้งาน"</span></label>
           <div id="ppeBox" class="d-flex flex-wrap gap-2 mb-4">
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ถุงมือ"><i class="material-icons">front_hand</i><span class="label">ถุงมือ</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หมวกนิรภัย"><i class="material-icons">engineering</i><span class="label">หมวกนิรภัย</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หน้ากาก"><i class="material-icons">masks</i><span class="label">หน้ากาก</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง"><i class="material-icons">accessibility_new</i><span class="label">กันตกที่สูง</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา"><i class="material-icons">visibility</i><span class="label">แว่นตา</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู"><i class="material-icons">hearing</i><span class="label">ที่อุดหู</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ถุงมือ">
+              <img src="ppe_gloves.png" class="custom-icon-img" alt="ถุงมือ">
+              <span class="label">ถุงมือ</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หมวกนิรภัย">
+              <img src="ppe_helmet.png" class="custom-icon-img" alt="หมวกนิรภัย">
+              <span class="label">หมวกนิรภัย</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หน้ากาก">
+              <img src="ppe_mask.png" class="custom-icon-img" alt="หน้ากาก">
+              <span class="label">หน้ากาก</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง">
+              <img src="ppe_harness.png" class="custom-icon-img" alt="กันตกจากที่สูง">
+              <span class="label">กันตกที่สูง</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา">
+              <img src="ppe_glasses.png" class="custom-icon-img" alt="แว่นตา">
+              <span class="label">แว่นตา</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู">
+              <img src="ppe_headphone.png" class="custom-icon-img" alt="ที่อุดหู">
+              <span class="label">ที่อุดหู</span>
+            </div>
           </div>
 
-          <div class="mb-4 bg-light p-3 rounded-3 border">
-            <label class="form-label">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
-            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ต้องการ" required><label class="form-check-label">ต้องการ</label></div>
-            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ไม่ต้องการ"><label class="form-check-label">ไม่ต้องการ</label></div>
+          <!-- เพิ่ม UI รูปภาพ LOTO -->
+          <div class="mb-4 bg-light p-3 rounded-3 border d-flex align-items-center gap-4">
+            <img src="icon_loto.png" alt="LOTO Icon" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+            <div>
+              <label class="form-label mb-2">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
+              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ต้องการ" required><label class="form-check-label">ต้องการ</label></div>
+              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ไม่ต้องการ"><label class="form-check-label">ไม่ต้องการ</label></div>
+            </div>
           </div>
 
-          <label class="form-label mb-2">ความเสี่ยงอันตราย <span class="text-muted fw-normal fs-6">- คลิกไอคอนเพื่อกากบาทหาก "ไม่มีความเสี่ยงนี้"</span></label>
+          <label class="form-label mb-2">ความเสี่ยงอันตราย <span class="text-muted fw-normal fs-6">- คลิกเพื่อกากบาทหาก "ไม่มีความเสี่ยงนี้"</span></label>
           <div id="riskBox" class="d-flex flex-wrap gap-2 mb-4">
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ"><i class="material-icons">compress</i><span class="label">จุดหนีบ</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ"><i class="material-icons">build</i><span class="label">อุปกรณ์/เครื่องมือ</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ยกด้วยมือ"><i class="material-icons">fitness_center</i><span class="label">ยกด้วยมือ</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ทำงานที่สูง"><i class="material-icons">height</i><span class="label">ที่สูง</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="สารเคมี"><i class="material-icons">science</i><span class="label">สารเคมี</span></div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสียงดัง"><i class="material-icons">volume_up</i><span class="label">เสียงดัง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ">
+              <img src="risk_gear.png" class="custom-icon-img" alt="จุดหนีบ">
+              <span class="label">จุดหนีบ</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ">
+              <img src="risk_wrech.png" class="custom-icon-img" alt="อุปกรณ์เครื่องมือ">
+              <span class="label">อุปกรณ์/เครื่องมือ</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ยกด้วยมือ">
+              <img src="risk_heavyobject.png" class="custom-icon-img" alt="ยกด้วยมือ">
+              <span class="label">ยกด้วยมือ</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ทำงานที่สูง">
+              <img src="risk_highground.png" class="custom-icon-img" alt="ทำงานที่สูง">
+              <span class="label">ที่สูง</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="สารเคมี">
+              <img src="risk_chmisrty.png" class="custom-icon-img" alt="สารเคมี">
+              <span class="label">สารเคมี</span>
+            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสียงดัง">
+              <img src="risk_loudnoise.png" class="custom-icon-img" alt="เสียงดัง">
+              <span class="label">เสียงดัง</span>
+            </div>
+            <!-- เพิ่มความเสี่ยงรถโฟล์คลิฟต์จากภาพ -->
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="รถโฟล์คลิฟต์">
+              <img src="risk_car.png" class="custom-icon-img" alt="รถโฟล์คลิฟต์">
+              <span class="label">โฟล์คลิฟต์/รถยนต์</span>
+            </div>
           </div>
 
-          <div class="mb-2 bg-light p-3 rounded-3 border">
-            <label class="form-label">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
-            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ใช่" required><label class="form-check-label">ใช่</label></div>
-            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่ใช่"><label class="form-check-label">ไม่ใช่</label></div>
-            <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่เกี่ยวข้อง"><label class="form-check-label">ไม่เกี่ยวข้อง</label></div>
+          <!-- เพิ่ม UI รูปภาพ ประเมินความเสี่ยง -->
+          <div class="mb-2 bg-light p-3 rounded-3 border d-flex align-items-center gap-4">
+            <img src="icon_risk_assessed.png" alt="Risk Assessed Icon" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+            <div>
+              <label class="form-label mb-2">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
+              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ใช่" required><label class="form-check-label">ใช่</label></div>
+              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่ใช่"><label class="form-check-label">ไม่ใช่</label></div>
+              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่เกี่ยวข้อง"><label class="form-check-label">ไม่เกี่ยวข้อง</label></div>
+            </div>
           </div>
         </div>
 
@@ -391,38 +451,54 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
-  // การกำหนดไอคอน
+  // ==========================================
+  // ฟังก์ชันดึงรูปภาพแทน Material Icon
+  // ==========================================
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'front_hand'; case 'หมวกนิรภัย': return 'engineering'; case 'หน้ากาก': return 'masks';
-      case 'กันตกจากที่สูง': return 'accessibility_new'; case 'แว่นตา': return 'visibility'; case 'ที่อุดหู': return 'hearing';
-      default: return 'verified';                   
+      case 'ถุงมือ': return 'ppe_gloves.png'; 
+      case 'หมวกนิรภัย': return 'ppe_helmet.png'; 
+      case 'หน้ากาก': return 'ppe_mask.png';
+      case 'กันตกจากที่สูง': return 'ppe_harness.png'; 
+      case 'แว่นตา': return 'ppe_glasses.png'; 
+      case 'ที่อุดหู': return 'ppe_headphone.png';
+      default: return '';                   
     }
   }
 
   function getRiskIcon(name) {
     switch(name) {
-      case 'จุดหนีบ': return 'compress'; case 'อุปกรณ์เครื่องมือ': return 'build'; case 'ยกด้วยมือ': return 'fitness_center';    
-      case 'ทำงานที่สูง': return 'height'; case 'สารเคมี': return 'science'; case 'เสียงดัง': return 'volume_up';           
-      default: return 'warning';                    
+      case 'จุดหนีบ': return 'risk_gear.png'; 
+      case 'อุปกรณ์เครื่องมือ': return 'risk_wrech.png'; 
+      case 'ยกด้วยมือ': return 'risk_heavyobject.png';    
+      case 'ทำงานที่สูง': return 'risk_highground.png'; 
+      case 'สารเคมี': return 'risk_chmisrty.png'; 
+      case 'เสียงดัง': return 'risk_loudnoise.png';  
+      case 'รถโฟล์คลิฟต์': return 'risk_car.png';           
+      default: return '';                    
     }
   }
 
+  // ==========================================
+  // แสดงผลหน้าตรวจสอบเอกสาร
+  // ==========================================
   function renderDetail(data) {
     currentDetailData = data;
     let m = data.main;
     
+    // โชว์รูปภาพ PPE ใน Detail View
     let ppeHtml = m.ppe.filter(p => p.used).map(p => `
       <div class="d-inline-flex flex-column align-items-center justify-content-center me-4 mb-2">
-        <i class="material-icons text-primary" style="font-size: 38px;">${getPPEIcon(p.name)}</i>
-        <span class="small fw-bold mt-1 text-secondary" style="font-size: 13px;">${p.name}</span>
+        <img src="${getPPEIcon(p.name)}" style="width: 55px; height: 55px; object-fit: contain;">
+        <span class="small fw-bold mt-2 text-secondary" style="font-size: 13px;">${p.name}</span>
       </div>
     `).join('') || '<span class="text-muted">ไม่มีการระบุ PPE</span>';
 
+    // โชว์รูปภาพ Risk ใน Detail View
     let riskHtml = m.risks.filter(r => r.risk).map(r => `
       <div class="d-inline-flex flex-column align-items-center justify-content-center me-4 mb-2">
-        <i class="material-icons text-danger" style="font-size: 38px;">${getRiskIcon(r.name)}</i>
-        <span class="small fw-bold mt-1 text-secondary" style="font-size: 13px;">${r.name}</span>
+        <img src="${getRiskIcon(r.name)}" style="width: 55px; height: 55px; object-fit: contain;">
+        <span class="small fw-bold mt-2 text-secondary" style="font-size: 13px;">${r.name}</span>
       </div>
     `).join('') || '<span class="text-muted">ไม่มีความเสี่ยง</span>';
 
@@ -450,7 +526,19 @@
         <h6 class="fw-bold text-dark mb-3"><i class="material-icons text-warning align-middle">security</i> ความปลอดภัย & การป้องกัน</h6>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">PPE ที่ใช้งาน:</p><div class="d-flex flex-wrap">${ppeHtml}</div></div>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">ความเสี่ยง:</p><div class="d-flex flex-wrap">${riskHtml}</div></div>
-        <div class="mt-2 text-dark"><span><b>ต้องการ LOTO:</b> ${m.loto}</span> &nbsp;|&nbsp; <span><b>ประเมินความเสี่ยงแล้ว:</b> ${m.riskAssessed}</span></div>
+        
+        <!-- ส่วนแสดง LOTO และ การประเมินความเสี่ยง ด้วยรูปภาพ -->
+        <div class="d-flex flex-wrap gap-5 mt-3 text-dark">
+          <div class="d-flex align-items-center gap-3">
+             <img src="icon_loto.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'">
+             <div><span class="text-muted small d-block">ต้องการ LOTO:</span> <span class="fw-bold fs-6">${m.loto}</span></div>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+             <img src="icon_risk_assessed.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'">
+             <div><span class="text-muted small d-block">ประเมินความเสี่ยงแล้ว:</span> <span class="fw-bold fs-6">${m.riskAssessed}</span></div>
+          </div>
+        </div>
+
       </div>
 
       ${m.mainImage ? `<div class="mb-5 text-center"><img src="${m.mainImage}" style="max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>` : ''}
