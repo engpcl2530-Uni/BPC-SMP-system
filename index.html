@@ -594,7 +594,7 @@
       m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
 
       // ตรวจสอบและกากบาท ความเสี่ยง
-      const riskMap = {'รถโฟล์คลิฟต์': 'X13', 'จุดหนีบ': 'Z13', 'อุปกรณ์เครื่องมือ': 'AB13', 'ยกด้วยมือ': 'AD13', 'ทำงานที่สูง': 'AG13', 'สารเคมี': 'AI13', 'เสียงดัง': 'AK13'};
+      const riskMap = {'รถยก': 'X13', 'จุดหนีบ': 'Z13', 'อุปกรณ์เครื่องมือ': 'AB13', 'ยกด้วยมือ': 'AD13', 'ทำงานที่สูง': 'AG13', 'สารเคมี': 'AI13', 'เสียงดัง': 'AK13'};
       m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
 
       // แทรกรูป Main Image บนตาราง
@@ -610,7 +610,7 @@
       }
 
       // 🔴 เลขบรรทัดของแต่ละขั้นตอน (ปรับเลขให้ตรงกับไฟล์ Excel ของคุณได้เลย)
-      const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
+      const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 83, 89, 95, 101, 107, 113, 119]; 
       
       for (let i = 0; i < currentDetailData.steps.length; i++) {
         let s = currentDetailData.steps[i];
