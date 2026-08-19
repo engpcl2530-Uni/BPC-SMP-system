@@ -7,8 +7,6 @@
   <meta name="googlebot" content="noindex, nofollow">
   
   <title>SMP Management System</title>
-  
-  <!-- 🔴 ดึงรูปโลโก้มาแสดงบน Tab ของเบราว์เซอร์ -->
   <link rel="icon" type="image/png" href="images/logo.png">
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -197,7 +195,7 @@
 
 <script>
   // =========================================================
-  // 🔴 เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App ของคุณ 🔴
+  // 🔴 1. เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App ของคุณ 🔴
   // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -491,7 +489,7 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      // เริ่มนับขั้นตอนที่ 0 ตามต้องการ
+      // ลำดับขั้นตอนจะเริ่มที่ 0 ตามต้องการ
       html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
@@ -547,7 +545,7 @@
       worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 (ใส่เครื่องหมายติ๊กถูก ✓)
+      // 2. ข้อมูลแถวที่ 6 (ติ๊กถูก ✓)
       const tick = '✓';
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
@@ -556,28 +554,31 @@
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
       worksheet.getCell('AD6').value = m.workTime || '';
-      worksheet.getCell('AJ6').value = m.downtime || ''; // ใส่ในช่องข้อมูล Downtime (หลัง AF6)
-      worksheet.getCell('AO6').value = m.frequency || ''; // ใส่ในช่องข้อมูล Freq (หลัง AK6)
+      worksheet.getCell('AJ6').value = m.downtime || ''; 
+      worksheet.getCell('AO6').value = m.frequency || ''; 
 
-      // 3. แทรกรูปภาพ PPE, LOTO, Risk ลงใน Template (กันรูปเก่าหาย)
+      // 3. จัดเรียงรูปภาพ PPE ลงในช่อง F9 ถึง S15 และ Risk Icons
       const iconPlacements = [
-        { url: 'images/icon_loto.png', col: 19, row: 10.5, w: 45, h: 55 },
-        { url: 'images/icon_risk_assessed.png', col: 38, row: 10.5, w: 45, h: 55 },
-        // PPE Icons
-        { url: 'images/ppe_gloves.png', col: 7.2, row: 10.5, w: 45, h: 50 },
-        { url: 'images/ppe_helmet.png', col: 10.2, row: 10.5, w: 45, h: 50 },
-        { url: 'images/ppe_mask.png', col: 13.2, row: 10.5, w: 45, h: 50 },
-        { url: 'images/ppe_harness.png', col: 16.2, row: 10.5, w: 45, h: 50 },
-        { url: 'images/ppe_glasses.png', col: 19.2, row: 10.5, w: 45, h: 50 },
-        { url: 'images/ppe_headphone.png', col: 22.2, row: 10.5, w: 45, h: 50 },
-        // Risk Icons
-        { url: 'images/risk_car.png', col: 23.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_gear.png', col: 25.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_wrech.png', col: 27.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_heavyobject.png', col: 29.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_highground.png', col: 32.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_chmisrty.png', col: 34.8, row: 11.5, w: 35, h: 35 },
-        { url: 'images/risk_loudnoise.png', col: 36.8, row: 11.5, w: 35, h: 35 }
+        // รูป LOTO และ การประเมินความเสี่ยง
+        { url: 'images/icon_loto.png', col: 19.5, row: 9.2, w: 55, h: 65 },
+        { url: 'images/icon_risk_assessed.png', col: 40.5, row: 9.2, w: 55, h: 65 },
+        
+        // 🔴 รูป PPE จัดให้อยู่ในกรอบ F9 - S15
+        { url: 'images/ppe_gloves.png', col: 5.1, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_helmet.png', col: 7.3, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_mask.png', col: 9.5, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_harness.png', col: 11.7, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_glasses.png', col: 13.9, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_headphone.png', col: 16.1, row: 8.5, w: 75, h: 90 },
+        
+        // 🔴 รูป Risk Icons จัดให้มีระยะห่างพอดี
+        { url: 'images/risk_car.png', col: 24.2, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_gear.png', col: 26.2, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_wrech.png', col: 28.2, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_heavyobject.png', col: 30.2, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_highground.png', col: 32.5, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_chmisrty.png', col: 34.5, row: 9.5, w: 45, h: 55 },
+        { url: 'images/risk_loudnoise.png', col: 36.5, row: 9.5, w: 45, h: 55 }
       ];
 
       for (let icon of iconPlacements) {
@@ -588,7 +589,7 @@
         }
       }
 
-      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (ใช้ติ๊กถูก ✓)
+      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (✓)
       if (m.loto === 'ต้องการ') worksheet.getCell('V11').value = tick;
       else worksheet.getCell('V14').value = tick; 
 
@@ -596,7 +597,7 @@
       else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AO13').value = tick;
       else worksheet.getCell('AO15').value = tick;
 
-      // 5. กากบาท ❌ สีแดง สำหรับอุปกรณ์และอันตรายที่ ไม่ได้ใช้งาน
+      // 5. พิมพ์ ❌ ทับอันที่ไม่ได้ใช้
       function setRedCross(cellAddress) {
         const cell = worksheet.getCell(cellAddress);
         cell.value = '❌'; 
@@ -604,26 +605,26 @@
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
 
-      // วาง ❌ ไว้ที่เซลล์ด้านขวาของรูป เพื่อให้ตัวหนังสือไม่จมไปหลังรูป
-      const ppeMap = {'ถุงมือ': 'I12', 'หมวกนิรภัย': 'L12', 'หน้ากาก': 'O12', 'กันตกจากที่สูง': 'R12', 'แว่นตา': 'U12', 'ที่อุดหู': 'X12'};
+      // จัดตำแหน่ง ❌ ให้อยู่มุมล่างขวาของรูปพอดี
+      const ppeMap = {'ถุงมือ': 'G14', 'หมวกนิรภัย': 'I14', 'หน้ากาก': 'K14', 'กันตกจากที่สูง': 'N14', 'แว่นตา': 'P14', 'ที่อุดหู': 'R14'};
       m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
 
-      const riskMap = {'รถโฟล์คลิฟต์': 'Y13', 'จุดหนีบ': 'AA13', 'อุปกรณ์เครื่องมือ': 'AC13', 'ยกด้วยมือ': 'AE13', 'ทำงานที่สูง': 'AH13', 'สารเคมี': 'AJ13', 'เสียงดัง': 'AL13'};
+      const riskMap = {'รถโฟล์คลิฟต์': 'Z13', 'จุดหนีบ': 'AB13', 'อุปกรณ์เครื่องมือ': 'AD13', 'ยกด้วยมือ': 'AF13', 'ทำงานที่สูง': 'AI13', 'สารเคมี': 'AK13', 'เสียงดัง': 'AM13'};
       m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
 
-      // 6. จัดตำแหน่งภาพสเก็ต/การทำงานหลัก ให้อยู่ตรงกลาง (คลุมทับโลโก้ BPC)
+      // 6. รูปการทำงานหลัก
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 8, row: 6.2 }, // วางตรงคอลัมน์ I แถว 7 (ตรงกลางเป๊ะ)
+            tl: { col: 8, row: 6.2 }, 
             ext: { width: 500, height: 280 }
           });
         }
       }
 
-      // 7. ดึงสัญลักษณ์ Category จาก Template ต้นฉบับมาใช้
+      // 7. ดึงสัญลักษณ์ Category ต้นฉบับมาใช้
       const safetySym = worksheet.getCell('M16').value || '➕'; const safetyFont = worksheet.getCell('M16').font;
       const qualitySym = worksheet.getCell('Q16').value || '♦'; const qualityFont = worksheet.getCell('Q16').font;
       const envSym = worksheet.getCell('T16').value || '■'; const envFont = worksheet.getCell('T16').font;
@@ -636,13 +637,13 @@
         if (i >= stepRows.length) break; 
         let r = stepRows[i]; 
         
-        // ให้ลำดับขั้นตอนเริ่มที่ 0
+        // ลำดับขั้นตอนเริ่มที่ 0
         worksheet.getCell('B' + r).value = s.stepNo - 1; 
         worksheet.getCell('C' + r).value = s.stepName;
         worksheet.getCell('J' + r).value = s.timeTaken || '';
         worksheet.getCell('M' + r).value = s.description;
 
-        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์ Wingdings ในไฟล์พี่วิศวกร
+        // วางสัญลักษณ์
         let targetSym = ''; let targetFont = null;
         if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = safetySym; targetFont = safetyFont; }
         else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = qualitySym; targetFont = qualityFont; }
@@ -654,14 +655,14 @@
         if(targetFont) cellK.font = targetFont;
         cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // แทรกรูปภาพย่อยของแต่ละขั้นตอน (รองรับหลายรูป)
+        // แทรกรูปภาพย่อยเรียงต่อกัน
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
             if (stepImgBase64) {
               const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
               worksheet.addImage(stepImgId, {
-                tl: { col: 25 + (imgIndex * 3), row: r - 1 }, // รูปจะเรียงกันไปทางขวาทีละ 3 คอลัมน์
+                tl: { col: 25 + (imgIndex * 3), row: r - 1 }, // รูปถัดไปจะขยับไปทางขวาทีละ 3 คอลัมน์
                 ext: { width: 130, height: 85 } 
               });
             }
