@@ -182,7 +182,7 @@
 
 <script>
   // =========================================================
-  // 🔴 API URL ใหม่ของคุณ 
+  // 🔴 API URL ของคุณ
   // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -526,10 +526,10 @@
       worksheet.getCell('R3').value = m.smpId;
       worksheet.getCell('Y3').value = m.presenter;
       
-      // 🔴 ขยับ "อนุมัติโดย" ไปทางขวา 1 ช่อง (ลงที่ AE3) เพื่อไม่ให้ทับคำถาม
-      worksheet.getCell('AE3').value = m.approver || ''; 
+      // 🔴 ขยับ "อนุมัติโดย" ไปที่คอลัมน์ AJ (ช่อง AJ3)
+      worksheet.getCell('AJ3').value = m.approver || ''; 
       
-      worksheet.getCell('AN4').value = m.date.split(' ')[0]; // แสดงแค่วันที่
+      worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
       // 2. ข้อมูลแถวที่ 6 
       worksheet.getCell('S6').value = m.techCount || '';
@@ -570,7 +570,7 @@
       if (crossBase64) {
         let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
         
-        // 🔴 พิกัดกากบาท PPE: ให้ห่างช่องละ 2 คอลัมน์ (ขนาด 2.53 x 1.49 cm / 70x45 px คลุมมิดสวยงาม)
+        // 🔴 พิกัดกากบาท PPE: ห่างช่องละ 2 คอลัมน์ และปรับขนาดเหลือ 55x55 ให้พอดีรูป 1.5 cm 
         const ppeCrossCoords = {
           'ถุงมือ': { col: 5.2, row: 10.5 },
           'หมวกนิรภัย': { col: 7.2, row: 10.5 },
@@ -582,7 +582,7 @@
           'เสื้อสะท้อนแสง': { col: 19.2, row: 10.5 }
         };
 
-        // 🔴 พิกัดกากบาทความเสี่ยง
+        // พิกัดกากบาทความเสี่ยง
         const riskCrossCoords = {
           'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
           'จุดหนีบ': { col: 23.5, row: 10.2 },       
@@ -598,7 +598,7 @@
           if (!p.used && ppeCrossCoords[p.name]) {
             worksheet.addImage(crossId, { 
               tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, 
-              ext: { width: 70, height: 45 } 
+              ext: { width: 55, height: 55 } // กากบาท 55x55 ครอบรูป 1.5 cm พอดี
             });
           } 
         });
