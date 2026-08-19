@@ -551,7 +551,9 @@
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(arrayBuffer);
-      const worksheet = workbook.getWorksheet(1);
+      // ดึงชื่อชีตแรกสุดที่มีในไฟล์มาใช้
+      const firstSheetName = workbook.worksheets[0].name; 
+      const worksheet = workbook.getWorksheet(firstSheetName);
 
       // กรอกข้อมูลทั่วไป (ระบุเซลล์ซ้ายบนสุดของช่องที่ผสานไว้)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
