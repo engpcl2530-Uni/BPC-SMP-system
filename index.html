@@ -4,13 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="googlebot" content="noindex, nofollow">
-  
   <title>SMP Management System</title>
   
-  <!-- โลโก้ Web Title -->
   <link rel="icon" type="image/png" href="images/logo.png">
-  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -125,6 +121,9 @@
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง"><img src="images/ppe_harness.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">กันตกที่สูง</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา"><img src="images/ppe_glasses.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">แว่นตา</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู"><img src="images/ppe_headphone.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">ที่อุดหู</span></div>
+            <!-- เพิ่ม PPE ใหม่ 2 ชิ้น -->
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="รองเท้าเซฟตี้"><img src="images/ppe_foot.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">รองเท้าเซฟตี้</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสื้อสะท้อนแสง"><img src="images/ppe_vis_cloth.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">เสื้อสะท้อนแสง</span></div>
           </div>
 
           <div class="mb-4 bg-light p-3 rounded-3 border d-flex align-items-center gap-4">
@@ -396,11 +395,17 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
+  // อัปเดตฟังก์ชันดึงรูปภาพให้ครอบคลุมของใหม่
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-      case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-      case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'ถุงมือ': return 'images/ppe_gloves.png'; 
+      case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+      case 'หน้ากาก': return 'images/ppe_mask.png'; 
+      case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+      case 'แว่นตา': return 'images/ppe_glasses.png'; 
+      case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png';
+      case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
       default: return '';                   
     }
   }
@@ -473,6 +478,7 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
+      // ลำดับขั้นตอนเริ่มที่ 0
       html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
@@ -483,7 +489,7 @@
   }
 
   // =========================================================
-  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template_2 ต้นฉบับ
+  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx)
   // =========================================================
 
   async function fetchImageAsBase64(url) {
@@ -510,9 +516,9 @@
     btn.disabled = true;
 
     try {
-      // 🚨 โหลดเทมเพลตใหม่ชื่อ SMP-Template.xlsx
-      const response = await fetch('SMP-Template.xlsx');
-      if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
+      // โหลด Template ที่ฝังรูปมาให้แล้ว
+      const response = await fetch('SMP-Template_2.xlsx');
+      if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template_2.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
 
       const workbook = new ExcelJS.Workbook();
@@ -520,7 +526,7 @@
       const firstSheetName = workbook.worksheets[0].name; 
       const worksheet = workbook.getWorksheet(firstSheetName);
 
-      // 1. ข้อมูลหัวกระดาษ (แสดงแค่วันที่)
+      // 1. ข้อมูลหัวกระดาษ (แสดงแค่วันที่ ไม่เอาเวลา)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
       worksheet.getCell('E3').value = m.line; 
       worksheet.getCell('E4').value = m.machine; 
@@ -529,7 +535,7 @@
       worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 (ติ๊กถูก ✓)
+      // 2. ข้อมูลแถวที่ 6 (ใช้เครื่องหมาย ✓)
       const tick = '✓';
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
@@ -541,38 +547,40 @@
       worksheet.getCell('AF6').value = m.downtime || ''; 
       worksheet.getCell('AK6').value = m.frequency || ''; 
 
-      // 3. สถานะ LOTO และ ประเมินความเสี่ยง (ขยับขวา 1 ช่องไปที่คอลัมน์ W และ AP)
-      if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = tick;
-      else worksheet.getCell('W14').value = tick; 
+      // 3. สถานะ LOTO และ ประเมินความเสี่ยง (ขยับขวา 1 ช่องให้ตรงสี่เหลี่ยมเป๊ะๆ)
+      if (m.loto === 'ต้องการ') worksheet.getCell('X11').value = tick;
+      else worksheet.getCell('X14').value = tick; 
 
-      if (m.riskAssessed === 'ใช่') worksheet.getCell('AP11').value = tick;
-      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = tick;
-      else worksheet.getCell('AP15').value = tick;
+      if (m.riskAssessed === 'ใช่') worksheet.getCell('AQ11').value = tick;
+      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AQ13').value = tick;
+      else worksheet.getCell('AQ15').value = tick;
 
-      // 4. วางรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
+      // 4. โหลดรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
       let crossBase64 = await fetchImageAsBase64('images/cross.png');
       if (crossBase64) {
         let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
         
-        // พิกัดกากบาท PPE: คลุมทับเต็มๆ เซลล์
+        // 🔴 พิกัดกากบาท PPE: ให้ห่างช่องละ 2 คอลัมน์ (ขนาดรูปกากบาทปรับเป็น 55x55 ให้คลุมมิด)
         const ppeCrossCoords = {
-          'ถุงมือ': { col: 5.5, row: 9.5 },
-          'หมวกนิรภัย': { col: 7.8, row: 9.5 },
-          'หน้ากาก': { col: 10.1, row: 9.5 },
-          'กันตกจากที่สูง': { col: 12.4, row: 9.5 },
-          'แว่นตา': { col: 14.7, row: 9.5 },
-          'ที่อุดหู': { col: 17.0, row: 9.5 }
+          'ถุงมือ': { col: 5.5, row: 9.5 },         // คอลัมน์ F-G
+          'หมวกนิรภัย': { col: 7.5, row: 9.5 },     // คอลัมน์ H-I
+          'หน้ากาก': { col: 9.5, row: 9.5 },        // คอลัมน์ J-K
+          'กันตกจากที่สูง': { col: 11.5, row: 9.5 }, // คอลัมน์ L-M
+          'แว่นตา': { col: 13.5, row: 9.5 },        // คอลัมน์ N-O
+          'ที่อุดหู': { col: 15.5, row: 9.5 },      // คอลัมน์ P-Q
+          'รองเท้าเซฟตี้': { col: 17.5, row: 9.5 }, // คอลัมน์ R-S
+          'เสื้อสะท้อนแสง': { col: 19.5, row: 9.5 } // คอลัมน์ T-U
         };
 
-        // พิกัดกากบาทความเสี่ยง: (ขยับซ้าย/ขวา ตามรีเควสแล้ว)
+        // 🔴 พิกัดกากบาทความเสี่ยง (ขยับซ้าย-ขวา ตามรีเควสเป๊ะๆ)
         const riskCrossCoords = {
-          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
-          'จุดหนีบ': { col: 24.5, row: 10.2 },       // ขยับซ้าย 1
-          'อุปกรณ์เครื่องมือ': { col: 26.5, row: 10.2 }, // ขยับซ้าย 1
+          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 
+          'จุดหนีบ': { col: 23.5, row: 10.2 },        // ขยับซ้าย 1 (24.5 -> 23.5)
+          'อุปกรณ์เครื่องมือ': { col: 25.5, row: 10.2 },  // ขยับซ้าย 1 (26.5 -> 25.5)
           'ยกด้วยมือ': { col: 29.5, row: 10.2 },
           'ทำงานที่สูง': { col: 31.5, row: 10.2 },
-          'สารเคมี': { col: 34.5, row: 10.2 },       // ขยับขวา 1
-          'เสียงดัง': { col: 36.5, row: 10.2 }       // ขยับขวา 1
+          'สารเคมี': { col: 35.5, row: 10.2 },        // ขยับขวา 1 (34.5 -> 35.5)
+          'เสียงดัง': { col: 37.5, row: 10.2 }        // ขยับขวา 1 (36.5 -> 37.5)
         };
 
         // แปะกากบาททับ PPE ที่ไม่ได้เลือก
@@ -580,7 +588,7 @@
           if (!p.used && ppeCrossCoords[p.name]) {
             worksheet.addImage(crossId, { 
               tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, 
-              ext: { width: 50, height: 50 } 
+              ext: { width: 55, height: 55 } 
             });
           } 
         });
@@ -590,19 +598,19 @@
           if (!r.risk && riskCrossCoords[r.name]) {
             worksheet.addImage(crossId, { 
               tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, 
-              ext: { width: 40, height: 40 } 
+              ext: { width: 45, height: 45 } 
             });
           } 
         });
       }
 
-      // 5. รูปการทำงานหลัก กึ่งกลางคอลัมน์ U พอดีเป๊ะ
+      // 5. รูปการทำงานหลัก ขยับให้จุดศูนย์กลางภาพตรงกับคอลัมน์ U พอดี (และลดตำแหน่งลงแถวที่ 7.5 ไม่ให้ชนตาราง)
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 16.5, row: 6.8 }, // 16.5 + รูป = กึ่งกลางช่อง U พอดี (ไม่ว่ารูปจะแนวนอนหรือตั้ง)
+            tl: { col: 17, row: 7.5 }, // 17 ขยับขวาไปอีก ศูนย์กลางจะอยู่ตรง U พอดีเป๊ะ
             ext: { width: 450, height: 250 }
           });
         }
@@ -649,9 +657,11 @@
               // คำนวณคอลัมน์และแถว ให้ขึ้นบรรทัดใหม่เมื่อครบ 4 รูป
               let colsPerRow = 4;
               let cIndex = imgIndex % colsPerRow; // คอลัมน์ที่ 0, 1, 2, 3
-              let rIndex = Math.floor(imgIndex / colsPerRow); // แถวที่ 0, 1
+              let rIndex = Math.floor(imgIndex / colsPerRow); // แถวที่ 0, 1 (บรรทัดบน/ล่าง)
               
               worksheet.addImage(stepImgId, {
+                // cIndex * 3.5 = ขยับรูปไปทางขวาทีละ 3.5 คอลัมน์
+                // rIndex * 2.8 = ถ้ารูปขึ้นแถวที่สอง จะขยับลงมา 2.8 แถว
                 tl: { col: 25 + (cIndex * 3.5), row: (r - 1) + (rIndex * 2.8) }, 
                 ext: { width: 120, height: 80 } 
               });
