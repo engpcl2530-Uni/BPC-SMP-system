@@ -33,23 +33,14 @@
     .form-control:focus, .form-select:focus { border-color: #2563EB; background-color: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
     .required-star { color: #EF4444; }
     
-    .icon-checkbox { 
-      display: inline-flex; flex-direction: column; align-items: center; justify-content: center; 
-      width: 105px; height: 110px; cursor: pointer; position: relative; 
-      background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; 
-      padding: 10px;
-    }
+    .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 105px; height: 110px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
     .custom-icon-img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; transition: all 0.2s; }
     .icon-checkbox span.label { font-size: 12px; color: #374151; font-weight: 500; text-align: center; line-height: 1.1; }
-    
     .icon-checkbox.not-used { background: white; border: 2px dashed #D1D5DB; opacity: 0.7; }
     .icon-checkbox.not-used .custom-icon-img { filter: grayscale(100%); opacity: 0.25; }
     .icon-checkbox.not-used span.label { color: #9CA3AF; }
-    .icon-checkbox.not-used::after { 
-      content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; 
-      position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px;
-    }
+    .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px; }
 
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
     .btn-main { background: #2563EB; color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; }
@@ -67,12 +58,8 @@
 
     <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
-      <div class="row mb-4">
-        <div class="col-md-8"><input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()"></div>
-      </div>
-      <div id="smpListContainer" class="row">
-        <div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div>
-      </div>
+      <div class="row mb-4"><div class="col-md-8"><input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()"></div></div>
+      <div id="smpListContainer" class="row"><div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div></div>
       <div class="fab" onclick="showForm()">+</div>
     </div>
 
@@ -96,7 +83,7 @@
                 <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label" for="t2">ไฟฟ้าและการควบคุม</label></div>
                 <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="อื่นๆ" id="t3" onchange="toggleOtherType(this.checked)"><label class="form-check-label" for="t3">อื่นๆ</label></div>
               </div>
-              <input type="text" class="form-control mt-2" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none; animation: fadeIn 0.3s;">
+              <input type="text" class="form-control mt-2" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none;">
             </div>
 
             <div class="col-md-4 mb-3"><label class="form-label">จำนวนช่างเทคนิค</label><input type="number" class="form-control" id="f_techCount"></div>
@@ -191,7 +178,7 @@
       <div id="docContent" class="card-custom"></div>
     </div>
 
-  </div> <!-- End Container -->
+  </div>
 
 <script>
   // =========================================================
@@ -285,7 +272,7 @@
     const html = `
       <div class="step-card" id="step_row_${stepCounter}">
         <div class="d-flex justify-content-between mb-3 align-items-center">
-          <h6 class="text-primary m-0 fw-bold">ขั้นตอนที่ <span class="step-number">${stepCounter}</span></h6>
+          <h6 class="text-primary m-0 fw-bold">ขั้นตอนการทำงาน</h6>
           <button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>
         </div>
         <div class="mb-3"><label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="form-control s-task" required></div>
@@ -313,8 +300,7 @@
   }
 
   function updateStepNumbers() {
-    let cards = document.querySelectorAll('.step-card .step-number');
-    cards.forEach((el, index) => { el.innerText = index + 1; });
+    let cards = document.querySelectorAll('.step-card');
     stepCounter = cards.length;
   }
 
@@ -489,7 +475,7 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      // ลำดับขั้นตอนจะเริ่มที่ 0 ตามต้องการ
+      // ลำดับขั้นตอนจะเริ่มที่ 0
       html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
@@ -536,7 +522,7 @@
       const firstSheetName = workbook.worksheets[0].name; 
       const worksheet = workbook.getWorksheet(firstSheetName);
 
-      // 1. ข้อมูลหัวกระดาษ (ตัดเวลาออก เหลือแค่วันที่)
+      // 1. ข้อมูลหัวกระดาษ (แสดงแค่วันที่ ไม่เอาเวลา)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
       worksheet.getCell('E3').value = m.line; 
       worksheet.getCell('E4').value = m.machine; 
@@ -545,7 +531,7 @@
       worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 (ติ๊กถูก ✓)
+      // 2. ข้อมูลแถวที่ 6 (ใช้เครื่องหมาย ✓)
       const tick = '✓';
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
@@ -554,31 +540,32 @@
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
       worksheet.getCell('AD6').value = m.workTime || '';
-      worksheet.getCell('AJ6').value = m.downtime || ''; 
-      worksheet.getCell('AO6').value = m.frequency || ''; 
+      worksheet.getCell('AI6').value = m.downtime || ''; // ใส่ในช่องข้อมูล Downtime (AI6)
+      worksheet.getCell('AO6').value = m.frequency || ''; // ใส่ในช่องข้อมูล Freq (AO6)
 
-      // 3. จัดเรียงรูปภาพ PPE ลงในช่อง F9 ถึง S15 และ Risk Icons
+      // 3. จัดเรียงรูปภาพ PPE ภายในกรอบ F9 ถึง S15 และ Risk Icons
       const iconPlacements = [
-        // รูป LOTO และ การประเมินความเสี่ยง
-        { url: 'images/icon_loto.png', col: 19.5, row: 9.2, w: 55, h: 65 },
-        { url: 'images/icon_risk_assessed.png', col: 40.5, row: 9.2, w: 55, h: 65 },
+        // รูป LOTO ในช่อง T11 (พิกัด col 19.1, row 10.2)
+        { url: 'images/icon_loto.png', col: 19.1, row: 10.2, w: 45, h: 55 },
+        // รูป Risk Assessed 
+        { url: 'images/icon_risk_assessed.png', col: 38.5, row: 10.5, w: 40, h: 50 },
         
         // 🔴 รูป PPE จัดให้อยู่ในกรอบ F9 - S15
-        { url: 'images/ppe_gloves.png', col: 5.1, row: 8.5, w: 75, h: 90 },
-        { url: 'images/ppe_helmet.png', col: 7.3, row: 8.5, w: 75, h: 90 },
-        { url: 'images/ppe_mask.png', col: 9.5, row: 8.5, w: 75, h: 90 },
-        { url: 'images/ppe_harness.png', col: 11.7, row: 8.5, w: 75, h: 90 },
-        { url: 'images/ppe_glasses.png', col: 13.9, row: 8.5, w: 75, h: 90 },
-        { url: 'images/ppe_headphone.png', col: 16.1, row: 8.5, w: 75, h: 90 },
+        { url: 'images/ppe_gloves.png', col: 5.2, row: 8.2, w: 55, h: 75 },
+        { url: 'images/ppe_helmet.png', col: 7.5, row: 8.2, w: 55, h: 75 },
+        { url: 'images/ppe_mask.png', col: 9.8, row: 8.2, w: 55, h: 75 },
+        { url: 'images/ppe_harness.png', col: 12.1, row: 8.2, w: 55, h: 75 },
+        { url: 'images/ppe_glasses.png', col: 14.4, row: 8.2, w: 55, h: 75 },
+        { url: 'images/ppe_headphone.png', col: 16.7, row: 8.2, w: 55, h: 75 },
         
-        // 🔴 รูป Risk Icons จัดให้มีระยะห่างพอดี
-        { url: 'images/risk_car.png', col: 24.2, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_gear.png', col: 26.2, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_wrech.png', col: 28.2, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_heavyobject.png', col: 30.2, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_highground.png', col: 32.5, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_chmisrty.png', col: 34.5, row: 9.5, w: 45, h: 55 },
-        { url: 'images/risk_loudnoise.png', col: 36.5, row: 9.5, w: 45, h: 55 }
+        // 🔴 รูป Risk Icons
+        { url: 'images/risk_car.png', col: 23.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_gear.png', col: 25.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_wrech.png', col: 27.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_heavyobject.png', col: 29.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_highground.png', col: 31.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_chmisrty.png', col: 33.5, row: 10.2, w: 40, h: 50 },
+        { url: 'images/risk_loudnoise.png', col: 35.5, row: 10.2, w: 40, h: 50 }
       ];
 
       for (let icon of iconPlacements) {
@@ -589,7 +576,7 @@
         }
       }
 
-      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (✓)
+      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (ติ๊กถูก ✓)
       if (m.loto === 'ต้องการ') worksheet.getCell('V11').value = tick;
       else worksheet.getCell('V14').value = tick; 
 
@@ -597,35 +584,37 @@
       else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AO13').value = tick;
       else worksheet.getCell('AO15').value = tick;
 
-      // 5. พิมพ์ ❌ ทับอันที่ไม่ได้ใช้
+      // 5. พิมพ์ ❌ ตัวใหญ่สีแดง ทับอันที่ไม่ได้ใช้ (จัดตำแหน่งใต้/ทับรูป)
       function setRedCross(cellAddress) {
         const cell = worksheet.getCell(cellAddress);
-        cell.value = '❌'; 
-        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 28, name: 'Arial' };
+        cell.value = 'X'; 
+        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 26, name: 'Arial' };
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
 
-      // จัดตำแหน่ง ❌ ให้อยู่มุมล่างขวาของรูปพอดี
-      const ppeMap = {'ถุงมือ': 'G14', 'หมวกนิรภัย': 'I14', 'หน้ากาก': 'K14', 'กันตกจากที่สูง': 'N14', 'แว่นตา': 'P14', 'ที่อุดหู': 'R14'};
+      // วาง ❌ ในตำแหน่งที่มองเห็นชัดเจนทับไอคอน
+      const ppeMap = {'ถุงมือ': 'G13', 'หมวกนิรภัย': 'I13', 'หน้ากาก': 'L13', 'กันตกจากที่สูง': 'N13', 'แว่นตา': 'P13', 'ที่อุดหู': 'R13'};
       m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
 
-      const riskMap = {'รถโฟล์คลิฟต์': 'Z13', 'จุดหนีบ': 'AB13', 'อุปกรณ์เครื่องมือ': 'AD13', 'ยกด้วยมือ': 'AF13', 'ทำงานที่สูง': 'AI13', 'สารเคมี': 'AK13', 'เสียงดัง': 'AM13'};
+      const riskMap = {'รถโฟล์คลิฟต์': 'Y14', 'จุดหนีบ': 'AA14', 'อุปกรณ์เครื่องมือ': 'AC14', 'ยกด้วยมือ': 'AE14', 'ทำงานที่สูง': 'AG14', 'สารเคมี': 'AI14', 'เสียงดัง': 'AK14'};
       m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
 
-      // 6. รูปการทำงานหลัก
+      // 6. รูปการทำงานหลัก (ย้ายลงมาแถวที่ 8 ไม่ให้ทับหัวตาราง)
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 8, row: 6.2 }, 
-            ext: { width: 500, height: 280 }
+            tl: { col: 6, row: 7.1 }, // วางที่คอลัมน์ G แถว 8
+            ext: { width: 400, height: 200 }
           });
         }
       }
 
-      // 7. ดึงสัญลักษณ์ Category ต้นฉบับมาใช้
-      const safetySym = worksheet.getCell('M16').value || '➕'; const safetyFont = worksheet.getCell('M16').font;
+      // 7. ดึงสัญลักษณ์ Category จาก Template ต้นฉบับ
+      // (ดึงจาก K11, Q16, T16, W16 ตามที่คุณต้องการ)
+      const safetySym = worksheet.getCell('K11').value || worksheet.getCell('O16').value || '➕'; 
+      const safetyFont = worksheet.getCell('K11').font || worksheet.getCell('O16').font;
       const qualitySym = worksheet.getCell('Q16').value || '♦'; const qualityFont = worksheet.getCell('Q16').font;
       const envSym = worksheet.getCell('T16').value || '■'; const envFont = worksheet.getCell('T16').font;
       const prodSym = worksheet.getCell('W16').value || '●'; const prodFont = worksheet.getCell('W16').font;
@@ -638,12 +627,12 @@
         let r = stepRows[i]; 
         
         // ลำดับขั้นตอนเริ่มที่ 0
-        worksheet.getCell('B' + r).value = s.stepNo - 1; 
+        worksheet.getCell('B' + r).value = i; 
         worksheet.getCell('C' + r).value = s.stepName;
         worksheet.getCell('J' + r).value = s.timeTaken || '';
         worksheet.getCell('M' + r).value = s.description;
 
-        // วางสัญลักษณ์
+        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์
         let targetSym = ''; let targetFont = null;
         if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = safetySym; targetFont = safetyFont; }
         else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = qualitySym; targetFont = qualityFont; }
@@ -655,7 +644,7 @@
         if(targetFont) cellK.font = targetFont;
         cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // แทรกรูปภาพย่อยเรียงต่อกัน
+        // แทรกรูปภาพย่อยของขั้นตอนเรียงไปทางขวา
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
