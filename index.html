@@ -8,7 +8,7 @@
   
   <title>SMP Management System</title>
   
-  <!-- 🔴 โลโก้ Web Title -->
+  <!-- โลโก้ Web Title -->
   <link rel="icon" type="image/png" href="images/logo.png">
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -454,10 +454,6 @@
         <h6 class="fw-bold text-dark mb-3"><i class="material-icons text-warning align-middle">security</i> ความปลอดภัย & การป้องกัน</h6>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">PPE ที่ใช้งาน:</p><div class="d-flex flex-wrap">${ppeHtml}</div></div>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">ความเสี่ยง:</p><div class="d-flex flex-wrap">${riskHtml}</div></div>
-        <div class="d-flex flex-wrap gap-5 mt-3 text-dark">
-          <div class="d-flex align-items-center gap-3"><img src="images/icon_loto.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'"><div><span class="text-muted small d-block">ต้องการ LOTO:</span> <span class="fw-bold fs-6">${m.loto}</span></div></div>
-          <div class="d-flex align-items-center gap-3"><img src="images/icon_risk_assessed.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'"><div><span class="text-muted small d-block">ประเมินความเสี่ยงแล้ว:</span> <span class="fw-bold fs-6">${m.riskAssessed}</span></div></div>
-        </div>
       </div>
 
       ${m.mainImage ? `<div class="mb-5 text-center"><img src="${m.mainImage}" style="max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>` : ''}
@@ -477,7 +473,6 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      // ลำดับขั้นตอนจะเริ่มที่ 0
       html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
@@ -488,7 +483,7 @@
   }
 
   // =========================================================
-  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template ต้นฉบับ
+  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template_2 ต้นฉบับ
   // =========================================================
 
   async function fetchImageAsBase64(url) {
@@ -515,6 +510,7 @@
     btn.disabled = true;
 
     try {
+      // 🚨 โหลดเทมเพลตใหม่ชื่อ SMP-Template.xlsx
       const response = await fetch('SMP-Template.xlsx');
       if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
@@ -524,7 +520,7 @@
       const firstSheetName = workbook.worksheets[0].name; 
       const worksheet = workbook.getWorksheet(firstSheetName);
 
-      // 1. ข้อมูลหัวกระดาษ (แสดงแค่วันที่ ไม่เอาเวลา)
+      // 1. ข้อมูลหัวกระดาษ (แสดงแค่วันที่)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
       worksheet.getCell('E3').value = m.line; 
       worksheet.getCell('E4').value = m.machine; 
@@ -533,7 +529,7 @@
       worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 (ใช้เครื่องหมาย ✓)
+      // 2. ข้อมูลแถวที่ 6 (ติ๊กถูก ✓)
       const tick = '✓';
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
@@ -542,43 +538,10 @@
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
       worksheet.getCell('AD6').value = m.workTime || '';
-      worksheet.getCell('AF6').value = m.downtime || ''; // ใส่ในช่องข้อมูล Downtime (AF6)
-      worksheet.getCell('AK6').value = m.frequency || ''; // ใส่ในช่องข้อมูล Freq (AK6)
+      worksheet.getCell('AF6').value = m.downtime || ''; 
+      worksheet.getCell('AK6').value = m.frequency || ''; 
 
-      // 3. จัดเรียงรูปภาพ PPE ให้พอดีในช่อง F9 ถึง S15
-      const iconPlacements = [
-        // รูป LOTO ลงช่อง T11
-        { url: 'images/icon_loto.png', col: 19.1, row: 10.2, w: 45, h: 55 },
-        // รูป Risk Assessed ขยับซ้าย 1 ช่อง (ลงช่อง 37.5)
-        { url: 'images/icon_risk_assessed.png', col: 37.5, row: 10.5, w: 40, h: 50 },
-        
-        // 🔴 รูป PPE จัดให้อยู่ในกรอบ F9 - S15 อย่างสวยงาม
-        { url: 'images/ppe_gloves.png', col: 5.5, row: 9.5, w: 55, h: 75 },
-        { url: 'images/ppe_helmet.png', col: 7.8, row: 9.5, w: 55, h: 75 },
-        { url: 'images/ppe_mask.png', col: 10.1, row: 9.5, w: 55, h: 75 },
-        { url: 'images/ppe_harness.png', col: 12.4, row: 9.5, w: 55, h: 75 },
-        { url: 'images/ppe_glasses.png', col: 14.7, row: 9.5, w: 55, h: 75 },
-        { url: 'images/ppe_headphone.png', col: 17.0, row: 9.5, w: 55, h: 75 },
-        
-        // 🔴 รูป Risk Icons
-        { url: 'images/risk_car.png', col: 23.5, row: 10.2, w: 40, h: 50 },
-        { url: 'images/risk_gear.png', col: 24.5, row: 10.2, w: 40, h: 50 }, // ขยับซ้าย 1
-        { url: 'images/risk_wrech.png', col: 26.5, row: 10.2, w: 40, h: 50 }, // ขยับซ้าย 1
-        { url: 'images/risk_heavyobject.png', col: 29.5, row: 10.2, w: 40, h: 50 },
-        { url: 'images/risk_highground.png', col: 31.5, row: 10.2, w: 40, h: 50 },
-        { url: 'images/risk_chmisrty.png', col: 34.5, row: 10.2, w: 40, h: 50 }, // ขยับขวา 1
-        { url: 'images/risk_loudnoise.png', col: 36.5, row: 10.2, w: 40, h: 50 } // ขยับขวา 1
-      ];
-
-      for (let icon of iconPlacements) {
-        let b64 = await fetchImageAsBase64(icon.url);
-        if (b64) {
-          let imgId = workbook.addImage({ base64: b64, extension: 'png' });
-          worksheet.addImage(imgId, { tl: { col: icon.col, row: icon.row }, ext: { width: icon.w, height: icon.h } });
-        }
-      }
-
-      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (ขยับขวา 1 ช่อง)
+      // 3. สถานะ LOTO และ ประเมินความเสี่ยง (ขยับขวา 1 ช่องไปที่คอลัมน์ W และ AP)
       if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = tick;
       else worksheet.getCell('W14').value = tick; 
 
@@ -586,34 +549,66 @@
       else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = tick;
       else worksheet.getCell('AP15').value = tick;
 
-      // 5. พิมพ์ ❌ ตัวใหญ่สีแดง ทับด้านบนรูป PPE ที่ไม่ได้ใช้เป๊ะๆ
-      function setRedCross(cellAddress) {
-        const cell = worksheet.getCell(cellAddress);
-        cell.value = '❌'; 
-        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 40, name: 'Arial' };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      // 4. วางรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
+      let crossBase64 = await fetchImageAsBase64('images/cross.png');
+      if (crossBase64) {
+        let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
+        
+        // พิกัดกากบาท PPE: คลุมทับเต็มๆ เซลล์
+        const ppeCrossCoords = {
+          'ถุงมือ': { col: 5.5, row: 9.5 },
+          'หมวกนิรภัย': { col: 7.8, row: 9.5 },
+          'หน้ากาก': { col: 10.1, row: 9.5 },
+          'กันตกจากที่สูง': { col: 12.4, row: 9.5 },
+          'แว่นตา': { col: 14.7, row: 9.5 },
+          'ที่อุดหู': { col: 17.0, row: 9.5 }
+        };
+
+        // พิกัดกากบาทความเสี่ยง: (ขยับซ้าย/ขวา ตามรีเควสแล้ว)
+        const riskCrossCoords = {
+          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
+          'จุดหนีบ': { col: 24.5, row: 10.2 },       // ขยับซ้าย 1
+          'อุปกรณ์เครื่องมือ': { col: 26.5, row: 10.2 }, // ขยับซ้าย 1
+          'ยกด้วยมือ': { col: 29.5, row: 10.2 },
+          'ทำงานที่สูง': { col: 31.5, row: 10.2 },
+          'สารเคมี': { col: 34.5, row: 10.2 },       // ขยับขวา 1
+          'เสียงดัง': { col: 36.5, row: 10.2 }       // ขยับขวา 1
+        };
+
+        // แปะกากบาททับ PPE ที่ไม่ได้เลือก
+        m.ppe.forEach(p => { 
+          if (!p.used && ppeCrossCoords[p.name]) {
+            worksheet.addImage(crossId, { 
+              tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, 
+              ext: { width: 50, height: 50 } 
+            });
+          } 
+        });
+
+        // แปะกากบาททับ Risk ที่ไม่ได้เลือก
+        m.risks.forEach(r => { 
+          if (!r.risk && riskCrossCoords[r.name]) {
+            worksheet.addImage(crossId, { 
+              tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, 
+              ext: { width: 40, height: 40 } 
+            });
+          } 
+        });
       }
 
-      // วาง ❌ ในเซลล์กลางรูป PPE พอดี
-      const ppeMap = {'ถุงมือ': 'G12', 'หมวกนิรภัย': 'I12', 'หน้ากาก': 'K12', 'กันตกจากที่สูง': 'M12', 'แว่นตา': 'O12', 'ที่อุดหู': 'R12'};
-      m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
-
-      const riskMap = {'รถโฟล์คลิฟต์': 'Z13', 'จุดหนีบ': 'AA13', 'อุปกรณ์เครื่องมือ': 'AC13', 'ยกด้วยมือ': 'AE13', 'ทำงานที่สูง': 'AH13', 'สารเคมี': 'AJ13', 'เสียงดัง': 'AL13'};
-      m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
-
-      // 6. รูปการทำงานหลักขยับให้อยู่ตรงกลาง (ช่อง U)
+      // 5. รูปการทำงานหลัก กึ่งกลางคอลัมน์ U พอดีเป๊ะ
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 16.5, row: 6.8 }, // 16.5 + ความกว้างรูป จะกึ่งกลางพอดีที่คอลัมน์ U
+            tl: { col: 16.5, row: 6.8 }, // 16.5 + รูป = กึ่งกลางช่อง U พอดี (ไม่ว่ารูปจะแนวนอนหรือตั้ง)
             ext: { width: 450, height: 250 }
           });
         }
       }
 
-      // 7. ดึงสัญลักษณ์ Category จาก K11, Q16, T16, W16
+      // 6. ดึงสัญลักษณ์ Category จาก K11, Q16, T16, W16
       const safetySym = worksheet.getCell('K11').value || '➕'; const safetyFont = worksheet.getCell('K11').font;
       const qualitySym = worksheet.getCell('Q16').value || '♦'; const qualityFont = worksheet.getCell('Q16').font;
       const envSym = worksheet.getCell('T16').value || '■'; const envFont = worksheet.getCell('T16').font;
@@ -632,7 +627,7 @@
         worksheet.getCell('J' + r).value = s.timeTaken || '';
         worksheet.getCell('M' + r).value = s.description;
 
-        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์ Wingdings ในไฟล์พี่วิศวกร
+        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์ Wingdings 
         let targetSym = ''; let targetFont = null;
         if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = safetySym; targetFont = safetyFont; }
         else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = qualitySym; targetFont = qualityFont; }
@@ -644,17 +639,17 @@
         if(targetFont) cellK.font = targetFont;
         cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // แทรกรูปภาพย่อยของแต่ละขั้นตอน (แบ่ง 2 แถว แถวละ 4 รูป)
+        // 7. แทรกรูปภาพย่อยของแต่ละขั้นตอน (แบ่ง 2 แถว แถวละ 4 รูป)
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
             if (stepImgBase64) {
               const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
               
-              // คำนวณคอลัมน์และแถว เพื่อขึ้นบรรทัดใหม่เมื่อครบ 4 รูป
+              // คำนวณคอลัมน์และแถว ให้ขึ้นบรรทัดใหม่เมื่อครบ 4 รูป
               let colsPerRow = 4;
-              let cIndex = imgIndex % colsPerRow; // ตำแหน่งคอลัมน์ (0, 1, 2, 3)
-              let rIndex = Math.floor(imgIndex / colsPerRow); // ตำแหน่งแถว (0 หรือ 1)
+              let cIndex = imgIndex % colsPerRow; // คอลัมน์ที่ 0, 1, 2, 3
+              let rIndex = Math.floor(imgIndex / colsPerRow); // แถวที่ 0, 1
               
               worksheet.addImage(stepImgId, {
                 tl: { col: 25 + (cIndex * 3.5), row: (r - 1) + (rIndex * 2.8) }, 
