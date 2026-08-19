@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- ป้องกัน Search Engine ค้นหาเว็บนี้เจอ -->
   <meta name="robots" content="noindex, nofollow">
   <meta name="googlebot" content="noindex, nofollow">
   
   <title>SMP Management System</title>
+  
+  <!-- 🔴 ดึงรูปโลโก้มาแสดงบน Tab ของเบราว์เซอร์ -->
   <link rel="icon" type="image/png" href="images/logo.png">
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- ไลบรารี ExcelJS สำหรับจัดการไฟล์ Excel Template -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
   <style>
@@ -60,7 +60,6 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="app-header d-flex justify-content-between align-items-center">
     <h5 class="m-0 fw-bold text-dark" id="headerTitle">ระบบจัดการ SMP</h5>
     <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
@@ -71,9 +70,7 @@
     <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
       <div class="row mb-4">
-        <div class="col-md-8">
-          <input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()">
-        </div>
+        <div class="col-md-8"><input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()"></div>
       </div>
       <div id="smpListContainer" class="row">
         <div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div>
@@ -189,21 +186,18 @@
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
       <div class="d-flex justify-content-end mb-3">
-        <!-- 🔴 ปุ่มโหลด Excel (.xlsx) -->
         <button id="btnDownloadExcel" class="btn btn-success rounded-pill shadow-sm fw-bold" onclick="downloadExcel()">
           <i class="material-icons align-middle fs-5">table_view</i> โหลดไฟล์ Excel (.xlsx)
         </button>
       </div>
-      <div id="docContent" class="card-custom">
-        <div class="text-center text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดเอกสาร...</p></div>
-      </div>
+      <div id="docContent" class="card-custom"></div>
     </div>
 
   </div> <!-- End Container -->
 
 <script>
   // =========================================================
-  // 🔴 1. เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App ของคุณ 🔴
+  // 🔴 เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App ของคุณ 🔴
   // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -303,10 +297,10 @@
             <label class="form-label">ประเภท <span class="required-star">*</span></label>
             <select class="form-select s-type" required>
               <option value="">-- เลือก --</option>
-              <option value="➕ ความปลอดภัย">➕ ความปลอดภัย</option>
-              <option value="🔷 คุณภาพ">🔷 คุณภาพ</option>
-              <option value="🟩 สิ่งแวดล้อม">🟩 สิ่งแวดล้อม</option>
-              <option value="⚫ การผลิต">⚫ การผลิต</option>
+              <option value="ความปลอดภัย">ความปลอดภัย</option>
+              <option value="คุณภาพ">คุณภาพ</option>
+              <option value="สิ่งแวดล้อม">สิ่งแวดล้อม</option>
+              <option value="การผลิต">การผลิต</option>
             </select>
           </div>
         </div>
@@ -416,29 +410,20 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
-  // ==========================================
-  // ดึงรูปภาพจากโฟลเดอร์ images/
-  // ==========================================
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'images/ppe_gloves.png'; 
-      case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-      case 'หน้ากาก': return 'images/ppe_mask.png';
-      case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-      case 'แว่นตา': return 'images/ppe_glasses.png'; 
-      case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+      case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+      case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
       default: return '';                   
     }
   }
 
   function getRiskIcon(name) {
     switch(name) {
-      case 'จุดหนีบ': return 'images/risk_gear.png'; 
-      case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
-      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png';    
-      case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
-      case 'สารเคมี': return 'images/risk_chmisrty.png'; 
-      case 'เสียงดัง': return 'images/risk_loudnoise.png';  
+      case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
+      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
+      case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
       case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
       default: return '';                    
     }
@@ -469,7 +454,7 @@
       </div>
       
       <div class="row mb-4 text-dark">
-        <div class="col-md-6 mb-2"><span class="text-muted small">วันที่:</span> <br><b>${m.date}</b></div>
+        <div class="col-md-6 mb-2"><span class="text-muted small">วันที่:</span> <br><b>${m.date.split(' ')[0]}</b></div>
         <div class="col-md-6 mb-2"><span class="text-muted small">ประเภท SMP:</span> <br><b>${m.smpType}</b></div>
         <div class="col-md-4 mb-2"><span class="text-muted small">นำเสนอโดย:</span> <br><b>${m.presenter}</b></div>
         <div class="col-md-4 mb-2"><span class="text-muted small">อนุมัติโดย:</span> <br><b>${m.approver || '-'}</b></div>
@@ -498,7 +483,7 @@
           <tbody>
     `;
 
-    data.steps.forEach(s => {
+    data.steps.forEach((s, idx) => {
       let badgeClass = "bg-white text-dark border";
       if(s.typeSymbol.includes('ความปลอดภัย')) badgeClass = "bg-danger text-white border-danger";
       else if(s.typeSymbol.includes('คุณภาพ')) badgeClass = "bg-primary text-white border-primary";
@@ -506,7 +491,8 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      html += `<tr><td class="text-center fw-bold text-muted">${s.stepNo}</td><td class="fw-bold">${s.stepName}</td>
+      // เริ่มนับขั้นตอนที่ 0 ตามต้องการ
+      html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
     });
@@ -519,7 +505,6 @@
   // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template ต้นฉบับ
   // =========================================================
 
-  // ฟังก์ชันแปลงรูปภาพจาก URL ให้เป็น Base64 เพื่อแปะลงใน Excel
   async function fetchImageAsBase64(url) {
     try {
       const res = await fetch(url);
@@ -544,102 +529,146 @@
     btn.disabled = true;
 
     try {
-      // โหลดไฟล์ SMP-Template.xlsx 
       const response = await fetch('SMP-Template.xlsx');
       if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
 
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(arrayBuffer);
-      // ดึงชื่อชีตแรกสุดที่มีในไฟล์มาใช้
       const firstSheetName = workbook.worksheets[0].name; 
       const worksheet = workbook.getWorksheet(firstSheetName);
 
-      // กรอกข้อมูลทั่วไป (ระบุเซลล์ซ้ายบนสุดของช่องที่ผสานไว้)
+      // 1. ข้อมูลหัวกระดาษ (ตัดเวลาออก เหลือแค่วันที่)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
-      worksheet.getCell('E3').value = m.line; // แก้ให้ลงช่องว่างหลังคำว่า ไลน์
-      worksheet.getCell('E4').value = m.machine; // แก้ให้ลงช่องว่างหลังคำว่า เครื่องจักร
+      worksheet.getCell('E3').value = m.line; 
+      worksheet.getCell('E4').value = m.machine; 
       worksheet.getCell('R3').value = m.smpId;
       worksheet.getCell('Y3').value = m.presenter;
       worksheet.getCell('AD3').value = m.approver || ''; 
-      worksheet.getCell('AN4').value = m.date;
+      worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // กรอกข้อมูลรายละเอียด (แถว 6)
-      if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = '✓';
-      if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('N6').value = '✓';
+      // 2. ข้อมูลแถวที่ 6 (ใส่เครื่องหมายติ๊กถูก ✓)
+      const tick = '✓';
+      if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
+      if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
       
       worksheet.getCell('S6').value = m.techCount || '';
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
       worksheet.getCell('AD6').value = m.workTime || '';
-      worksheet.getCell('AH6').value = m.downtime || '';
-      worksheet.getCell('AN6').value = m.frequency || '';
+      worksheet.getCell('AJ6').value = m.downtime || ''; // ใส่ในช่องข้อมูล Downtime (หลัง AF6)
+      worksheet.getCell('AO6').value = m.frequency || ''; // ใส่ในช่องข้อมูล Freq (หลัง AK6)
 
-      // เช็คสถานะ LOTO และ ประเมินความเสี่ยง
-      if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = '✓';
-      else worksheet.getCell('W14').value = '✓'; 
+      // 3. แทรกรูปภาพ PPE, LOTO, Risk ลงใน Template (กันรูปเก่าหาย)
+      const iconPlacements = [
+        { url: 'images/icon_loto.png', col: 19, row: 10.5, w: 45, h: 55 },
+        { url: 'images/icon_risk_assessed.png', col: 38, row: 10.5, w: 45, h: 55 },
+        // PPE Icons
+        { url: 'images/ppe_gloves.png', col: 7.2, row: 10.5, w: 45, h: 50 },
+        { url: 'images/ppe_helmet.png', col: 10.2, row: 10.5, w: 45, h: 50 },
+        { url: 'images/ppe_mask.png', col: 13.2, row: 10.5, w: 45, h: 50 },
+        { url: 'images/ppe_harness.png', col: 16.2, row: 10.5, w: 45, h: 50 },
+        { url: 'images/ppe_glasses.png', col: 19.2, row: 10.5, w: 45, h: 50 },
+        { url: 'images/ppe_headphone.png', col: 22.2, row: 10.5, w: 45, h: 50 },
+        // Risk Icons
+        { url: 'images/risk_car.png', col: 23.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_gear.png', col: 25.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_wrech.png', col: 27.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_heavyobject.png', col: 29.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_highground.png', col: 32.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_chmisrty.png', col: 34.8, row: 11.5, w: 35, h: 35 },
+        { url: 'images/risk_loudnoise.png', col: 36.8, row: 11.5, w: 35, h: 35 }
+      ];
 
-      if (m.riskAssessed === 'ใช่') worksheet.getCell('AP11').value = '✓';
-      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = '✓';
-      else worksheet.getCell('AP15').value = '✓';
+      for (let icon of iconPlacements) {
+        let b64 = await fetchImageAsBase64(icon.url);
+        if (b64) {
+          let imgId = workbook.addImage({ base64: b64, extension: 'png' });
+          worksheet.addImage(imgId, { tl: { col: icon.col, row: icon.row }, ext: { width: icon.w, height: icon.h } });
+        }
+      }
 
-      // ฟังก์ชันช่วยทำเครื่องหมาย X สีแดงตัวใหญ่ สำหรับอันที่ไม่ได้ใช้
+      // 4. สถานะ LOTO และ ประเมินความเสี่ยง (ใช้ติ๊กถูก ✓)
+      if (m.loto === 'ต้องการ') worksheet.getCell('V11').value = tick;
+      else worksheet.getCell('V14').value = tick; 
+
+      if (m.riskAssessed === 'ใช่') worksheet.getCell('AO11').value = tick;
+      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AO13').value = tick;
+      else worksheet.getCell('AO15').value = tick;
+
+      // 5. กากบาท ❌ สีแดง สำหรับอุปกรณ์และอันตรายที่ ไม่ได้ใช้งาน
       function setRedCross(cellAddress) {
         const cell = worksheet.getCell(cellAddress);
-        cell.value = 'X'; 
-        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 24 };
+        cell.value = '❌'; 
+        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 28, name: 'Arial' };
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
 
-      // ตรวจสอบและกากบาท PPE
-      const ppeMap = {'ถุงมือ': 'J12', 'หมวกนิรภัย': 'M12', 'หน้ากาก': 'P12', 'กันตกจากที่สูง': 'S12', 'แว่นตา': 'V12', 'ที่อุดหู': 'Y12'};
+      // วาง ❌ ไว้ที่เซลล์ด้านขวาของรูป เพื่อให้ตัวหนังสือไม่จมไปหลังรูป
+      const ppeMap = {'ถุงมือ': 'I12', 'หมวกนิรภัย': 'L12', 'หน้ากาก': 'O12', 'กันตกจากที่สูง': 'R12', 'แว่นตา': 'U12', 'ที่อุดหู': 'X12'};
       m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
 
-      // ตรวจสอบและกากบาท ความเสี่ยง
-      const riskMap = {'รถยก': 'X13', 'จุดหนีบ': 'Z13', 'อุปกรณ์เครื่องมือ': 'AB13', 'ยกด้วยมือ': 'AD13', 'ทำงานที่สูง': 'AG13', 'สารเคมี': 'AI13', 'เสียงดัง': 'AK13'};
+      const riskMap = {'รถโฟล์คลิฟต์': 'Y13', 'จุดหนีบ': 'AA13', 'อุปกรณ์เครื่องมือ': 'AC13', 'ยกด้วยมือ': 'AE13', 'ทำงานที่สูง': 'AH13', 'สารเคมี': 'AJ13', 'เสียงดัง': 'AL13'};
       m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
 
-      // แทรกรูป Main Image บนตาราง
+      // 6. จัดตำแหน่งภาพสเก็ต/การทำงานหลัก ให้อยู่ตรงกลาง (คลุมทับโลโก้ BPC)
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 9, row: 6 }, // วางไว้ประมาณคอลัมน์ J แถวที่ 7
-            ext: { width: 350, height: 200 }
+            tl: { col: 8, row: 6.2 }, // วางตรงคอลัมน์ I แถว 7 (ตรงกลางเป๊ะ)
+            ext: { width: 500, height: 280 }
           });
         }
       }
 
-      // 🔴 เลขบรรทัดของแต่ละขั้นตอน (ปรับเลขให้ตรงกับไฟล์ Excel ของคุณได้เลย)
-      const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 83, 89, 95, 101, 107, 113, 119]; 
+      // 7. ดึงสัญลักษณ์ Category จาก Template ต้นฉบับมาใช้
+      const safetySym = worksheet.getCell('M16').value || '➕'; const safetyFont = worksheet.getCell('M16').font;
+      const qualitySym = worksheet.getCell('Q16').value || '♦'; const qualityFont = worksheet.getCell('Q16').font;
+      const envSym = worksheet.getCell('T16').value || '■'; const envFont = worksheet.getCell('T16').font;
+      const prodSym = worksheet.getCell('W16').value || '●'; const prodFont = worksheet.getCell('W16').font;
+
+      const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
       
       for (let i = 0; i < currentDetailData.steps.length; i++) {
         let s = currentDetailData.steps[i];
         if (i >= stepRows.length) break; 
         let r = stepRows[i]; 
         
-        // กรอกข้อความ
-        worksheet.getCell('B' + r).value = s.stepNo;
+        // ให้ลำดับขั้นตอนเริ่มที่ 0
+        worksheet.getCell('B' + r).value = s.stepNo - 1; 
         worksheet.getCell('C' + r).value = s.stepName;
         worksheet.getCell('J' + r).value = s.timeTaken || '';
-        worksheet.getCell('K' + r).value = s.typeSymbol;
         worksheet.getCell('M' + r).value = s.description;
+
+        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์ Wingdings ในไฟล์พี่วิศวกร
+        let targetSym = ''; let targetFont = null;
+        if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = safetySym; targetFont = safetyFont; }
+        else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = qualitySym; targetFont = qualityFont; }
+        else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { targetSym = envSym; targetFont = envFont; }
+        else if(s.typeSymbol.includes('การผลิต')) { targetSym = prodSym; targetFont = prodFont; }
         
-        // แทรกรูปภาพของขั้นตอน
+        const cellK = worksheet.getCell('K' + r);
+        cellK.value = targetSym;
+        if(targetFont) cellK.font = targetFont;
+        cellK.alignment = { horizontal: 'center', vertical: 'middle' };
+        
+        // แทรกรูปภาพย่อยของแต่ละขั้นตอน (รองรับหลายรูป)
         if (s.images && s.images.length > 0) {
-          const stepImgBase64 = await fetchImageAsBase64(s.images[0]); 
-          if (stepImgBase64) {
-            const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-            worksheet.addImage(stepImgId, {
-              tl: { col: 25, row: r - 1 }, // วางที่คอลัมน์ Z (ลำดับที่ 25)
-              ext: { width: 150, height: 100 } 
-            });
+          for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
+            const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
+            if (stepImgBase64) {
+              const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
+              worksheet.addImage(stepImgId, {
+                tl: { col: 25 + (imgIndex * 3), row: r - 1 }, // รูปจะเรียงกันไปทางขวาทีละ 3 คอลัมน์
+                ext: { width: 130, height: 85 } 
+              });
+            }
           }
         }
       }
 
-      // สั่งดาวน์โหลดไฟล์ 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       
@@ -652,8 +681,7 @@
 
     } catch (error) {
       console.error(error);
-      // เปลี่ยนให้ Alert แสดงข้อความ Error ของระบบจริงๆ ออกมา
-      alert("ระบบแจ้ง Error ว่า: " + error.message);
+      alert("ระบบแจ้ง Error: " + error.message);
     } finally {
       btn.innerHTML = originalText;
       btn.disabled = false;
