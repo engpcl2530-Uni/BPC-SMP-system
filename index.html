@@ -650,7 +650,8 @@
 
     } catch (error) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ Excel โปรดตรวจสอบว่าคุณได้อัปโหลดไฟล์ 'SMP-Template.xlsx' ขึ้น GitHub แล้ว");
+      // เปลี่ยนให้ Alert แสดงข้อความ Error ของระบบจริงๆ ออกมา
+      alert("ระบบแจ้ง Error ว่า: " + error.message);
     } finally {
       btn.innerHTML = originalText;
       btn.disabled = false;
