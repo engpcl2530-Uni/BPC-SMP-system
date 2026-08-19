@@ -121,7 +121,6 @@
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง"><img src="images/ppe_harness.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">กันตกที่สูง</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา"><img src="images/ppe_glasses.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">แว่นตา</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู"><img src="images/ppe_headphone.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">ที่อุดหู</span></div>
-            <!-- เพิ่ม PPE ใหม่ 2 ชิ้น -->
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="รองเท้าเซฟตี้"><img src="images/ppe_foot.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">รองเท้าเซฟตี้</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสื้อสะท้อนแสง"><img src="images/ppe_vis_cloth.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">เสื้อสะท้อนแสง</span></div>
           </div>
@@ -395,17 +394,12 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
-  // อัปเดตฟังก์ชันดึงรูปภาพให้ครอบคลุมของใหม่
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'images/ppe_gloves.png'; 
-      case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-      case 'หน้ากาก': return 'images/ppe_mask.png'; 
-      case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-      case 'แว่นตา': return 'images/ppe_glasses.png'; 
-      case 'ที่อุดหู': return 'images/ppe_headphone.png';
-      case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png';
-      case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
+      case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+      case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+      case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png'; case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
       default: return '';                   
     }
   }
@@ -478,7 +472,6 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      // ลำดับขั้นตอนเริ่มที่ 0
       html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
@@ -516,7 +509,6 @@
     btn.disabled = true;
 
     try {
-      // โหลด Template ที่ฝังรูปมาให้แล้ว
       const response = await fetch('SMP-Template.xlsx');
       if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
@@ -535,7 +527,7 @@
       worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 (ใช้เครื่องหมาย ✓)
+      // 2. ข้อมูลแถวที่ 6 และติ๊กถูก (✓) ประเภท SMP จัดกึ่งกลาง
       const tick = '✓';
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = tick;
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('O6').value = tick;
@@ -544,43 +536,50 @@
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
       worksheet.getCell('AD6').value = m.workTime || '';
-      worksheet.getCell('AF6').value = m.downtime || ''; 
-      worksheet.getCell('AK6').value = m.frequency || ''; 
+      
+      // 🔴 แก้ปัญหา เวลาหยุด / ความถี่ ให้ลงในช่องที่ไม่ทับคำถาม
+      worksheet.getCell('AI6').value = m.downtime || ''; 
+      worksheet.getCell('AO6').value = m.frequency || ''; 
 
-      // 3. สถานะ LOTO และ ประเมินความเสี่ยง (ขยับขวา 1 ช่องให้ตรงสี่เหลี่ยมเป๊ะๆ)
-      if (m.loto === 'ต้องการ') worksheet.getCell('X11').value = tick;
-      else worksheet.getCell('X14').value = tick; 
+      // 3. จัดตำแหน่งติ๊กถูก ✓ (LOTO & ประเมินความเสี่ยง) ให้ตรงช่องสี่เหลี่ยมเป๊ะๆ
+      if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = tick;
+      else worksheet.getCell('W14').value = tick; 
 
-      if (m.riskAssessed === 'ใช่') worksheet.getCell('AQ11').value = tick;
-      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AQ13').value = tick;
-      else worksheet.getCell('AQ15').value = tick;
+      if (m.riskAssessed === 'ใช่') worksheet.getCell('AP11').value = tick;
+      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = tick;
+      else worksheet.getCell('AP15').value = tick;
 
-      // 4. โหลดรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
+      // จัดให้อยู่ตรงกลางสวยงาม
+      ['I6', 'O6', 'W11', 'W14', 'AP11', 'AP13', 'AP15'].forEach(cell => {
+        worksheet.getCell(cell).alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+
+      // 4. วางรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
       let crossBase64 = await fetchImageAsBase64('images/cross.png');
       if (crossBase64) {
         let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
         
-        // 🔴 พิกัดกากบาท PPE: ให้ห่างช่องละ 2 คอลัมน์ (ขนาดรูปกากบาทปรับเป็น 55x55 ให้คลุมมิด)
+        // 🔴 พิกัดกากบาท PPE: ให้ห่างช่องละ 2 คอลัมน์ (ขนาดรูปกากบาทปรับให้คลุมเซลล์)
         const ppeCrossCoords = {
-          'ถุงมือ': { col: 5.5, row: 9.5 },         // คอลัมน์ F-G
-          'หมวกนิรภัย': { col: 7.5, row: 9.5 },     // คอลัมน์ H-I
-          'หน้ากาก': { col: 9.5, row: 9.5 },        // คอลัมน์ J-K
-          'กันตกจากที่สูง': { col: 11.5, row: 9.5 }, // คอลัมน์ L-M
-          'แว่นตา': { col: 13.5, row: 9.5 },        // คอลัมน์ N-O
-          'ที่อุดหู': { col: 15.5, row: 9.5 },      // คอลัมน์ P-Q
-          'รองเท้าเซฟตี้': { col: 17.5, row: 9.5 }, // คอลัมน์ R-S
-          'เสื้อสะท้อนแสง': { col: 19.5, row: 9.5 } // คอลัมน์ T-U
+          'ถุงมือ': { col: 5.5, row: 9.5 },         
+          'หมวกนิรภัย': { col: 7.5, row: 9.5 },     
+          'หน้ากาก': { col: 9.5, row: 9.5 },        
+          'กันตกจากที่สูง': { col: 11.5, row: 9.5 }, 
+          'แว่นตา': { col: 13.5, row: 9.5 },        
+          'ที่อุดหู': { col: 15.5, row: 9.5 },      
+          'รองเท้าเซฟตี้': { col: 17.5, row: 9.5 }, 
+          'เสื้อสะท้อนแสง': { col: 19.5, row: 9.5 } 
         };
 
-        // 🔴 พิกัดกากบาทความเสี่ยง (ขยับซ้าย-ขวา ตามรีเควสเป๊ะๆ)
+        // 🔴 พิกัดกากบาทความเสี่ยง (ขยับตามรีเควส)
         const riskCrossCoords = {
-          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 
-          'จุดหนีบ': { col: 23.5, row: 10.2 },        // ขยับซ้าย 1 (24.5 -> 23.5)
-          'อุปกรณ์เครื่องมือ': { col: 25.5, row: 10.2 },  // ขยับซ้าย 1 (26.5 -> 25.5)
+          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
+          'จุดหนีบ': { col: 23.5, row: 10.2 },       // ซ้าย 1
+          'อุปกรณ์เครื่องมือ': { col: 25.5, row: 10.2 }, // ซ้าย 1
           'ยกด้วยมือ': { col: 29.5, row: 10.2 },
           'ทำงานที่สูง': { col: 31.5, row: 10.2 },
-          'สารเคมี': { col: 35.5, row: 10.2 },        // ขยับขวา 1 (34.5 -> 35.5)
-          'เสียงดัง': { col: 37.5, row: 10.2 }        // ขยับขวา 1 (36.5 -> 37.5)
+          'สารเคมี': { col: 35.5, row: 10.2 },       // ขวา 1
+          'เสียงดัง': { col: 37.5, row: 10.2 }       // ขวา 1
         };
 
         // แปะกากบาททับ PPE ที่ไม่ได้เลือก
@@ -604,13 +603,13 @@
         });
       }
 
-      // 5. รูปการทำงานหลัก ขยับให้จุดศูนย์กลางภาพตรงกับคอลัมน์ U พอดี (และลดตำแหน่งลงแถวที่ 7.5 ไม่ให้ชนตาราง)
+      // 5. รูปการทำงานหลัก 🔴 (กึ่งกลางคอลัมน์ U และ ต่ำลงมาไม่ทับตาราง)
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
           worksheet.addImage(mainImgId, {
-            tl: { col: 17, row: 7.5 }, // 17 ขยับขวาไปอีก ศูนย์กลางจะอยู่ตรง U พอดีเป๊ะ
+            tl: { col: 16.5, row: 7.5 }, // ศูนย์กลางตรง U และขยับลงมาที่ขอบแถว 8
             ext: { width: 450, height: 250 }
           });
         }
@@ -647,22 +646,21 @@
         if(targetFont) cellK.font = targetFont;
         cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // 7. แทรกรูปภาพย่อยของแต่ละขั้นตอน (แบ่ง 2 แถว แถวละ 4 รูป)
+        // 7. แทรกรูปภาพย่อย 🔴 (ขยับขวาและลง ให้อยู่ในกรอบ และแบ่ง 2 แถว แถวละ 4 รูป)
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
             if (stepImgBase64) {
               const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
               
-              // คำนวณคอลัมน์และแถว ให้ขึ้นบรรทัดใหม่เมื่อครบ 4 รูป
+              // คำนวณให้ขึ้นบรรทัดใหม่เมื่อครบ 4 รูป
               let colsPerRow = 4;
               let cIndex = imgIndex % colsPerRow; // คอลัมน์ที่ 0, 1, 2, 3
-              let rIndex = Math.floor(imgIndex / colsPerRow); // แถวที่ 0, 1 (บรรทัดบน/ล่าง)
+              let rIndex = Math.floor(imgIndex / colsPerRow); // แถวที่ 0, 1
               
               worksheet.addImage(stepImgId, {
-                // cIndex * 3.5 = ขยับรูปไปทางขวาทีละ 3.5 คอลัมน์
-                // rIndex * 2.8 = ถ้ารูปขึ้นแถวที่สอง จะขยับลงมา 2.8 แถว
-                tl: { col: 25 + (cIndex * 3.5), row: (r - 1) + (rIndex * 2.8) }, 
+                // col: 26.5 = เริ่มที่คอลัมน์ AB/AC | row: r - 1 + 0.3 = ขยับลงมาไม่ทับ Header
+                tl: { col: 26.5 + (cIndex * 3.8), row: (r - 1) + 0.3 + (rIndex * 3.0) }, 
                 ext: { width: 120, height: 80 } 
               });
             }
