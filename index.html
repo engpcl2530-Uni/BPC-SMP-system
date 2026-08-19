@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- ป้องกัน Search Engine ค้นหาเว็บนี้เจอ -->
   <meta name="robots" content="noindex, nofollow">
   <meta name="googlebot" content="noindex, nofollow">
   
@@ -12,7 +14,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- 🔴 เพิ่มไลบรารี ExcelJS สำหรับจัดการไฟล์ Excel Template -->
+  <!-- ไลบรารี ExcelJS สำหรับจัดการไฟล์ Excel Template -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
   <style>
@@ -184,10 +186,10 @@
       </form>
     </div>
 
-    <!-- ================= VIEW 3: Detail (เอกสารและปุ่มโหลด Excel) ================= -->
+    <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
       <div class="d-flex justify-content-end mb-3">
-        <!-- 🔴 เปลี่ยนปุ่มเป็น โหลด Excel -->
+        <!-- 🔴 ปุ่มโหลด Excel (.xlsx) -->
         <button id="btnDownloadExcel" class="btn btn-success rounded-pill shadow-sm fw-bold" onclick="downloadExcel()">
           <i class="material-icons align-middle fs-5">table_view</i> โหลดไฟล์ Excel (.xlsx)
         </button>
@@ -201,9 +203,9 @@
 
 <script>
   // =========================================================
-  // 🔴 เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App จาก Apps Script ของคุณ 🔴
+  // 🔴 1. เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App ของคุณ 🔴
   // =========================================================
-  const API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; 
+  const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
   let smpDataList = [];
   let currentDetailData = null;
@@ -414,20 +416,29 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
+  // ==========================================
+  // ดึงรูปภาพจากโฟลเดอร์ images/
+  // ==========================================
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-      case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-      case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'ถุงมือ': return 'images/ppe_gloves.png'; 
+      case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+      case 'หน้ากาก': return 'images/ppe_mask.png';
+      case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+      case 'แว่นตา': return 'images/ppe_glasses.png'; 
+      case 'ที่อุดหู': return 'images/ppe_headphone.png';
       default: return '';                   
     }
   }
 
   function getRiskIcon(name) {
     switch(name) {
-      case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
-      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
-      case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
+      case 'จุดหนีบ': return 'images/risk_gear.png'; 
+      case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
+      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png';    
+      case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
+      case 'สารเคมี': return 'images/risk_chmisrty.png'; 
+      case 'เสียงดัง': return 'images/risk_loudnoise.png';  
       case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
       default: return '';                    
     }
@@ -508,7 +519,7 @@
   // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template ต้นฉบับ
   // =========================================================
 
-  // ฟังก์ชันย่อยสำหรับโหลดรูปภาพเพื่อนำไปแปะใน Excel
+  // ฟังก์ชันแปลงรูปภาพจาก URL ให้เป็น Base64 เพื่อแปะลงใน Excel
   async function fetchImageAsBase64(url) {
     try {
       const res = await fetch(url);
@@ -533,37 +544,36 @@
     btn.disabled = true;
 
     try {
-      // 1. โหลดไฟล์ Junior-SMP.xlsx จากโฟลเดอร์เดียวกันบน GitHub
-      const response = await fetch('Junior-SMP.xlsx');
-      if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'Junior-SMP.xlsx'");
+      // โหลดไฟล์ SMP-Template.xlsx 
+      const response = await fetch('SMP-Template.xlsx');
+      if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
 
-      // 2. ใช้ ExcelJS โหลด Workbook
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(arrayBuffer);
-      const worksheet = workbook.getWorksheet(1); // ดึงชีตแรกออกมา
+      const worksheet = workbook.getWorksheet(1);
 
-      // 3. กรอกข้อมูลส่วนหัว (อ้างอิงตำแหน่งเซลล์จากไฟล์ของคุณ)
+      // กรอกข้อมูลทั่วไป (ระบุเซลล์ซ้ายบนสุดของช่องที่ผสานไว้)
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
-      worksheet.getCell('B3').value = m.line;
-      worksheet.getCell('H4').value = m.machine;
+      worksheet.getCell('E3').value = m.line; // แก้ให้ลงช่องว่างหลังคำว่า ไลน์
+      worksheet.getCell('E4').value = m.machine; // แก้ให้ลงช่องว่างหลังคำว่า เครื่องจักร
       worksheet.getCell('R3').value = m.smpId;
       worksheet.getCell('Y3').value = m.presenter;
-      worksheet.getCell('AI3').value = m.approver; // ตำแหน่งช่อง "อนุมัติโดย"
+      worksheet.getCell('AD3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date;
 
-      // 4. กรอกข้อมูลรายละเอียด (แถว 6)
+      // กรอกข้อมูลรายละเอียด (แถว 6)
       if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = '✓';
       if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('N6').value = '✓';
       
-      worksheet.getCell('S6').value = m.techCount;
-      worksheet.getCell('W6').value = m.techTime;
+      worksheet.getCell('S6').value = m.techCount || '';
+      worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
-      worksheet.getCell('AD6').value = m.workTime;
-      worksheet.getCell('AH6').value = m.downtime;
-      worksheet.getCell('AN6').value = m.frequency;
+      worksheet.getCell('AD6').value = m.workTime || '';
+      worksheet.getCell('AH6').value = m.downtime || '';
+      worksheet.getCell('AN6').value = m.frequency || '';
 
-      // 5. สถานะ LOTO และ ประเมินความเสี่ยง
+      // เช็คสถานะ LOTO และ ประเมินความเสี่ยง
       if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = '✓';
       else worksheet.getCell('W14').value = '✓'; 
 
@@ -571,21 +581,23 @@
       else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = '✓';
       else worksheet.getCell('AP15').value = '✓';
 
-      // 6. ใส่เครื่องหมายกากบาทสีแดง (X) สำหรับ PPE และ ความเสี่ยง ที่ไม่ได้เลือก
+      // ฟังก์ชันช่วยทำเครื่องหมาย X สีแดงตัวใหญ่ สำหรับอันที่ไม่ได้ใช้
       function setRedCross(cellAddress) {
         const cell = worksheet.getCell(cellAddress);
-        cell.value = 'X'; // พิมพ์กากบาท
-        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 24 }; // สีแดงตัวใหญ่
+        cell.value = 'X'; 
+        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 24 };
         cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
 
+      // ตรวจสอบและกากบาท PPE
       const ppeMap = {'ถุงมือ': 'J12', 'หมวกนิรภัย': 'M12', 'หน้ากาก': 'P12', 'กันตกจากที่สูง': 'S12', 'แว่นตา': 'V12', 'ที่อุดหู': 'Y12'};
       m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
 
+      // ตรวจสอบและกากบาท ความเสี่ยง
       const riskMap = {'รถโฟล์คลิฟต์': 'X13', 'จุดหนีบ': 'Z13', 'อุปกรณ์เครื่องมือ': 'AB13', 'ยกด้วยมือ': 'AD13', 'ทำงานที่สูง': 'AG13', 'สารเคมี': 'AI13', 'เสียงดัง': 'AK13'};
       m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
 
-      // 7. แทรกรูปภาพการทำงานหลัก (Main Image)
+      // แทรกรูป Main Image บนตาราง
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
@@ -597,51 +609,49 @@
         }
       }
 
-      // 8. กรอกขั้นตอนการทำงาน
-      // ⚠️ สำคัญ: เนื่องจากแบบฟอร์มของคุณมีการตีเส้นตารางไว้แล้ว
-      // คุณสามารถเพิ่ม/ลด เลขบรรทัดใน Array ด้านล่างนี้ ให้ตรงกับ "แถวที่เริ่มเขียนแต่ละขั้นตอน" ในไฟล์ Excel ของคุณได้เลย
-      const stepRows = [17, 23, 30, 37, 44, 51, 58, 65, 72, 79]; 
+      // 🔴 เลขบรรทัดของแต่ละขั้นตอน (ปรับเลขให้ตรงกับไฟล์ Excel ของคุณได้เลย)
+      const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
       
       for (let i = 0; i < currentDetailData.steps.length; i++) {
         let s = currentDetailData.steps[i];
-        if (i >= stepRows.length) break; // ป้องกันเขียนเกินฟอร์มที่มี
-        let r = stepRows[i]; // ดึงเลขบรรทัดจาก Array
+        if (i >= stepRows.length) break; 
+        let r = stepRows[i]; 
         
+        // กรอกข้อความ
         worksheet.getCell('B' + r).value = s.stepNo;
         worksheet.getCell('C' + r).value = s.stepName;
-        worksheet.getCell('J' + r).value = s.timeTaken;
+        worksheet.getCell('J' + r).value = s.timeTaken || '';
         worksheet.getCell('K' + r).value = s.typeSymbol;
         worksheet.getCell('M' + r).value = s.description;
         
-        // แทรกรูปภาพของขั้นตอนลงตาราง Excel
+        // แทรกรูปภาพของขั้นตอน
         if (s.images && s.images.length > 0) {
-          const stepImgBase64 = await fetchImageAsBase64(s.images[0]); // ดึงรูปแรก
+          const stepImgBase64 = await fetchImageAsBase64(s.images[0]); 
           if (stepImgBase64) {
             const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
             worksheet.addImage(stepImgId, {
-              tl: { col: 25, row: r - 1 }, // วางไว้ที่คอลัมน์ Z (Z คือคอลัมน์ที่ 25 ถ้าเริ่มจาก 0)
-              ext: { width: 150, height: 100 } // ปรับขนาดรูปได้ที่นี่
+              tl: { col: 25, row: r - 1 }, // วางที่คอลัมน์ Z (ลำดับที่ 25)
+              ext: { width: 150, height: 100 } 
             });
           }
         }
       }
 
-      // 9. บันทึกและดาวน์โหลด
+      // สั่งดาวน์โหลดไฟล์ 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `SMP_${m.smpId}.xlsx`; // ตั้งชื่อไฟล์ที่ดาวน์โหลด
+      link.download = `SMP_${m.smpId}.xlsx`; 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
     } catch (error) {
       console.error(error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ Excel โปรดตรวจสอบว่ามีไฟล์ Template อยู่ในระบบหรือไม่");
+      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ Excel โปรดตรวจสอบว่าคุณได้อัปโหลดไฟล์ 'SMP-Template.xlsx' ขึ้น GitHub แล้ว");
     } finally {
-      // คืนค่าปุ่มกลับเป็นปกติ
       btn.innerHTML = originalText;
       btn.disabled = false;
     }
