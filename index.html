@@ -12,6 +12,9 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   
+  <!-- 🔴 เพิ่มไลบรารี ExcelJS สำหรับจัดการไฟล์ Excel Template -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
   <style>
     body { background-color: #F8F9FA; padding-bottom: 90px; font-family: 'Prompt', sans-serif; color: #333; }
     .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #E5E7EB; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; }
@@ -130,35 +133,16 @@
           
           <label class="form-label mb-2">อุปกรณ์ป้องกันส่วนบุคคล (PPE) <span class="text-muted fw-normal fs-6">- คลิกเพื่อกากบาทหาก "ไม่ใช้งาน"</span></label>
           <div id="ppeBox" class="d-flex flex-wrap gap-2 mb-4">
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ถุงมือ">
-              <img src="images/ppe_gloves.png" class="custom-icon-img" alt="ถุงมือ">
-              <span class="label">ถุงมือ</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หมวกนิรภัย">
-              <img src="images/ppe_helmet.png" class="custom-icon-img" alt="หมวกนิรภัย">
-              <span class="label">หมวกนิรภัย</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หน้ากาก">
-              <img src="images/ppe_mask.png" class="custom-icon-img" alt="หน้ากาก">
-              <span class="label">หน้ากาก</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง">
-              <img src="images/ppe_harness.png" class="custom-icon-img" alt="กันตกจากที่สูง">
-              <span class="label">กันตกที่สูง</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา">
-              <img src="images/ppe_glasses.png" class="custom-icon-img" alt="แว่นตา">
-              <span class="label">แว่นตา</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู">
-              <img src="images/ppe_headphone.png" class="custom-icon-img" alt="ที่อุดหู">
-              <span class="label">ที่อุดหู</span>
-            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ถุงมือ"><img src="images/ppe_gloves.png" class="custom-icon-img"><span class="label">ถุงมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หมวกนิรภัย"><img src="images/ppe_helmet.png" class="custom-icon-img"><span class="label">หมวกนิรภัย</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="หน้ากาก"><img src="images/ppe_mask.png" class="custom-icon-img"><span class="label">หน้ากาก</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="กันตกจากที่สูง"><img src="images/ppe_harness.png" class="custom-icon-img"><span class="label">กันตกที่สูง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="แว่นตา"><img src="images/ppe_glasses.png" class="custom-icon-img"><span class="label">แว่นตา</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ที่อุดหู"><img src="images/ppe_headphone.png" class="custom-icon-img"><span class="label">ที่อุดหู</span></div>
           </div>
 
-          <!-- UI รูปภาพ LOTO -->
           <div class="mb-4 bg-light p-3 rounded-3 border d-flex align-items-center gap-4">
-            <img src="images/icon_loto.png" alt="LOTO Icon" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+            <img src="images/icon_loto.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
               <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ต้องการ" required><label class="form-check-label">ต้องการ</label></div>
@@ -168,39 +152,17 @@
 
           <label class="form-label mb-2">ความเสี่ยงอันตราย <span class="text-muted fw-normal fs-6">- คลิกเพื่อกากบาทหาก "ไม่มีความเสี่ยงนี้"</span></label>
           <div id="riskBox" class="d-flex flex-wrap gap-2 mb-4">
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ">
-              <img src="images/risk_gear.png" class="custom-icon-img" alt="จุดหนีบ">
-              <span class="label">จุดหนีบ</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ">
-              <img src="images/risk_wrech.png" class="custom-icon-img" alt="อุปกรณ์เครื่องมือ">
-              <span class="label">อุปกรณ์/เครื่องมือ</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ยกด้วยมือ">
-              <img src="images/risk_heavyobject.png" class="custom-icon-img" alt="ยกด้วยมือ">
-              <span class="label">ยกด้วยมือ</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ทำงานที่สูง">
-              <img src="images/risk_highground.png" class="custom-icon-img" alt="ทำงานที่สูง">
-              <span class="label">ที่สูง</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="สารเคมี">
-              <img src="images/risk_chmisrty.png" class="custom-icon-img" alt="สารเคมี">
-              <span class="label">สารเคมี</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสียงดัง">
-              <img src="images/risk_loudnoise.png" class="custom-icon-img" alt="เสียงดัง">
-              <span class="label">เสียงดัง</span>
-            </div>
-            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="รถโฟล์คลิฟต์">
-              <img src="images/risk_car.png" class="custom-icon-img" alt="รถโฟล์คลิฟต์">
-              <span class="label">โฟล์คลิฟต์/รถยนต์</span>
-            </div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ"><img src="images/risk_gear.png" class="custom-icon-img"><span class="label">จุดหนีบ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ"><img src="images/risk_wrech.png" class="custom-icon-img"><span class="label">อุปกรณ์/เครื่องมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ยกด้วยมือ"><img src="images/risk_heavyobject.png" class="custom-icon-img"><span class="label">ยกด้วยมือ</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="ทำงานที่สูง"><img src="images/risk_highground.png" class="custom-icon-img"><span class="label">ที่สูง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="สารเคมี"><img src="images/risk_chmisrty.png" class="custom-icon-img"><span class="label">สารเคมี</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="เสียงดัง"><img src="images/risk_loudnoise.png" class="custom-icon-img"><span class="label">เสียงดัง</span></div>
+            <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="รถโฟล์คลิฟต์"><img src="images/risk_car.png" class="custom-icon-img"><span class="label">โฟล์คลิฟต์</span></div>
           </div>
 
-          <!-- UI รูปภาพ ประเมินความเสี่ยง -->
           <div class="mb-2 bg-light p-3 rounded-3 border d-flex align-items-center gap-4">
-            <img src="images/icon_risk_assessed.png" alt="Risk Assessed Icon" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+            <img src="images/icon_risk_assessed.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
               <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ใช่" required><label class="form-check-label">ใช่</label></div>
@@ -222,10 +184,13 @@
       </form>
     </div>
 
-    <!-- ================= VIEW 3: Detail ================= -->
+    <!-- ================= VIEW 3: Detail (เอกสารและปุ่มโหลด Excel) ================= -->
     <div id="detailView" class="section-view">
       <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-success rounded-pill shadow-sm" onclick="downloadCSV()"><i class="material-icons align-middle fs-6">download</i> โหลด CSV</button>
+        <!-- 🔴 เปลี่ยนปุ่มเป็น โหลด Excel -->
+        <button id="btnDownloadExcel" class="btn btn-success rounded-pill shadow-sm fw-bold" onclick="downloadExcel()">
+          <i class="material-icons align-middle fs-5">table_view</i> โหลดไฟล์ Excel (.xlsx)
+        </button>
       </div>
       <div id="docContent" class="card-custom">
         <div class="text-center text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดเอกสาร...</p></div>
@@ -238,7 +203,7 @@
   // =========================================================
   // 🔴 เปลี่ยน URL ตรงนี้ให้เป็นลิงก์ Web App จาก Apps Script ของคุณ 🔴
   // =========================================================
-  const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
+  const API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; 
 
   let smpDataList = [];
   let currentDetailData = null;
@@ -449,37 +414,25 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
-  // ==========================================
-  // อัปเดต Path รูปภาพให้อยู่ในโฟลเดอร์ images/
-  // ==========================================
   function getPPEIcon(name) {
     switch(name) {
-      case 'ถุงมือ': return 'images/ppe_gloves.png'; 
-      case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-      case 'หน้ากาก': return 'images/ppe_mask.png';
-      case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-      case 'แว่นตา': return 'images/ppe_glasses.png'; 
-      case 'ที่อุดหู': return 'images/ppe_headphone.png';
+      case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+      case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+      case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
       default: return '';                   
     }
   }
 
   function getRiskIcon(name) {
     switch(name) {
-      case 'จุดหนีบ': return 'images/risk_gear.png'; 
-      case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
-      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png';    
-      case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
-      case 'สารเคมี': return 'images/risk_chmisrty.png'; 
-      case 'เสียงดัง': return 'images/risk_loudnoise.png';  
+      case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
+      case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
+      case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
       case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
       default: return '';                    
     }
   }
 
-  // ==========================================
-  // แสดงผลหน้าตรวจสอบเอกสาร
-  // ==========================================
   function renderDetail(data) {
     currentDetailData = data;
     let m = data.main;
@@ -501,10 +454,7 @@
     let html = `
       <div class="d-flex align-items-center border-bottom pb-3 mb-4">
         <img src="images/logo.png" alt="Company Logo" style="height: 60px; object-fit: contain;" onerror="this.src='logo.png'">
-        <div class="flex-grow-1 text-center pe-5">
-          <h3 class="fw-bold text-dark mb-1">${m.title}</h3>
-          <h5 class="text-primary m-0">${m.smpId}</h5>
-        </div>
+        <div class="flex-grow-1 text-center pe-5"><h3 class="fw-bold text-dark mb-1">${m.title}</h3><h5 class="text-primary m-0">${m.smpId}</h5></div>
       </div>
       
       <div class="row mb-4 text-dark">
@@ -522,18 +472,10 @@
         <h6 class="fw-bold text-dark mb-3"><i class="material-icons text-warning align-middle">security</i> ความปลอดภัย & การป้องกัน</h6>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">PPE ที่ใช้งาน:</p><div class="d-flex flex-wrap">${ppeHtml}</div></div>
         <div class="mb-3 border-bottom pb-3"><p class="mb-2 text-muted small">ความเสี่ยง:</p><div class="d-flex flex-wrap">${riskHtml}</div></div>
-        
         <div class="d-flex flex-wrap gap-5 mt-3 text-dark">
-          <div class="d-flex align-items-center gap-3">
-             <img src="images/icon_loto.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'">
-             <div><span class="text-muted small d-block">ต้องการ LOTO:</span> <span class="fw-bold fs-6">${m.loto}</span></div>
-          </div>
-          <div class="d-flex align-items-center gap-3">
-             <img src="images/icon_risk_assessed.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'">
-             <div><span class="text-muted small d-block">ประเมินความเสี่ยงแล้ว:</span> <span class="fw-bold fs-6">${m.riskAssessed}</span></div>
-          </div>
+          <div class="d-flex align-items-center gap-3"><img src="images/icon_loto.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'"><div><span class="text-muted small d-block">ต้องการ LOTO:</span> <span class="fw-bold fs-6">${m.loto}</span></div></div>
+          <div class="d-flex align-items-center gap-3"><img src="images/icon_risk_assessed.png" style="width: 45px; height: 45px; object-fit: contain;" onerror="this.style.display='none'"><div><span class="text-muted small d-block">ประเมินความเสี่ยงแล้ว:</span> <span class="fw-bold fs-6">${m.riskAssessed}</span></div></div>
         </div>
-
       </div>
 
       ${m.mainImage ? `<div class="mb-5 text-center"><img src="${m.mainImage}" style="max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>` : ''}
@@ -562,21 +504,147 @@
     document.getElementById('docContent').innerHTML = html;
   }
 
-  function downloadCSV() {
+  // =========================================================
+  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx) ตาม Template ต้นฉบับ
+  // =========================================================
+
+  // ฟังก์ชันย่อยสำหรับโหลดรูปภาพเพื่อนำไปแปะใน Excel
+  async function fetchImageAsBase64(url) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function downloadExcel() {
     if(!currentDetailData) return;
     let m = currentDetailData.main;
-    let csvData = [
-      ["ข้อมูล SMP"], ["รหัส", m.smpId, "ชื่อเรื่อง", m.title], ["วันที่", m.date, "ประเภท SMP", m.smpType],
-      ["นำเสนอโดย", m.presenter, "อนุมัติโดย", m.approver], ["แผนก", m.line, "เครื่องจักร", m.machine],
-      ["ประเภทการบำรุงรักษา", m.maintType, "ความถี่", m.frequency], ["LOTO", m.loto, "ประเมินความเสี่ยง", m.riskAssessed],
-      [], ["ขั้นตอนการทำงาน"], ["ลำดับ", "ขั้นตอน", "ประเภท", "เวลา", "รายละเอียด", "ลิงก์รูปภาพ"]
-    ];
-    currentDetailData.steps.forEach(s => { csvData.push([s.stepNo, s.stepName, s.typeSymbol, s.timeTaken, s.description, s.images.join(", ")]); });
-    let csvContent = "\uFEFF";
-    csvData.forEach(row => { let rowString = row.map(item => `"${(item || '').toString().replace(/"/g, '""')}"`).join(","); csvContent += rowString + "\r\n"; });
-    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    let link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SMP_${m.smpId}.csv`;
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+
+    const btn = document.getElementById('btnDownloadExcel');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้างไฟล์ Excel...';
+    btn.disabled = true;
+
+    try {
+      // 1. โหลดไฟล์ Junior-SMP.xlsx จากโฟลเดอร์เดียวกันบน GitHub
+      const response = await fetch('Junior-SMP.xlsx');
+      if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'Junior-SMP.xlsx'");
+      const arrayBuffer = await response.arrayBuffer();
+
+      // 2. ใช้ ExcelJS โหลด Workbook
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(arrayBuffer);
+      const worksheet = workbook.getWorksheet(1); // ดึงชีตแรกออกมา
+
+      // 3. กรอกข้อมูลส่วนหัว (อ้างอิงตำแหน่งเซลล์จากไฟล์ของคุณ)
+      worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
+      worksheet.getCell('B3').value = m.line;
+      worksheet.getCell('H4').value = m.machine;
+      worksheet.getCell('R3').value = m.smpId;
+      worksheet.getCell('Y3').value = m.presenter;
+      worksheet.getCell('AI3').value = m.approver; // ตำแหน่งช่อง "อนุมัติโดย"
+      worksheet.getCell('AN4').value = m.date;
+
+      // 4. กรอกข้อมูลรายละเอียด (แถว 6)
+      if (m.smpType.includes('เครื่องกล')) worksheet.getCell('I6').value = '✓';
+      if (m.smpType.includes('ไฟฟ้า')) worksheet.getCell('N6').value = '✓';
+      
+      worksheet.getCell('S6').value = m.techCount;
+      worksheet.getCell('W6').value = m.techTime;
+      worksheet.getCell('Z6').value = m.maintType;
+      worksheet.getCell('AD6').value = m.workTime;
+      worksheet.getCell('AH6').value = m.downtime;
+      worksheet.getCell('AN6').value = m.frequency;
+
+      // 5. สถานะ LOTO และ ประเมินความเสี่ยง
+      if (m.loto === 'ต้องการ') worksheet.getCell('W11').value = '✓';
+      else worksheet.getCell('W14').value = '✓'; 
+
+      if (m.riskAssessed === 'ใช่') worksheet.getCell('AP11').value = '✓';
+      else if (m.riskAssessed === 'ไม่ใช่') worksheet.getCell('AP13').value = '✓';
+      else worksheet.getCell('AP15').value = '✓';
+
+      // 6. ใส่เครื่องหมายกากบาทสีแดง (X) สำหรับ PPE และ ความเสี่ยง ที่ไม่ได้เลือก
+      function setRedCross(cellAddress) {
+        const cell = worksheet.getCell(cellAddress);
+        cell.value = 'X'; // พิมพ์กากบาท
+        cell.font = { color: { argb: 'FFFF0000' }, bold: true, size: 24 }; // สีแดงตัวใหญ่
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      }
+
+      const ppeMap = {'ถุงมือ': 'J12', 'หมวกนิรภัย': 'M12', 'หน้ากาก': 'P12', 'กันตกจากที่สูง': 'S12', 'แว่นตา': 'V12', 'ที่อุดหู': 'Y12'};
+      m.ppe.forEach(p => { if (!p.used && ppeMap[p.name]) setRedCross(ppeMap[p.name]); });
+
+      const riskMap = {'รถโฟล์คลิฟต์': 'X13', 'จุดหนีบ': 'Z13', 'อุปกรณ์เครื่องมือ': 'AB13', 'ยกด้วยมือ': 'AD13', 'ทำงานที่สูง': 'AG13', 'สารเคมี': 'AI13', 'เสียงดัง': 'AK13'};
+      m.risks.forEach(r => { if (!r.risk && riskMap[r.name]) setRedCross(riskMap[r.name]); });
+
+      // 7. แทรกรูปภาพการทำงานหลัก (Main Image)
+      if (m.mainImage) {
+        const mainBase64 = await fetchImageAsBase64(m.mainImage);
+        if (mainBase64) {
+          const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
+          worksheet.addImage(mainImgId, {
+            tl: { col: 9, row: 6 }, // วางไว้ประมาณคอลัมน์ J แถวที่ 7
+            ext: { width: 350, height: 200 }
+          });
+        }
+      }
+
+      // 8. กรอกขั้นตอนการทำงาน
+      // ⚠️ สำคัญ: เนื่องจากแบบฟอร์มของคุณมีการตีเส้นตารางไว้แล้ว
+      // คุณสามารถเพิ่ม/ลด เลขบรรทัดใน Array ด้านล่างนี้ ให้ตรงกับ "แถวที่เริ่มเขียนแต่ละขั้นตอน" ในไฟล์ Excel ของคุณได้เลย
+      const stepRows = [17, 23, 30, 37, 44, 51, 58, 65, 72, 79]; 
+      
+      for (let i = 0; i < currentDetailData.steps.length; i++) {
+        let s = currentDetailData.steps[i];
+        if (i >= stepRows.length) break; // ป้องกันเขียนเกินฟอร์มที่มี
+        let r = stepRows[i]; // ดึงเลขบรรทัดจาก Array
+        
+        worksheet.getCell('B' + r).value = s.stepNo;
+        worksheet.getCell('C' + r).value = s.stepName;
+        worksheet.getCell('J' + r).value = s.timeTaken;
+        worksheet.getCell('K' + r).value = s.typeSymbol;
+        worksheet.getCell('M' + r).value = s.description;
+        
+        // แทรกรูปภาพของขั้นตอนลงตาราง Excel
+        if (s.images && s.images.length > 0) {
+          const stepImgBase64 = await fetchImageAsBase64(s.images[0]); // ดึงรูปแรก
+          if (stepImgBase64) {
+            const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
+            worksheet.addImage(stepImgId, {
+              tl: { col: 25, row: r - 1 }, // วางไว้ที่คอลัมน์ Z (Z คือคอลัมน์ที่ 25 ถ้าเริ่มจาก 0)
+              ext: { width: 150, height: 100 } // ปรับขนาดรูปได้ที่นี่
+            });
+          }
+        }
+      }
+
+      // 9. บันทึกและดาวน์โหลด
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `SMP_${m.smpId}.xlsx`; // ตั้งชื่อไฟล์ที่ดาวน์โหลด
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error(error);
+      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ Excel โปรดตรวจสอบว่ามีไฟล์ Template อยู่ในระบบหรือไม่");
+    } finally {
+      // คืนค่าปุ่มกลับเป็นปกติ
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
   }
 </script>
 </body>
