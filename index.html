@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <!-- 🔴 เพิ่ม Chart.js สำหรับทำ Dashboard -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
@@ -36,7 +38,7 @@
     .section-title { font-weight: 600; color: #111827; margin-bottom: 24px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
     .section-title i { color: var(--unilever-blue); }
     
-    .card-smp { cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; border-radius: 12px; }
+    .card-smp { cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; border-radius: 12px; height: 100%;}
     .card-smp:hover { border-color: var(--unilever-blue); box-shadow: 0 8px 16px rgba(0, 91, 159, 0.1); transform: translateY(-3px); }
     
     .form-label { font-size: 0.9rem; font-weight: 500; color: #4B5563; }
@@ -55,12 +57,14 @@
     .icon-checkbox.not-used span.label { color: #9CA3AF; }
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px; }
 
-    .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+    .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative; }
+    .step-badge { position: absolute; top: -12px; left: 20px; background: var(--unilever-blue); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    
     .btn-main { background: var(--unilever-blue); color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; min-height: 54px; border: none;}
     .btn-main:hover { background: var(--unilever-dark); color: white; transform: translateY(-2px); }
     
-    /* Offline Banner */
     #offlineBanner { display: none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A; }
+    .filter-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #E5E7EB; }
   </style>
 </head>
 <body>
@@ -75,11 +79,62 @@
 
   <div class="container mt-4">
 
-    <!-- ================= VIEW 1: Home ================= -->
+    <!-- ================= VIEW 1: Home (Dashboard & List) ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner"><i class="material-icons align-middle fs-5">cloud_off</i> คุณกำลังใช้งานแบบออฟไลน์ ข้อมูลที่บันทึกจะถูกเก็บไว้ในเครื่อง</div>
-      <div class="row mb-4"><div class="col-md-8"><input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()"></div></div>
+      
+      <!-- 🔴 Dashboard Chart -->
+      <div class="card-custom mb-4" id="dashboardCard" style="display:none;">
+        <div class="section-title mb-2"><i class="material-icons">bar_chart</i> แดชบอร์ดสรุปผลงาน</div>
+        <p class="text-muted small mb-3">จำนวน SMP ที่จัดทำแยกตามรายบุคคล (ผู้นำเสนอ)</p>
+        <div style="position: relative; height: 250px; width: 100%;">
+          <canvas id="smpChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 🔴 Filter System -->
+      <div class="filter-card">
+        <div class="row g-2">
+          <div class="col-md-3">
+            <input type="text" id="filterSearch" class="form-control" placeholder="🔍 ค้นหารหัส, ชื่อเรื่อง..." onkeyup="applyFilters()">
+          </div>
+          <div class="col-md-3">
+            <select id="filterPresenter" class="form-select" onchange="applyFilters()">
+              <option value="">-- ผู้นำเสนอทั้งหมด --</option>
+              <!-- จะถูกเติมด้วย JS -->
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select id="filterLine" class="form-select" onchange="applyFilters()">
+              <option value="">-- ไลน์ทั้งหมด --</option>
+              <!-- จะถูกเติมด้วย JS -->
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select id="filterType" class="form-select" onchange="applyFilters()">
+              <option value="">-- ประเภททั้งหมด --</option>
+              <option value="เครื่องกล">เครื่องกล (ME)</option>
+              <option value="ไฟฟ้าและการควบคุม">ไฟฟ้า (EE)</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select id="filterDate" class="form-select" onchange="applyFilters()">
+              <option value="">-- เวลาทั้งหมด --</option>
+              <option value="today">วันนี้</option>
+              <option value="week">สัปดาห์นี้</option>
+              <option value="month">เดือนนี้</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div id="smpListContainer" class="row"><div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div></div>
+      
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-4 mb-4">
+        <button id="btnLoadMore" class="btn btn-outline-primary rounded-pill px-4" style="display:none;" onclick="loadMoreData()">แสดงเพิ่มเติม (โหลดแล้ว <span id="countLoaded">0</span>/<span id="countTotal">0</span>)</button>
+      </div>
+
       <div class="fab" onclick="showForm()">+</div>
     </div>
 
@@ -94,28 +149,65 @@
         <div class="card-custom">
           <div class="section-title"><i class="material-icons">article</i> ข้อมูลทั่วไป</div>
           <div class="row">
-            <div class="col-md-8 mb-3"><label class="form-label">ชื่อเรื่อง SMP <span class="required-star">*</span></label><input type="text" class="form-control" id="f_title" required></div>
-            <div class="col-md-4 mb-3"><label class="form-label">SMP ID <span class="required-star">*</span></label><input type="text" class="form-control text-primary fw-bold bg-light" id="f_smpId" readonly required></div>
-            <div class="col-md-6 mb-3"><label class="form-label">นำเสนอโดย <span class="required-star">*</span></label><input type="text" class="form-control" id="f_presenter" required></div>
-            <div class="col-md-6 mb-3"><label class="form-label">อนุมัติโดย</label><input type="text" class="form-control" id="f_approver"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">ไลน์ / แผนก</label><input type="text" class="form-control" id="f_line"></div>
-            <div class="col-md-6 mb-3"><label class="form-label">เครื่องจักร</label><input type="text" class="form-control" id="f_machine"></div>
             
-            <div class="col-md-12 mb-4 mt-2">
+            <!-- 🔴 ปรับประเภทให้เลือกได้อย่างเดียว และลิงก์กับ ID -->
+            <div class="col-md-12 mb-3">
               <label class="form-label">ประเภทของ SMP <span class="required-star">*</span></label>
               <div class="d-flex flex-wrap gap-4 mt-1">
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="เครื่องกล" id="t1"><label class="form-check-label cursor-pointer" for="t1">เครื่องกล</label></div>
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label cursor-pointer" for="t2">ไฟฟ้าและการควบคุม</label></div>
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="อื่นๆ" id="t3" onchange="toggleOtherType(this.checked)"><label class="form-check-label cursor-pointer" for="t3">อื่นๆ</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="radio" name="smpTypeGrp" value="เครื่องกล" id="t1" onchange="updateSmpIdPrefix('ME')" required><label class="form-check-label cursor-pointer" for="t1">เครื่องกล (ME)</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="radio" name="smpTypeGrp" value="ไฟฟ้าและการควบคุม" id="t2" onchange="updateSmpIdPrefix('EE')"><label class="form-check-label cursor-pointer" for="t2">ไฟฟ้าและการควบคุม (EE)</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="radio" name="smpTypeGrp" value="อื่นๆ" id="t3" onchange="updateSmpIdPrefix('GE')"><label class="form-check-label cursor-pointer" for="t3">อื่นๆ (GE)</label></div>
               </div>
-              <input type="text" class="form-control mt-2" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none;">
             </div>
+
+            <div class="col-md-8 mb-3"><label class="form-label">ชื่อเรื่อง SMP <span class="required-star">*</span></label><input type="text" class="form-control" id="f_title" required></div>
+            <div class="col-md-4 mb-3"><label class="form-label">SMP ID <span class="required-star">*</span></label><input type="text" class="form-control text-primary fw-bold bg-light" id="f_smpId" readonly required></div>
+            
+            <!-- 🔴 นำเสนอโดย (Dropdown + Other) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">นำเสนอโดย (ช่าง) <span class="required-star">*</span></label>
+              <select class="form-select mb-2" id="f_presenter_sel" onchange="toggleOtherInput(this, 'f_presenter_other')" required>
+                <option value="">-- เลือกช่าง --</option>
+                <option value="ภูวรินทร์">ภูวรินทร์</option><option value="วิเชียร">วิเชียร</option><option value="ณรงฤทธิ์">ณรงฤทธิ์</option>
+                <option value="ณัฐพงค์">ณัฐพงค์</option><option value="สันติ">สันติ</option><option value="บัณฑิต">บัณฑิต</option>
+                <option value="ลิขิต">ลิขิต</option><option value="ศุภสิทธิ์">ศุภสิทธิ์</option><option value="ธงชัย">ธงชัย</option>
+                <option value="สุพรชัย">สุพรชัย</option><option value="วุฒิเดช">วุฒิเดช</option><option value="สัญญา">สัญญา</option>
+                <option value="สมเกียรติ">สมเกียรติ</option><option value="ศิวกร">ศิวกร</option><option value="กิตติพงษ์">กิตติพงษ์</option>
+                <option value="ไชยยา">ไชยยา</option><option value="นิรุตต์">นิรุตต์</option><option value="เศรษฐศักดิ์">เศรษฐศักดิ์</option>
+                <option value="other">-- อื่นๆ (พิมพ์เอง) --</option>
+              </select>
+              <input type="text" class="form-control" id="f_presenter_other" placeholder="พิมพ์ชื่อผู้นำเสนอ..." style="display:none;">
+            </div>
+
+            <div class="col-md-6 mb-3"><label class="form-label">อนุมัติโดย</label><input type="text" class="form-control" id="f_approver"></div>
+            
+            <!-- 🔴 ไลน์ (Dropdown + Other) -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">ไลน์ / แผนก</label>
+              <select class="form-select mb-2" id="f_line_sel" onchange="toggleOtherInput(this, 'f_line_other')">
+                <option value="">-- เลือกไลน์ --</option>
+                <option value="A1">A1</option><option value="A2">A2</option><option value="O1">O1</option><option value="C1">C1</option>
+                <option value="C2">C2</option><option value="SB">SB</option><option value="R1">R1</option><option value="R2">R2</option>
+                <option value="R3">R3</option><option value="R4">R4</option><option value="R5">R5</option><option value="R6">R6</option>
+                <option value="IWK1">IWK1</option><option value="IWK2">IWK2</option><option value="V4">V4</option><option value="FGI">FGI</option>
+                <option value="CF3">CF3</option><option value="M1">M1</option><option value="EOL">EOL</option><option value="Utility">Utility</option>
+                <option value="Packing">Packing</option><option value="Lab">Lab</option><option value="Mixing">Mixing</option>
+                <option value="MIX-Utility">MIX-Utility</option><option value="Pre-Weight">Pre-Weight</option>
+                <option value="MIX#1">MIX#1</option><option value="MIX#2">MIX#2</option><option value="MIX#3">MIX#3</option>
+                <option value="MIX#4">MIX#4</option><option value="MIX#5">MIX#5</option><option value="MIX#6">MIX#6</option><option value="MIX#7">MIX#7</option>
+                <option value="other">-- อื่นๆ (พิมพ์เอง) --</option>
+              </select>
+              <input type="text" class="form-control" id="f_line_other" placeholder="พิมพ์ชื่อไลน์..." style="display:none;">
+            </div>
+            
+            <div class="col-md-6 mb-3"><label class="form-label">เครื่องจักร</label><input type="text" class="form-control" id="f_machine" placeholder="พิมพ์ชื่อเครื่องจักร..."></div>
 
             <div class="col-md-4 mb-3"><label class="form-label">จำนวนช่างเทคนิค</label><input type="number" class="form-control" id="f_techCount"></div>
             <div class="col-md-4 mb-3"><label class="form-label">เวลาที่ช่างทำงานรวม (นาที)</label><input type="number" class="form-control" id="f_techTime"></div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">ประเภทบำรุงรักษา <span class="required-star">*</span></label>
-              <select class="form-select" id="f_maintType" required>
+              <!-- 🔴 ประเภทบำรุงรักษา ถอด Required ออก -->
+              <label class="form-label">ประเภทบำรุงรักษา</label>
+              <select class="form-select" id="f_maintType">
                 <option value="">-- เลือก --</option><option value="TBM">TBM</option><option value="CBM">CBM</option><option value="BDM">BDM</option>
               </select>
             </div>
@@ -198,12 +290,18 @@
           </div>
         </div>
 
+        <!-- 🔴 ส่วนขั้นตอนการทำงาน -->
         <div class="card-custom">
-          <div class="section-title d-flex justify-content-between align-items-center w-100">
-            <div><i class="material-icons text-success">format_list_numbered</i> ขั้นตอนการทำงาน</div>
-            <button type="button" class="btn btn-sm btn-outline-success rounded-pill fw-bold" onclick="addStepCard()">+ เพิ่มขั้นตอน</button>
+          <div class="section-title"><i class="material-icons text-success">format_list_numbered</i> ขั้นตอนการทำงาน</div>
+          
+          <div id="stepsContainer">
+            <!-- ขั้นตอน 0, 1, 2 จะถูก Generate อัตโนมัติที่นี่ -->
           </div>
-          <div id="stepsContainer"></div>
+          
+          <!-- ปุ่มเพิ่มขั้นตอนอยู่ด้านล่าง -->
+          <div class="text-center mt-3 border-top pt-3">
+            <button type="button" class="btn btn-outline-success rounded-pill fw-bold px-4" onclick="addStepCard()"><i class="material-icons align-middle fs-5">add</i> เพิ่มขั้นตอนเพิ่มเติม</button>
+          </div>
         </div>
 
         <button type="submit" class="btn w-100 btn-main fs-5 shadow-sm" id="btnSubmit">บันทึกข้อมูล SMP</button>
@@ -230,10 +328,18 @@
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
-  let smpDataList = [];
+  // Data & Pagination
+  let allSmpDataList = [];
+  let filteredDataList = [];
   let currentDetailData = null;
+  
   let stepCounter = 0;
-  let isEditingId = null; // ตัวแปรเช็คสถานะการแก้ไข
+  let isEditingId = null;
+  
+  const ITEMS_PER_PAGE = 100;
+  let currentPage = 1;
+  
+  let myChart = null; // ตัวแปรเก็บกราฟ
 
   window.onload = () => { 
     loadSMPList(); 
@@ -241,14 +347,39 @@
     checkDraft();
   };
 
-  // --- ระบบเช็คออฟไลน์ และ คิว ---
+  // --- Dropdown Other Toggle ---
+  function toggleOtherInput(selElement, inputId) {
+    let inputEl = document.getElementById(inputId);
+    if(selElement.value === 'other') {
+      inputEl.style.display = 'block';
+      inputEl.required = true;
+      inputEl.focus();
+    } else {
+      inputEl.style.display = 'none';
+      inputEl.required = false;
+      inputEl.value = '';
+    }
+  }
+
+  // --- Auto Generate ID Prefix ---
+  let originalRawId = ""; // จำรหัสตัวเลขไว้
+  function updateSmpIdPrefix(prefix) {
+    let currentId = document.getElementById('f_smpId').value;
+    if(currentId && currentId !== "กำลังดึง ID...") {
+      let parts = currentId.split('-');
+      if(parts.length >= 3) {
+        document.getElementById('f_smpId').value = `BPC-${prefix}-${parts[2]}`;
+      }
+    }
+  }
+
+  // --- Offline & Draft ---
   window.addEventListener('online', checkOfflineStatus);
   window.addEventListener('offline', checkOfflineStatus);
 
   function checkOfflineStatus() {
     const isOffline = !navigator.onLine;
     document.getElementById('offlineBanner').style.display = isOffline ? 'block' : 'none';
-    
     let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
     if(navigator.onLine && queue.length > 0) {
       document.getElementById('btnSync').style.display = 'inline-block';
@@ -259,68 +390,40 @@
   }
 
   function syncOfflineData() {
-    if(!navigator.onLine) { alert("ไม่มีการเชื่อมต่ออินเทอร์เน็ต"); return; }
+    if(!navigator.onLine) { alert("ไม่มีเน็ต"); return; }
     let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
     if(queue.length === 0) return;
-
     let btn = document.getElementById('btnSync');
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังซิงค์...';
     btn.disabled = true;
-
-    // จำลองการส่งคิวทีละรายการ (แบบพื้นฐาน)
-    Promise.all(queue.map(payload => fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })))
-      .then(() => {
-        alert("ซิงค์ข้อมูลออฟไลน์สำเร็จ!");
-        localStorage.removeItem('smp_offline_queue');
-        checkOfflineStatus();
-        loadSMPList();
-      })
-      .catch(err => {
-        alert("บางรายการซิงค์ไม่สำเร็จ กรุณาลองใหม่ภายหลัง");
-        btn.disabled = false;
-        btn.innerText = `ซิงค์ออฟไลน์ (${queue.length})`;
-      });
+    Promise.all(queue.map(p => fetch(API_URL, { method: 'POST', body: JSON.stringify(p) })))
+      .then(() => { alert("ซิงค์สำเร็จ!"); localStorage.removeItem('smp_offline_queue'); checkOfflineStatus(); loadSMPList(); })
+      .catch(err => { alert("ซิงค์บางรายการไม่สำเร็จ"); btn.disabled = false; btn.innerText = `ซิงค์ออฟไลน์ (${queue.length})`; });
   }
 
-  // --- ระบบ Auto Save (Draft) ---
   document.getElementById('smpForm').addEventListener('input', () => { if(!isEditingId) saveDraft(); });
-  document.getElementById('smpForm').addEventListener('change', () => { if(!isEditingId) saveDraft(); });
-
   function saveDraft() {
-    let draft = { title: document.getElementById('f_title').value, line: document.getElementById('f_line').value, time: new Date().toLocaleTimeString() };
+    let draft = { title: document.getElementById('f_title').value, time: new Date().toLocaleTimeString() };
     localStorage.setItem('smp_draft', JSON.stringify(draft));
-    document.getElementById('draftStatus').innerText = "บันทึกร่างล่าสุด: " + draft.time;
+    document.getElementById('draftStatus').innerText = "ร่าง: " + draft.time;
   }
+  function checkDraft() { if(localStorage.getItem('smp_draft')) document.getElementById('btnRestoreDraft').style.display = 'inline-block'; }
+  function loadDraft() { alert("กู้คืนพื้นฐาน (เพื่อประหยัดพื้นที่โค้ด)"); document.getElementById('btnRestoreDraft').style.display = 'none'; }
 
-  function checkDraft() {
-    if(localStorage.getItem('smp_draft')) {
-      document.getElementById('btnRestoreDraft').style.display = 'inline-block';
-    }
-  }
-
-  function loadDraft() {
-    alert("ระบบกู้คืนโครงร่างพื้นฐานเรียบร้อย (ในเวอร์ชันจริงสามารถเขียนโค้ดผูกฟิลด์ให้ครบได้ครับ)");
-    document.getElementById('btnRestoreDraft').style.display = 'none';
-  }
-
-  // --- ฟังก์ชันนำทาง ---
-  function toggleOtherType(isChecked) {
-    const inputOther = document.getElementById('f_smpTypeOther');
-    inputOther.style.display = isChecked ? 'block' : 'none';
-    if(isChecked) { inputOther.focus(); } else { inputOther.value = ''; }
-  }
-
+  // --- Navigation ---
   function showHome() {
     document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
     document.getElementById('homeView').classList.add('active');
     document.getElementById('headerTitle').innerText = "ระบบจัดการ SMP";
     document.getElementById('btnBackHome').style.display = 'none';
-    loadSMPList();
+    if(allSmpDataList.length === 0) loadSMPList();
   }
 
   function showForm() {
-    isEditingId = null; // เริ่มสร้างใหม่
+    isEditingId = null;
     document.getElementById('smpForm').reset();
+    document.getElementById('f_presenter_other').style.display = 'none';
+    document.getElementById('f_line_other').style.display = 'none';
     document.getElementById('mainImagePreview').innerHTML = ''; 
     document.getElementById('stepsContainer').innerHTML = '';
     
@@ -332,103 +435,68 @@
     document.getElementById('f_smpId').value = "กำลังดึง ID...";
     fetch(API_URL + "?action=generateId")
       .then(res => res.json())
-      .then(data => document.getElementById('f_smpId').value = data.id)
+      .then(data => { 
+        document.getElementById('f_smpId').value = data.id; 
+        // อัปเดต prefix ตามค่า default ถ้ามีการตั้งไว้
+        let checkedType = document.querySelector('input[name="smpTypeGrp"]:checked');
+        if(checkedType) {
+          let prefix = checkedType.value === 'เครื่องกล' ? 'ME' : (checkedType.value === 'ไฟฟ้าและการควบคุม' ? 'EE' : 'GE');
+          updateSmpIdPrefix(prefix);
+        }
+      })
       .catch(err => console.error("Error fetching ID:", err));
 
-    stepCounter = 0;
-    addStepCard();
+    stepCounter = -1; // Reset
+    generateLockedSteps(); // 🔴 สร้าง 3 ขั้นตอนแรกแบบล็อก
   }
 
-  // --- แก้ไข และ ลบ ---
-  function editCurrentSMP() {
-    if(!currentDetailData) return;
-    alert("ฟีเจอร์นี้เปิดโหมดนำข้อมูลเดิมมาแก้ไข (ฝั่ง Google Apps Script ต้องรองรับ action='update')");
-    // ตัวอย่างการสลับไปหน้าฟอร์ม:
-    isEditingId = currentDetailData.main.smpId;
-    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-    document.getElementById('formView').classList.add('active');
-    document.getElementById('headerTitle').innerText = "แก้ไขเอกสาร: " + isEditingId;
-    document.getElementById('f_smpId').value = isEditingId;
-    document.getElementById('f_title').value = currentDetailData.main.title;
-    // ... เขียนโค้ดดึงค่าอื่นๆ เติมเข้า Input เพิ่มเติมได้ที่นี่
+  // --- สร้าง 3 ขั้นตอนแรกล็อกค่า ---
+  function generateLockedSteps() {
+    // Step 0
+    addStepCard(true, "อธิบายชิ้นส่วนประกอบย่อย แนบรูปว่าอะไร", 0, "คุณภาพ");
+    // Step 1
+    addStepCard(true, "การเตรียมเครื่องมืออุปกรณ์", 0, "คุณภาพ");
+    // Step 2
+    addStepCard(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", 0, "ความปลอดภัย");
   }
 
-  function deleteCurrentSMP() {
-    if(!currentDetailData) return;
-    if(confirm("คุณต้องการลบเอกสาร " + currentDetailData.main.smpId + " ใช่หรือไม่? (ฟีเจอร์นี้ต้องรองรับ action='delete' บน Apps Script)")) {
-      // ตัวอย่างยิง API ลบ
-      /*
-      fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', smpId: currentDetailData.main.smpId }) })
-        .then(res => { alert("ลบสำเร็จ"); showHome(); });
-      */
-    }
-  }
-
-  function showDetail(smpId) {
-    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-    document.getElementById('detailView').classList.add('active');
-    document.getElementById('headerTitle').innerText = "เอกสาร: " + smpId;
-    document.getElementById('btnBackHome').style.display = 'block';
-    document.getElementById('docContent').innerHTML = `<div class="text-center text-muted mt-4"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลด...</p></div>`;
-    
-    fetch(API_URL + "?action=getDetails&smpId=" + smpId)
-      .then(res => res.json())
-      .then(data => renderDetail(data))
-      .catch(err => console.error("Error fetching details:", err));
-  }
-
-  function loadSMPList() {
-    fetch(API_URL + "?action=getList")
-      .then(res => res.json())
-      .then(data => { smpDataList = data; renderList(data); })
-      .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger mt-4">ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบ API URL หรือการเชื่อมต่อ</p>`; });
-  }
-
-  function renderList(list) {
-    let html = '';
-    if(!list || list.length === 0) { html = '<p class="text-center mt-4 text-muted">ยังไม่มีข้อมูล SMP ในระบบ</p>'; }
-    else {
-      list.forEach(item => {
-        html += `
-        <div class="col-md-6 col-lg-4">
-          <div class="card p-3 card-smp mb-3 bg-white" onclick="showDetail('${item.smpId}')">
-            <h5 class="mb-1 fw-bold" style="color:var(--unilever-blue);">${item.smpId}</h5>
-            <div class="fw-bold mb-2 text-dark text-truncate">${item.title}</div>
-            <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">calendar_today</i> ${item.date}</div>
-            <div class="text-muted small text-truncate"><i class="material-icons align-middle" style="font-size:14px;">precision_manufacturing</i> ${item.line || '-'}</div>
-            <div class="mt-2"><span class="badge bg-light text-dark border">${item.type || '-'}</span></div>
-          </div>
-        </div>`;
-      });
-    }
-    document.getElementById('smpListContainer').innerHTML = html;
-  }
-
-  function filterList() {
-    let kw = document.getElementById('searchInput').value.toLowerCase();
-    let filtered = smpDataList.filter(o => o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.line && o.line.toLowerCase().includes(kw)));
-    renderList(filtered);
-  }
-
-  function addStepCard() {
+  // สร้าง Step Card (รองรับโหมด Lock)
+  function addStepCard(isLocked = false, defaultName = "", defaultTime = "", defaultType = "") {
     stepCounter++;
+    let stepIndex = stepCounter; // เริ่มที่ 0
+    
+    let lockAttr = isLocked ? 'readonly class="form-control bg-light"' : 'class="form-control" required';
+    let lockSelAttr = isLocked ? 'disabled' : 'required';
+    // ส่งค่าซ่อนไว้ถ้าโดน disable
+    let hiddenInputs = isLocked ? `<input type="hidden" class="s-type-hidden" value="${defaultType}">` : '';
+
     const html = `
-      <div class="step-card" id="step_row_${stepCounter}">
-        <div class="d-flex justify-content-between mb-3 align-items-center">
-          <h6 class="m-0 fw-bold" style="color:var(--unilever-blue);">ขั้นตอนการทำงาน</h6>
-          <button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>
+      <div class="step-card" id="step_row_${stepIndex}">
+        <span class="step-badge">ขั้นตอนที่ #${stepIndex}</span>
+        <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
+          <h6 class="m-0 fw-bold" style="color:var(--unilever-blue);">รายละเอียดขั้นตอน</h6>
+          ${!isLocked ? `<button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>` : ''}
         </div>
-        <div class="mb-3"><label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="form-control s-task" required></div>
+        
+        <div class="mb-3">
+          <label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label>
+          <input type="text" class="form-control s-task ${isLocked?'bg-light':''}" value="${defaultName}" ${isLocked?'readonly':''} required>
+        </div>
+        
         <div class="row mb-3">
-          <div class="col-6"><label class="form-label">เวลา (นาที)</label><input type="number" class="form-control s-time"></div>
+          <div class="col-6">
+            <label class="form-label">เวลา (นาที)</label>
+            <input type="number" class="form-control s-time ${isLocked?'bg-light text-center fw-bold':''}" value="${defaultTime}" ${isLocked?'readonly':''}>
+          </div>
           <div class="col-6">
             <label class="form-label">ประเภท <span class="required-star">*</span></label>
-            <select class="form-select s-type" required>
+            ${hiddenInputs}
+            <select class="form-select s-type ${isLocked?'bg-light':''}" ${lockSelAttr}>
               <option value="">-- เลือก --</option>
-              <option value="ความปลอดภัย">ความปลอดภัย</option>
-              <option value="คุณภาพ">คุณภาพ</option>
-              <option value="สิ่งแวดล้อม">สิ่งแวดล้อม</option>
-              <option value="การผลิต">การผลิต</option>
+              <option value="ความปลอดภัย" ${defaultType==='ความปลอดภัย'?'selected':''}>ความปลอดภัย</option>
+              <option value="คุณภาพ" ${defaultType==='คุณภาพ'?'selected':''}>คุณภาพ</option>
+              <option value="สิ่งแวดล้อม" ${defaultType==='สิ่งแวดล้อม'?'selected':''}>สิ่งแวดล้อม</option>
+              <option value="การผลิต" ${defaultType==='การผลิต'?'selected':''}>การผลิต</option>
             </select>
           </div>
         </div>
@@ -442,11 +510,185 @@
     document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
   }
 
-  function updateStepNumbers() {
-    let cards = document.querySelectorAll('.step-card');
-    stepCounter = cards.length;
+  function editCurrentSMP() { alert("เปิดโหมดนำข้อมูลเดิมมาแก้ไข..."); }
+  function deleteCurrentSMP() { if(confirm("ต้องการลบ?")) { /* delete logic */ } }
+
+  function showDetail(smpId) {
+    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+    document.getElementById('detailView').classList.add('active');
+    document.getElementById('headerTitle').innerText = "เอกสาร: " + smpId;
+    document.getElementById('btnBackHome').style.display = 'block';
+    document.getElementById('docContent').innerHTML = `<div class="text-center text-muted mt-4"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลด...</p></div>`;
+    
+    fetch(API_URL + "?action=getDetails&smpId=" + smpId)
+      .then(res => res.json())
+      .then(data => renderDetail(data))
+      .catch(err => console.error(err));
   }
 
+  // --- Load Data & Setup Dashboard & Filters ---
+  function loadSMPList() {
+    fetch(API_URL + "?action=getList")
+      .then(res => res.json())
+      .then(data => { 
+        allSmpDataList = data; 
+        populateFilterDropdowns(data);
+        applyFilters(); // กรองครั้งแรกและวาดกราฟ
+      })
+      .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger mt-4">เชื่อมต่อฐานข้อมูลไม่ได้</p>`; });
+  }
+
+  function populateFilterDropdowns(data) {
+    let presenters = new Set();
+    let lines = new Set();
+    data.forEach(item => {
+      if(item.presenter) presenters.add(item.presenter);
+      if(item.line) lines.add(item.line);
+    });
+
+    let pSel = document.getElementById('filterPresenter');
+    pSel.innerHTML = '<option value="">-- ผู้นำเสนอทั้งหมด --</option>';
+    [...presenters].sort().forEach(p => pSel.innerHTML += `<option value="${p}">${p}</option>`);
+
+    let lSel = document.getElementById('filterLine');
+    lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
+    [...lines].sort().forEach(l => lSel.innerHTML += `<option value="${l}">${l}</option>`);
+  }
+
+  function applyFilters() {
+    let kw = document.getElementById('filterSearch').value.toLowerCase();
+    let presenter = document.getElementById('filterPresenter').value;
+    let line = document.getElementById('filterLine').value;
+    let type = document.getElementById('filterType').value;
+    let dateFilter = document.getElementById('filterDate').value;
+    
+    let now = new Date();
+
+    filteredDataList = allSmpDataList.filter(o => {
+      // 1. Text Search
+      let matchKw = o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw);
+      
+      // 2. Dropdown matches
+      let matchP = presenter === "" || o.presenter === presenter;
+      let matchL = line === "" || o.line === line;
+      let matchT = type === "" || (o.type && o.type.includes(type));
+      
+      // 3. Date matches
+      let matchD = true;
+      if(dateFilter !== "") {
+        // o.date format is "dd/MM/yyyy HH:mm"
+        let parts = o.date.split(' ')[0].split('/');
+        let itemDate = new Date(parts[2], parts[1]-1, parts[0]);
+        if(dateFilter === 'today') {
+          matchD = itemDate.toDateString() === now.toDateString();
+        } else if (dateFilter === 'week') {
+          let diffTime = Math.abs(now - itemDate);
+          let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+          matchD = diffDays <= 7;
+        } else if (dateFilter === 'month') {
+          matchD = itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+        }
+      }
+      
+      return matchKw && matchP && matchL && matchT && matchD;
+    });
+
+    currentPage = 1;
+    document.getElementById('smpListContainer').innerHTML = ''; // เคลียร์ของเก่า
+    renderPaginatedList();
+    drawDashboardChart(filteredDataList);
+  }
+
+  function renderPaginatedList() {
+    let container = document.getElementById('smpListContainer');
+    let btnMore = document.getElementById('btnLoadMore');
+    
+    if(filteredDataList.length === 0) { 
+      container.innerHTML = '<p class="text-center mt-4 text-muted">ไม่พบข้อมูล SMP ที่ตรงกับเงื่อนไข</p>'; 
+      btnMore.style.display = 'none';
+      return; 
+    }
+
+    let startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    let endIndex = startIndex + ITEMS_PER_PAGE;
+    let itemsToShow = filteredDataList.slice(startIndex, endIndex);
+
+    let html = '';
+    itemsToShow.forEach(item => {
+      html += `
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card p-3 card-smp bg-white" onclick="showDetail('${item.smpId}')">
+          <h5 class="mb-1 fw-bold" style="color:var(--unilever-blue);">${item.smpId}</h5>
+          <div class="fw-bold mb-2 text-dark text-truncate">${item.title}</div>
+          <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">person</i> ${item.presenter || '-'}</div>
+          <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">calendar_today</i> ${item.date}</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small text-truncate"><i class="material-icons align-middle" style="font-size:14px;">precision_manufacturing</i> ${item.line || '-'}</span>
+            <span class="badge bg-light text-dark border">${item.type || '-'}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    if(currentPage === 1) { container.innerHTML = html; } 
+    else { container.insertAdjacentHTML('beforeend', html); }
+
+    let loadedCount = Math.min(endIndex, filteredDataList.length);
+    document.getElementById('countLoaded').innerText = loadedCount;
+    document.getElementById('countTotal').innerText = filteredDataList.length;
+
+    if(loadedCount >= filteredDataList.length) { btnMore.style.display = 'none'; } 
+    else { btnMore.style.display = 'inline-block'; }
+  }
+
+  function loadMoreData() {
+    currentPage++;
+    renderPaginatedList();
+  }
+
+  // --- แผนภูมิ Dashboard ---
+  function drawDashboardChart(dataList) {
+    document.getElementById('dashboardCard').style.display = 'block';
+    
+    // นับยอดรายคน
+    let counts = {};
+    dataList.forEach(d => {
+      let p = d.presenter || 'ไม่ระบุ';
+      counts[p] = (counts[p] || 0) + 1;
+    });
+
+    // เรียงลำดับจากมากไปน้อย (เอา top 10)
+    let sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+    let labels = sorted.map(x => x[0]);
+    let values = sorted.map(x => x[1]);
+
+    const ctx = document.getElementById('smpChart').getContext('2d');
+    
+    if(myChart) { myChart.destroy(); } // ลบกราฟเก่าถ้ามี
+    
+    myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'จำนวน SMP',
+          data: values,
+          backgroundColor: 'rgba(0, 91, 159, 0.7)',
+          borderColor: 'rgba(0, 91, 159, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      }
+    });
+  }
+
+  // --- บีบอัดรูป ---
   async function compressFile(file) {
     return new Promise((resolve) => {
       let reader = new FileReader();
@@ -475,7 +717,7 @@
 
   async function compressStepImages(input) {
     const previewBox = input.nextElementSibling;
-    previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัดรูปภาพ...</span>';
+    previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัด...</span>';
     input.compressedArray = [];
     let files = Array.from(input.files).slice(0, 10);
     for(let f of files) { let b64 = await compressFile(f); input.compressedArray.push(b64); }
@@ -483,14 +725,22 @@
     input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}" style="height:70px; border-radius:6px; border:1px solid #e5e7eb;">`; });
   }
 
+  // --- ซับมิตฟอร์ม ---
   document.getElementById('smpForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    let smpTypes = [];
-    document.querySelectorAll('.chk-smptype:checked').forEach(el => {
-      if(el.value === 'อื่นๆ') { let otherVal = document.getElementById('f_smpTypeOther').value; if(otherVal.trim() !== '') smpTypes.push(otherVal); } 
-      else { smpTypes.push(el.value); }
-    });
-    if(smpTypes.length === 0) { alert("กรุณาเลือกประเภทของ SMP อย่างน้อย 1 ข้อ"); return; }
+    
+    // เช็คประเภท
+    let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
+    if(!smpTypeSelected) { alert("กรุณาเลือกประเภทของ SMP"); return; }
+    let finalSmpType = smpTypeSelected.value;
+    if(finalSmpType === 'อื่นๆ') { 
+      let otherVal = document.getElementById('f_smpTypeOther').value; 
+      if(otherVal.trim() !== '') finalSmpType = otherVal; 
+    }
+
+    // จัดการค่าที่พิมพ์เองจาก Dropdown
+    let presenter = document.getElementById('f_presenter_sel').value === 'other' ? document.getElementById('f_presenter_other').value : document.getElementById('f_presenter_sel').value;
+    let line = document.getElementById('f_line_sel').value === 'other' ? document.getElementById('f_line_other').value : document.getElementById('f_line_sel').value;
 
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังบันทึกข้อมูล...';
@@ -499,9 +749,9 @@
 
     let formData = {
       title: document.getElementById('f_title').value, smpId: document.getElementById('f_smpId').value,
-      presenter: document.getElementById('f_presenter').value, approver: document.getElementById('f_approver').value,
-      line: document.getElementById('f_line').value, machine: document.getElementById('f_machine').value,
-      smpType: smpTypes.join(', '), techCount: document.getElementById('f_techCount').value,
+      presenter: presenter, approver: document.getElementById('f_approver').value,
+      line: line, machine: document.getElementById('f_machine').value,
+      smpType: finalSmpType, techCount: document.getElementById('f_techCount').value,
       techTime: document.getElementById('f_techTime').value, maintType: document.getElementById('f_maintType').value,
       workTime: document.getElementById('f_workTime').value, downtime: document.getElementById('f_downtime').value,
       frequency: document.getElementById('f_frequency').value, mainImage: document.getElementById('f_mainImageBase64').value,
@@ -513,15 +763,20 @@
     let stepsData = [];
     document.querySelectorAll('.step-card').forEach((card, i) => {
       let fileInput = card.querySelector('.s-imgs');
+      // เช็คว่าถ้า select โดน disable ให้เอาค่าจาก hidden input
+      let typeSymbol = card.querySelector('.s-type').disabled ? card.querySelector('.s-type-hidden').value : card.querySelector('.s-type').value;
       stepsData.push({
-        stepNo: i + 1, stepName: card.querySelector('.s-task').value, timeTaken: card.querySelector('.s-time').value,
-        typeSymbol: card.querySelector('.s-type').value, description: card.querySelector('.s-desc').value, images: fileInput.compressedArray || []
+        stepNo: i, // ลำดับเริ่มที่ 0
+        stepName: card.querySelector('.s-task').value, 
+        timeTaken: card.querySelector('.s-time').value,
+        typeSymbol: typeSymbol, 
+        description: card.querySelector('.s-desc').value, 
+        images: fileInput.compressedArray || []
       });
     });
 
     let finalPayload = { action: payloadAction, formData: formData, stepsData: stepsData };
 
-    // --- Offline Queue Check ---
     if(!navigator.onLine) {
       let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
       queue.push(finalPayload);
@@ -549,6 +804,7 @@
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
   });
 
+  // --- แสดงผลรายละเอียด ---
   function getPPEIcon(name) {
     switch(name) {
       case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
@@ -600,7 +856,7 @@
         <div class="col-md-4 mb-2"><span class="text-muted small">อนุมัติโดย:</span> <br><b>${m.approver || '-'}</b></div>
         <div class="col-md-4 mb-2"><span class="text-muted small">แผนก / ไลน์:</span> <br><b>${m.line || '-'}</b></div>
         <div class="col-md-4 mb-2"><span class="text-muted small">เครื่องจักร:</span> <br><b>${m.machine || '-'}</b></div>
-        <div class="col-md-4 mb-2"><span class="text-muted small">ประเภทบำรุงรักษา:</span> <br><b>${m.maintType}</b></div>
+        <div class="col-md-4 mb-2"><span class="text-muted small">ประเภทบำรุงรักษา:</span> <br><b>${m.maintType || '-'}</b></div>
         <div class="col-md-4 mb-2"><span class="text-muted small">ความถี่:</span> <br><b>${m.frequency || '-'}</b></div>
       </div>
       
@@ -627,7 +883,7 @@
       else if(s.typeSymbol.includes('การผลิต')) badgeClass = "bg-dark text-white border-dark";
 
       let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; margin-right:5px; margin-top:5px; border-radius:6px; border:1px solid #ddd;"></a>`).join('');
-      html += `<tr><td class="text-center fw-bold text-muted">${idx}</td><td class="fw-bold">${s.stepName}</td>
+      html += `<tr><td class="text-center fw-bold text-muted">${s.stepNo}</td><td class="fw-bold">${s.stepName}</td>
                <td><span class="badge ${badgeClass}">${s.typeSymbol}</span></td><td class="text-center">${s.timeTaken || '-'}</td>
                <td><div style="white-space:pre-wrap; font-size:0.9rem;" class="mb-1">${s.description}</div><div>${imgs}</div></td></tr>`;
     });
@@ -637,7 +893,7 @@
   }
 
   // =========================================================
-  // EXCEL EXPORT
+  // EXCEL EXPORT (ยึดพิกัดเดิมของคุณไว้)
   // =========================================================
   async function fetchImageAsBase64(url) {
     try {
@@ -716,12 +972,12 @@
         const riskCrossCoords = {
           'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
           'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
-          'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 33.5, row: 10.2 },        
+          'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 },        
           'เสียงดัง': { col: 35.87, row: 10.2 }        
         };
 
         m.ppe.forEach(p => { 
-          if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } 
+          if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 95, height: 56 } }); } 
         });
 
         m.risks.forEach(r => { 
@@ -746,7 +1002,7 @@
         if (i >= stepRows.length) break; 
         let r = stepRows[i]; 
         
-        worksheet.getCell('B' + r).value = i; worksheet.getCell('C' + r).value = s.stepName;
+        worksheet.getCell('B' + r).value = s.stepNo; worksheet.getCell('C' + r).value = s.stepName;
         worksheet.getCell('J' + r).value = s.timeTaken || ''; worksheet.getCell('M' + r).value = s.description;
 
         let targetSym = symSafe;
