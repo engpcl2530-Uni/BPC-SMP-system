@@ -38,6 +38,7 @@
     .header-text h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
     .header-text p { font-size: 13px; color: rgba(255,255,255,0.85); margin: 3px 0 0; }
     
+    /* 🔴 Prominent Close Button */
     .btn-close-page { background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.4); width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);}
     .btn-close-page:hover { background: #E53E3E; border-color: #E53E3E; transform: scale(1.05); box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4); }
 
@@ -91,7 +92,7 @@
     @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     .floating-toast:hover { background: var(--secondary); }
 
-    /* Dashboard & Filters */
+    /* 🔴 Dashboard & Filters (ดึงดีไซน์จากโปรแกรม CMMS) */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
     .quick-filters::-webkit-scrollbar { display: none; }
@@ -112,7 +113,7 @@
     
     .btn-primary { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Prompt'; transition: 0.2s; box-shadow: var(--shadow-md);}
     .btn-primary:active { transform: scale(0.98); }
-    .btn-danger-outline { background: transparent; color: #E53E3E; border: 1px solid #E53E3E; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px;}
+    .btn-danger-outline { background: transparent; color: #E53E3E; border: 1px solid #E53E3E; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 500; cursor: pointer;}
     .btn-success { background: #38A169; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: var(--shadow-sm);}
     
     /* Checkbox Grid (Techs) */
@@ -153,7 +154,7 @@
         </div>
       </div>
 
-      <!-- 🔴 Advanced Filter System -->
+      <!-- 🔴 Advanced Filter System (ประยุกต์จาก CMMS) -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -212,6 +213,7 @@
     <div id="formView" class="section-view">
       <form id="smpForm">
         
+        <!-- 🔴 ปรับปรุง Terminology เป็นทางการ -->
         <div class="card">
           <div class="card-title"><span class="material-symbols-rounded">assignment</span> ส่วนที่ 1: ข้อมูลทั่วไป (General Info)</div>
           
@@ -375,21 +377,15 @@
 
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
-      
-      <!-- 🔴 อัปเดตเลย์เอาต์ปุ่ม Edit/Delete/Excel ตรงนี้ตามสั่งครับ -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร</button>
-        
-        <div style="display:flex; gap:10px;">
-          <button type="button" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="editCurrentSMP()">
-            <span class="material-symbols-rounded" style="font-size:18px;">edit</span> แก้ไข
-          </button>
-          <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()">
-            <span class="material-symbols-rounded" style="font-size:20px;">download</span> โหลด Excel
-          </button>
+      <div class="d-flex justify-content-between mb-3 align-items-center flex-wrap gap-2">
+        <div>
+          <!-- จำลองปุ่ม Edit/Delete ไว้รองรับในอนาคต -->
+          <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบ</button>
         </div>
+        <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()">
+          <span class="material-symbols-rounded" style="font-size:20px;">download</span> โหลด Excel
+        </button>
       </div>
-      
       <div id="docContent" class="card" style="padding:0; overflow:hidden;"></div>
     </div>
 
@@ -403,6 +399,7 @@
 
   <!-- 🔴 SCRIPT 🔴 -->
   <script>
+    // URL เดิมของคุณ
     const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
     let allSmpDataList = [];
@@ -425,7 +422,7 @@
         let str = dateStr.toString().trim();
         if (str.includes('-')) { let d = new Date(str); if (!isNaN(d.getTime())) return d; }
         if (str.includes('/')) {
-            let parts = str.split(' ')[0].split('/'); 
+            let parts = str.split(' ')[0].split('/'); // "dd/MM/yyyy HH:mm" -> ["dd","MM","yyyy"]
             if (parts.length === 3) {
                 let p0 = parseInt(parts[0], 10); let p1 = parseInt(parts[1], 10); let p2 = parseInt(parts[2], 10);
                 if (p2 < 100) p2 += 2000;
@@ -524,7 +521,7 @@
         .catch(err => console.error(err));
 
       stepCounter = -1; 
-      generateLockedSteps(); 
+      generateLockedSteps(); // โหลด 3 ขั้นตอนแรก
       
       let saved = localStorage.getItem('smp_draft');
       if(saved) {
@@ -588,15 +585,12 @@
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
 
-    function editCurrentSMP() { alert("เปิดโหมดนำข้อมูลเดิมมาแก้ไข..."); }
-    function deleteCurrentSMP() { if(confirm("ต้องการลบ?")) { /* delete logic */ } }
-
     function showDetail(smpId) {
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
       document.getElementById('detailView').classList.add('active');
       document.getElementById('appTitle').innerText = "เอกสาร: " + smpId;
       document.getElementById('appSub').innerText = "รายละเอียดและขั้นตอน";
-      document.getElementById('btnCloseView').style.display = 'flex'; 
+      document.getElementById('btnCloseView').style.display = 'flex'; // โชว์ปุ่มกากบาท
       
       document.getElementById('docContent').innerHTML = `<div class="text-center text-muted" style="padding:40px;"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลด...</p></div>`;
       
@@ -622,7 +616,9 @@
       let presenters = new Set();
       let lines = new Set();
       data.forEach(item => {
-        if(item.presenter) { item.presenter.split(',').forEach(p => presenters.add(p.trim())); }
+        if(item.presenter) {
+          item.presenter.split(',').forEach(p => presenters.add(p.trim()));
+        }
         if(item.line) lines.add(item.line);
       });
 
@@ -632,7 +628,7 @@
 
       let lSel = document.getElementById('filterLine');
       lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
-      [...lines].sort().forEach(l => lSel.innerHTML += `<option value="${l}">${l}</option>`; });
+      [...lines].sort().forEach(l => lSel.innerHTML += `<option value="${l}">${l}</option>`);
     }
 
     function setQuickFilter(type) {
@@ -643,7 +639,7 @@
       if(type==='all'){ fs.value = ''; fe.value = ''; }
       else if(type==='today'){ fs.value = today.toISOString().split('T')[0]; fe.value = today.toISOString().split('T')[0]; }
       else if(type==='week'){ 
-        let first = today.getDate() - today.getDay() + 1; 
+        let first = today.getDate() - today.getDay() + 1; // จันทร์
         let firstDay = new Date(today.setDate(first)); 
         fs.value = firstDay.toISOString().split('T')[0]; 
         fe.value = new Date().toISOString().split('T')[0]; 
@@ -720,7 +716,10 @@
       });
 
       if(currentPage === 1) { html += `</div>`; container.innerHTML = html; } 
-      else { let rowDiv = container.querySelector('.row'); if(rowDiv) rowDiv.insertAdjacentHTML('beforeend', html); }
+      else { 
+        let rowDiv = container.querySelector('.row');
+        if(rowDiv) rowDiv.insertAdjacentHTML('beforeend', html); 
+      }
 
       let loadedCount = Math.min(endIndex, filteredDataList.length);
       document.getElementById('countLoaded').innerText = loadedCount;
@@ -732,6 +731,7 @@
 
     function loadMoreData() { currentPage++; renderPaginatedList(); }
 
+    // --- Dashboard Chart (แยกนับคนทำผลงาน) ---
     function drawDashboardChart(dataList) {
       document.getElementById('dashboardCard').style.display = 'block';
       let counts = {};
@@ -753,11 +753,24 @@
       
       myChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: labels, datasets: [{ label: 'จำนวนเอกสาร SMP', data: values, backgroundColor: '#00A5D9', borderRadius: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'จำนวนเอกสาร SMP',
+            data: values,
+            backgroundColor: '#00A5D9',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
       });
     }
 
+    // --- บีบอัดรูป ---
     async function compressFile(file) {
       return new Promise((resolve) => {
         let reader = new FileReader();
@@ -768,7 +781,7 @@
             let MAX_W = 800; let scale = img.width > MAX_W ? MAX_W / img.width : 1;
             canvas.width = img.width * scale; canvas.height = img.height * scale;
             let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+            resolve(canvas.toDataURL('image/jpeg', 0.6)); // บีบอัดเยอะหน่อยเพื่อความเร็ว
           };
           img.src = e.target.result;
         };
@@ -794,6 +807,7 @@
       input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
     }
 
+    // --- ซับมิตฟอร์ม ---
     document.getElementById('smpForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -1061,8 +1075,6 @@
         btn.innerHTML = originalText; btn.disabled = false;
       }
     }
-    
-    document.head.insertAdjacentHTML('beforeend', `<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>`);
   </script>
 </body>
 </html>
