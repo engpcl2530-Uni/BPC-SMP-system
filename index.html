@@ -14,23 +14,40 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
   <style>
+    /* 🔴 Unilever Brand Colors & Mobile-first adjustments */
+    :root {
+      --unilever-blue: #005B9F;
+      --unilever-dark: #00437A;
+    }
     body { background-color: #F8F9FA; padding-bottom: 90px; font-family: 'Prompt', sans-serif; color: #333; }
-    .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #E5E7EB; padding: 15px 20px; position: sticky; top: 0; z-index: 1000; }
-    .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background-color: #2563EB; color: white; text-align: center; line-height: 56px; font-size: 32px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); cursor: pointer; z-index: 1000; transition: all 0.3s; }
-    .fab:hover { transform: scale(1.05); background-color: #1D4ED8; }
+    
+    .app-header { background: var(--unilever-blue); color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .app-header h5 { color: white !important; font-weight: 600; letter-spacing: 0.5px; }
+    .app-header .btn-outline-secondary { color: white; border-color: rgba(255,255,255,0.5); }
+    .app-header .btn-outline-secondary:hover { background: white; color: var(--unilever-blue); border-color: white; }
+
+    .fab { position: fixed; bottom: 30px; right: 30px; width: 64px; height: 64px; border-radius: 50%; background-color: var(--unilever-blue); color: white; text-align: center; line-height: 60px; font-size: 32px; box-shadow: 0 4px 14px rgba(0, 91, 159, 0.4); cursor: pointer; z-index: 1000; transition: all 0.3s; }
+    .fab:hover { transform: scale(1.05); background-color: var(--unilever-dark); }
+    
     .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
     .section-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .card-custom { background: white; border: 1px solid #F3F4F6; border-radius: 16px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 24px; }
+    
+    .card-custom { background: white; border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 24px; }
     .section-title { font-weight: 600; color: #111827; margin-bottom: 24px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
-    .section-title i { color: #2563EB; }
+    .section-title i { color: var(--unilever-blue); }
+    
     .card-smp { cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; border-radius: 12px; }
-    .card-smp:hover { border-color: #2563EB; box-shadow: 0 8px 16px rgba(37,99,235,0.08); transform: translateY(-3px); }
+    .card-smp:hover { border-color: var(--unilever-blue); box-shadow: 0 8px 16px rgba(0, 91, 159, 0.1); transform: translateY(-3px); }
+    
     .form-label { font-size: 0.9rem; font-weight: 500; color: #4B5563; }
-    .form-control, .form-select { border-radius: 10px; border: 1px solid #D1D5DB; padding: 10px 15px; font-size: 0.95rem; background-color: #F9FAFB; }
-    .form-control:focus, .form-select:focus { border-color: #2563EB; background-color: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+    /* ขยายขนาด Input ให้จิ้มง่ายขึ้น (Mobile-first) */
+    .form-control, .form-select { border-radius: 10px; border: 1px solid #D1D5DB; padding: 12px 15px; font-size: 1rem; background-color: #F9FAFB; min-height: 48px; }
+    .form-control:focus, .form-select:focus { border-color: var(--unilever-blue); background-color: white; box-shadow: 0 0 0 4px rgba(0, 91, 159, 0.1); }
     .required-star { color: #EF4444; }
     
+    .cursor-pointer { cursor: pointer; user-select: none; } /* ทำให้รู้ว่าคลิกข้อความได้ */
+
     .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 105px; height: 110px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
     .custom-icon-img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 8px; transition: all 0.2s; }
@@ -41,15 +58,15 @@
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px; }
 
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-    .btn-main { background: #2563EB; color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; }
-    .btn-main:hover { background: #1D4ED8; color: white; transform: translateY(-2px); }
+    .btn-main { background: var(--unilever-blue); color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; min-height: 54px; }
+    .btn-main:hover { background: var(--unilever-dark); color: white; transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
   <div class="app-header d-flex justify-content-between align-items-center">
-    <h5 class="m-0 fw-bold text-dark" id="headerTitle">ระบบจัดการ SMP</h5>
-    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
+    <h5 class="m-0 text-white" id="headerTitle">ระบบจัดการ SMP</h5>
+    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
   </div>
 
   <div class="container mt-4">
@@ -76,10 +93,11 @@
             
             <div class="col-md-12 mb-4 mt-2">
               <label class="form-label">ประเภทของ SMP <span class="required-star">*</span></label>
+              <!-- 🔴 เพิ่ม Label ให้กดติ๊กได้ -->
               <div class="d-flex flex-wrap gap-4 mt-1">
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="เครื่องกล" id="t1"><label class="form-check-label" for="t1">เครื่องกล</label></div>
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label" for="t2">ไฟฟ้าและการควบคุม</label></div>
-                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="อื่นๆ" id="t3" onchange="toggleOtherType(this.checked)"><label class="form-check-label" for="t3">อื่นๆ</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="เครื่องกล" id="t1"><label class="form-check-label cursor-pointer" for="t1">เครื่องกล</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label cursor-pointer" for="t2">ไฟฟ้าและการควบคุม</label></div>
+                <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="อื่นๆ" id="t3" onchange="toggleOtherType(this.checked)"><label class="form-check-label cursor-pointer" for="t3">อื่นๆ</label></div>
               </div>
               <input type="text" class="form-control mt-2" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none;">
             </div>
@@ -129,8 +147,15 @@
             <img src="images/icon_loto.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ต้องการ" required><label class="form-check-label">ต้องการ</label></div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_loto" value="ไม่ต้องการ"><label class="form-check-label">ไม่ต้องการ</label></div>
+              <!-- 🔴 เพิ่ม for และ id เพื่อให้กดที่ตัวหนังสือได้ -->
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="r_loto" id="loto_req" value="ต้องการ" required>
+                <label class="form-check-label cursor-pointer" for="loto_req">ต้องการ</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="r_loto" id="loto_not_req" value="ไม่ต้องการ">
+                <label class="form-check-label cursor-pointer" for="loto_not_req">ไม่ต้องการ</label>
+              </div>
             </div>
           </div>
 
@@ -149,9 +174,19 @@
             <img src="images/icon_risk_assessed.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ใช่" required><label class="form-check-label">ใช่</label></div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่ใช่"><label class="form-check-label">ไม่ใช่</label></div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="r_riskAssessed" value="ไม่เกี่ยวข้อง"><label class="form-check-label">ไม่เกี่ยวข้อง</label></div>
+              <!-- 🔴 เพิ่ม for และ id เพื่อให้กดที่ตัวหนังสือได้ -->
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="r_riskAssessed" id="risk_yes" value="ใช่" required>
+                <label class="form-check-label cursor-pointer" for="risk_yes">ใช่</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="r_riskAssessed" id="risk_no" value="ไม่ใช่">
+                <label class="form-check-label cursor-pointer" for="risk_no">ไม่ใช่</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="r_riskAssessed" id="risk_na" value="ไม่เกี่ยวข้อง">
+                <label class="form-check-label cursor-pointer" for="risk_na">ไม่เกี่ยวข้อง</label>
+              </div>
             </div>
           </div>
         </div>
@@ -182,7 +217,7 @@
 
 <script>
   // =========================================================
-  // 🔴 API URL ของคุณ
+  // API URL
   // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -249,7 +284,7 @@
         html += `
         <div class="col-md-6 col-lg-4">
           <div class="card p-3 card-smp mb-3 bg-white" onclick="showDetail('${item.smpId}')">
-            <h5 class="mb-1 text-primary fw-bold">${item.smpId}</h5>
+            <h5 class="mb-1 text-primary fw-bold" style="color:var(--unilever-blue) !important;">${item.smpId}</h5>
             <div class="fw-bold mb-2 text-dark text-truncate">${item.title}</div>
             <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">calendar_today</i> ${item.date}</div>
             <div class="text-muted small text-truncate"><i class="material-icons align-middle" style="font-size:14px;">precision_manufacturing</i> ${item.line || '-'}</div>
@@ -272,7 +307,7 @@
     const html = `
       <div class="step-card" id="step_row_${stepCounter}">
         <div class="d-flex justify-content-between mb-3 align-items-center">
-          <h6 class="text-primary m-0 fw-bold">ขั้นตอนการทำงาน</h6>
+          <h6 class="text-primary m-0 fw-bold" style="color:var(--unilever-blue) !important;">ขั้นตอนการทำงาน</h6>
           <button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>
         </div>
         <div class="mb-3"><label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="form-control s-task" required></div>
@@ -435,7 +470,7 @@
     let html = `
       <div class="d-flex align-items-center border-bottom pb-3 mb-4">
         <img src="images/logo.png" alt="Company Logo" style="height: 60px; object-fit: contain;" onerror="this.src='logo.png'">
-        <div class="flex-grow-1 text-center pe-5"><h3 class="fw-bold text-dark mb-1">${m.title}</h3><h5 class="text-primary m-0">${m.smpId}</h5></div>
+        <div class="flex-grow-1 text-center pe-5"><h3 class="fw-bold text-dark mb-1">${m.title}</h3><h5 class="m-0" style="color:var(--unilever-blue);">${m.smpId}</h5></div>
       </div>
       
       <div class="row mb-4 text-dark">
@@ -457,7 +492,7 @@
 
       ${m.mainImage ? `<div class="mb-5 text-center"><img src="${m.mainImage}" style="max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>` : ''}
 
-      <h5 class="fw-bold mb-3 border-start border-4 border-success ps-2">ขั้นตอนการทำงาน</h5>
+      <h5 class="fw-bold mb-3 border-start border-4 ps-2" style="border-color:var(--unilever-blue) !important;">ขั้นตอนการทำงาน</h5>
       <div class="table-responsive">
         <table class="table table-hover border align-middle">
           <thead class="table-light"><tr><th width="5%" class="text-center">#</th><th width="25%">ขั้นตอน</th><th width="15%">ประเภท</th><th width="10%">เวลา(นาที)</th><th width="45%">รายละเอียด & รูปภาพ</th></tr></thead>
@@ -509,7 +544,6 @@
     btn.disabled = true;
 
     try {
-      // 🚨 โหลดเทมเพลตชื่อ SMP-Template.xlsx
       const response = await fetch('SMP-Template.xlsx');
       if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
       const arrayBuffer = await response.arrayBuffer();
@@ -525,10 +559,7 @@
       worksheet.getCell('E4').value = m.machine; 
       worksheet.getCell('R3').value = m.smpId;
       worksheet.getCell('Y3').value = m.presenter;
-      
-      // 🔴 ขยับ "อนุมัติโดย" ไปที่คอลัมน์ AJ (ช่อง AJ3)
       worksheet.getCell('AJ3').value = m.approver || ''; 
-      
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
       // 2. ข้อมูลแถวที่ 6 
@@ -539,7 +570,7 @@
       worksheet.getCell('AI6').value = m.downtime || ''; 
       worksheet.getCell('AO6').value = m.frequency || ''; 
 
-      // 3. 🔴 ระบบติ๊กถูกด้วยรูปภาพ (check.png)
+      // 3. ระบบติ๊กถูกด้วยรูปภาพ (check.png)
       let checkBase64 = await fetchImageAsBase64('images/check.png');
       let checkId = null;
       if(checkBase64) {
@@ -552,25 +583,21 @@
         }
       }
 
-      // วางติ๊กถูก: ประเภท SMP (กะให้ลงกลางช่องพอดี)
-      if (m.smpType.includes('เครื่องกล')) placeCheck(8.2, 5.2); // ช่อง I6
-      if (m.smpType.includes('ไฟฟ้า')) placeCheck(14.2, 5.2); // ช่อง O6
+      if (m.smpType.includes('เครื่องกล')) placeCheck(8.2, 5.2); 
+      if (m.smpType.includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
 
-      // วางติ๊กถูก: สถานะ LOTO (ลงคอลัมน์ W)
-      if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); // ช่อง W11
-      else placeCheck(22.2, 13.2); // ช่อง W14
+      if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); 
+      else placeCheck(22.2, 13.2); 
 
-      // วางติ๊กถูก: ประเมินความเสี่ยง (ลงคอลัมน์ AP)
-      if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); // ช่อง AP11
-      else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); // ช่อง AP13
-      else placeCheck(41.2, 14.2); // ช่อง AP15
+      if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); 
+      else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); 
+      else placeCheck(41.2, 14.2); 
 
-      // 4. วางรูปกากบาท ❌ ทับ PPE และ ความเสี่ยงที่ไม่ได้ใช้งาน
+      // 4. วางรูปกากบาท ❌ ทับ PPE
       let crossBase64 = await fetchImageAsBase64('images/cross.png');
       if (crossBase64) {
         let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
         
-        // 🔴 พิกัดกากบาท PPE: ห่างช่องละ 2 คอลัมน์ และปรับขนาดเหลือ 55x55 ให้พอดีรูป 1.5 cm 
         const ppeCrossCoords = {
           'ถุงมือ': { col: 5.15, row: 10.5 },
           'หมวกนิรภัย': { col: 7.0, row: 10.5 },
@@ -582,28 +609,25 @@
           'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 }
         };
 
-        // พิกัดกากบาทความเสี่ยง
         const riskCrossCoords = {
           'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
           'จุดหนีบ': { col: 25.2, row: 10.2 },       
           'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 
           'ยกด้วยมือ': { col: 29.5, row: 10.2 },
           'ทำงานที่สูง': { col: 31.5, row: 10.2 },
-          'สารเคมี': { col: 33.5, row: 10.2 },        
+          'สารเคมี': { col: 34.5, row: 10.2 },        
           'เสียงดัง': { col: 35.87, row: 10.2 }        
         };
 
-        // แปะกากบาททับ PPE ที่ไม่ได้เลือก
         m.ppe.forEach(p => { 
           if (!p.used && ppeCrossCoords[p.name]) {
             worksheet.addImage(crossId, { 
               tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, 
-              ext: { width: 55, height: 65 } // กากบาท 55x55 ครอบรูป 1.5 cm พอดี
+              ext: { width: 56, height: 56 } 
             });
           } 
         });
 
-        // แปะกากบาททับ Risk ที่ไม่ได้เลือก
         m.risks.forEach(r => { 
           if (!r.risk && riskCrossCoords[r.name]) {
             worksheet.addImage(crossId, { 
@@ -614,7 +638,7 @@
         });
       }
 
-      // 5. รูปการทำงานหลัก (กึ่งกลางช่อง U พอดี และขยับต่ำลงมา)
+      // 5. รูปการทำงานหลัก 
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
@@ -626,7 +650,7 @@
         }
       }
 
-      // 6. 🔴 ดึงสัญลักษณ์ Category (ก๊อปปี้ทั้งข้อความและสี จากเทมเพลต 100%)
+      // 6. ดึงสัญลักษณ์ Category จาก K11, Q16, T16, W16
       const getStyle = (cellStr) => {
         let cell = worksheet.getCell(cellStr);
         return { val: cell.value || '', font: cell.font || {} };
@@ -644,13 +668,12 @@
         if (i >= stepRows.length) break; 
         let r = stepRows[i]; 
         
-        // ลำดับขั้นตอนเริ่มที่ 0
         worksheet.getCell('B' + r).value = i; 
         worksheet.getCell('C' + r).value = s.stepName;
         worksheet.getCell('J' + r).value = s.timeTaken || '';
         worksheet.getCell('M' + r).value = s.description;
 
-        // วางสัญลักษณ์ Category ให้ตรงกับฟอนต์และสี
+        // วางสัญลักษณ์ Category
         let targetSym = symSafe;
         if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = symSafe; }
         else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = symQual; }
@@ -662,7 +685,7 @@
         cellK.font = targetSym.font;
         cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // 7. แทรกรูปภาพย่อย 🔴 (ขยับลงและขวา ให้อยู่ในกรอบ และจัดเรียง 2 แถว แถวละ 4 รูป)
+        // 7. แทรกรูปภาพย่อย 
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
@@ -674,7 +697,6 @@
               let rIndex = Math.floor(imgIndex / colsPerRow); 
               
               worksheet.addImage(stepImgId, {
-                // ขยับขวามาที่ 27.5 (ให้พ้นตารางซ้าย) | ขยับลงมา r - 1 + 0.5 (ให้พ้นขอบบน)
                 tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, 
                 ext: { width: 120, height: 80 } 
               });
