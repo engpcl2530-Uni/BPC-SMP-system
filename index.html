@@ -91,16 +91,6 @@
     @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     .floating-toast:hover { background: var(--secondary); }
 
-    /* Custom Modal */
-    .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(3px); animation: fadeIn 0.2s ease-out; }
-    .custom-modal-box { background: white; padding: 35px 25px; border-radius: 20px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease-out; }
-    @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .custom-modal-icon { font-size: 55px; margin-bottom: 15px; }
-    .custom-modal-title { margin: 0 0 10px 0; color: var(--primary); font-size: 20px; font-weight: 700; }
-    .custom-modal-msg { color: var(--text-muted); margin: 0 0 25px 0; font-size: 14px; line-height: 1.5; }
-    .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
-    .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
-
     /* Dashboard & Filters */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
@@ -132,16 +122,6 @@
 </head>
 <body>
 
-  <!-- 🔴 Custom Modal UI -->
-  <div class="custom-modal-overlay" id="customModal">
-    <div class="custom-modal-box">
-      <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
-      <h3 class="custom-modal-title" id="modalTitle">Title</h3>
-      <p class="custom-modal-msg" id="modalMessage">Message goes here</p>
-      <button class="custom-modal-btn" onclick="closeModal()">ตกลง (OK)</button>
-    </div>
-  </div>
-
   <!-- 🔴 Header -->
   <div class="header" id="mainHeader">
     <div class="header-left">
@@ -152,6 +132,7 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- 🔴 ปุ่มกากบาทเห็นชัดเจน สำหรับปิดหน้าฟอร์ม/หน้า Detail -->
       <button class="btn-close-page" id="btnCloseView" style="display:none;" onclick="showHome()"><span class="material-symbols-rounded">close</span></button>
       <button class="btn-close-page" id="btnSync" style="display:none; background: #D69E2E;" onclick="syncOfflineData()"><span class="material-symbols-rounded">sync</span></button>
     </div>
@@ -163,7 +144,7 @@
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
-      <!-- Dashboard -->
+      <!-- 🔴 Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
         <div class="card-title" style="margin-bottom: 10px;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">จำนวนเอกสาร SMP ที่จัดทำแยกตามผู้จัดทำ (Top 10)</p>
@@ -172,7 +153,7 @@
         </div>
       </div>
 
-      <!-- Advanced Filter System -->
+      <!-- 🔴 Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -200,8 +181,7 @@
             </select>
           </div>
           <div class="form-group">
-            <!-- 🔴 เปลี่ยนคำว่า กลุ่มงาน เป็น ประเภท SMP -->
-            <label>ประเภท SMP</label>
+            <label>กลุ่มงาน (Discipline)</label>
             <select id="filterType" onchange="applyFilters()">
               <option value="">-- ทั้งหมด --</option>
               <option value="เครื่องกล">เครื่องกล (ME)</option>
@@ -237,8 +217,7 @@
           
           <div class="form-row">
             <div class="form-group" style="flex:100%;">
-              <!-- 🔴 เปลี่ยนคำว่า กลุ่มงาน เป็น ประเภท SMP -->
-              <label>ประเภท SMP <span class="required-star">*</span></label>
+              <label>กลุ่มงาน (Maintenance Discipline) <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
@@ -397,6 +376,7 @@
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
       
+      <!-- 🔴 อัปเดตเลย์เอาต์ปุ่ม Edit/Delete/Excel ตรงนี้ตามสั่งครับ -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร</button>
         
@@ -438,20 +418,6 @@
       loadSMPList(); 
       checkOfflineStatus(); 
     };
-
-    // --- 🔴 ระบบแจ้งเตือน Custom Modal ---
-    function showModal(title, message, iconName, color) {
-      document.getElementById('modalTitle').innerText = title;
-      document.getElementById('modalTitle').style.color = color;
-      document.getElementById('modalMessage').innerText = message;
-      document.getElementById('modalIcon').innerText = iconName;
-      document.getElementById('modalIcon').style.color = color;
-      document.getElementById('customModal').style.display = 'flex';
-    }
-    
-    function closeModal() {
-      document.getElementById('customModal').style.display = 'none';
-    }
 
     // --- Parser Helper สำหรับวันที่ ---
     function parseDateSafely(dateStr) {
@@ -516,8 +482,7 @@
     }
 
     function loadDraft() {
-      // 🔴 ใช้ Modal แจ้งเตือนการดึงข้อมูลแทน alert
-      showModal('กู้คืนข้อมูลสำเร็จ', 'ระบบได้โหลดข้อมูลร่างของคุณกลับมาแล้ว (หมายเหตุ: ในโค้ดจริงต้องตั้งค่าให้ดึงค่ามาใส่ input ให้ครบ)', 'restore', 'var(--secondary)');
+      alert("กู้คืนข้อมูลสำเร็จ (ในโค้ดจริงต้องดึงค่ามาใส่ input ให้ครบ)");
       document.getElementById('draftToast').style.display = 'none';
     }
 
@@ -623,7 +588,7 @@
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
 
-    function editCurrentSMP() { showModal("โหมดแก้ไข", "ฟีเจอร์นี้เปิดโหมดนำข้อมูลเดิมมาแก้ไข...", "edit", "var(--secondary)"); }
+    function editCurrentSMP() { alert("เปิดโหมดนำข้อมูลเดิมมาแก้ไข..."); }
     function deleteCurrentSMP() { if(confirm("ต้องการลบ?")) { /* delete logic */ } }
 
     function showDetail(smpId) {
@@ -833,7 +798,7 @@
       e.preventDefault();
       
       let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
-      if(!smpTypeSelected) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกประเภท SMP ด้วยครับ", "warning", "#D69E2E"); return; }
+      if(!smpTypeSelected) { alert("กรุณาเลือกกลุ่มงาน SMP"); return; }
       let finalSmpType = smpTypeSelected.value;
       if(finalSmpType === 'อื่นๆ') { 
         let otherVal = document.getElementById('f_smpTypeOther').value; 
@@ -846,7 +811,7 @@
           let oPres = document.getElementById('f_presenter_other').value;
           if(oPres.trim() !== "") presArray.push(oPres);
       }
-      if(presArray.length === 0) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกหรือระบุผู้จัดทำอย่างน้อย 1 คน", "warning", "#D69E2E"); return; }
+      if(presArray.length === 0) { alert("กรุณาเลือกผู้จัดทำอย่างน้อย 1 คน"); return; }
       let presenter = presArray.join(', ');
 
       let line = document.getElementById('f_line_sel').value === 'other' ? document.getElementById('f_line_other').value : document.getElementById('f_line_sel').value;
@@ -886,18 +851,17 @@
 
       let finalPayload = { action: 'insert', formData: formData, stepsData: stepsData };
 
-      // 🔴 Modal สำหรับการแจ้งเตือนต่างๆ 
       fetch(API_URL, { method: 'POST', body: JSON.stringify(finalPayload) })
       .then(res => res.json())
       .then(res => {
         if(res.status === 'success'){
-          showModal('บันทึกสำเร็จ!', 'สร้างรหัสเอกสาร: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
+          alert("บันทึกสำเร็จ! รหัสเอกสาร: " + res.smpId); 
           localStorage.removeItem('smp_draft');
           document.getElementById('draftToast').style.display = 'none';
           showHome();
-        } else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
+        } else { alert("ผิดพลาด: " + res.message); }
       })
-      .catch(err => showModal('ข้อผิดพลาดเครือข่าย', 'การเชื่อมต่อล้มเหลว: ' + err, 'cloud_off', '#E53E3E'))
+      .catch(err => alert("การเชื่อมต่อล้มเหลว: " + err))
       .finally(() => { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded">cloud_upload</span> บันทึกเข้าระบบ (Submit)'; });
     });
 
@@ -953,7 +917,7 @@
         
         <div style="padding:25px;">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
-            <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">กลุ่มงาน</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${m.date.split(' ')[0]}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div>
@@ -974,13 +938,8 @@
           <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-              <!-- 🔴 แยกคอลัมน์ รายละเอียด และ รูปภาพ ออกจากกัน -->
               <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
-                <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
-                <th style="padding:10px;">ขั้นตอน</th>
-                <th style="padding:10px;">ประเภท</th>
-                <th style="padding:10px; min-width:200px;">รายละเอียด</th>
-                <th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
+                <th style="padding:10px; border-radius:8px 0 0 8px;">#</th><th style="padding:10px;">ขั้นตอน</th><th style="padding:10px;">ประเภท</th><th style="padding:10px;">รายละเอียด & รูปภาพ</th>
               </tr></thead>
               <tbody>
       `;
@@ -991,16 +950,12 @@
         else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
         else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
 
-        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border);"></a>`).join('');
-        
-        // 🔴 ปรับตารางใหม่ ให้ข้อมูลและรูปแยกเซลล์กัน (td) อย่างชัดเจน
+        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:50px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
         html += `<tr style="border-bottom:1px solid var(--border);">
-                 <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
-                 <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
-                 <td style="padding:12px 10px; vertical-align:top;"><span style="background:${bBg}; color:${bCol}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap;">${s.typeSymbol}</span></td>
-                 <td style="padding:12px 10px; vertical-align:top;"><div style="white-space:pre-wrap; color:var(--text-muted);">${s.description}</div></td>
-                 <td style="padding:12px 10px; vertical-align:top;"><div style="display:flex; flex-wrap:wrap; gap:5px;">${imgs}</div></td>
-                 </tr>`;
+                 <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted);">${s.stepNo}</td>
+                 <td style="padding:12px 10px; font-weight:600;">${s.stepName}</td>
+                 <td style="padding:12px 10px;"><span style="background:${bBg}; color:${bCol}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap;">${s.typeSymbol}</span></td>
+                 <td style="padding:12px 10px;"><div style="white-space:pre-wrap; color:var(--text-muted);">${s.description}</div><div>${imgs}</div></td></tr>`;
       });
 
       html += `</tbody></table></div></div>`;
@@ -1101,7 +1056,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
       } catch (error) {
-        console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
+        console.error(error); alert("ระบบแจ้ง Error: " + error.message);
       } finally {
         btn.innerHTML = originalText; btn.disabled = false;
       }
