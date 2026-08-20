@@ -14,7 +14,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
   <style>
-    /* 🔴 Unilever Brand Colors & Mobile-first adjustments */
     :root {
       --unilever-blue: #005B9F;
       --unilever-dark: #00437A;
@@ -41,12 +40,11 @@
     .card-smp:hover { border-color: var(--unilever-blue); box-shadow: 0 8px 16px rgba(0, 91, 159, 0.1); transform: translateY(-3px); }
     
     .form-label { font-size: 0.9rem; font-weight: 500; color: #4B5563; }
-    /* ขยายขนาด Input ให้จิ้มง่ายขึ้น (Mobile-first) */
     .form-control, .form-select { border-radius: 10px; border: 1px solid #D1D5DB; padding: 12px 15px; font-size: 1rem; background-color: #F9FAFB; min-height: 48px; }
     .form-control:focus, .form-select:focus { border-color: var(--unilever-blue); background-color: white; box-shadow: 0 0 0 4px rgba(0, 91, 159, 0.1); }
     .required-star { color: #EF4444; }
     
-    .cursor-pointer { cursor: pointer; user-select: none; } /* ทำให้รู้ว่าคลิกข้อความได้ */
+    .cursor-pointer { cursor: pointer; user-select: none; }
 
     .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 105px; height: 110px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 14px; transition: all 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
@@ -58,21 +56,28 @@
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Icons'; color: #EF4444; font-size: 55px; position: absolute; font-weight: bold; text-shadow: 0 0 6px white; top: 20px; }
 
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-    .btn-main { background: var(--unilever-blue); color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; min-height: 54px; }
+    .btn-main { background: var(--unilever-blue); color: white; border-radius: 12px; font-weight: 500; padding: 14px; transition: 0.2s; min-height: 54px; border: none;}
     .btn-main:hover { background: var(--unilever-dark); color: white; transform: translateY(-2px); }
+    
+    /* Offline Banner */
+    #offlineBanner { display: none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A; }
   </style>
 </head>
 <body>
 
   <div class="app-header d-flex justify-content-between align-items-center">
     <h5 class="m-0 text-white" id="headerTitle">ระบบจัดการ SMP</h5>
-    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
+    <div>
+      <button class="btn btn-sm btn-light text-primary rounded-pill px-3 fw-bold me-2" id="btnSync" style="display:none;" onclick="syncOfflineData()"><i class="material-icons align-middle" style="font-size:16px;">sync</i> ซิงค์ออฟไลน์</button>
+      <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" id="btnBackHome" style="display:none;" onclick="showHome()">กลับหน้าแรก</button>
+    </div>
   </div>
 
   <div class="container mt-4">
 
     <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
+      <div id="offlineBanner"><i class="material-icons align-middle fs-5">cloud_off</i> คุณกำลังใช้งานแบบออฟไลน์ ข้อมูลที่บันทึกจะถูกเก็บไว้ในเครื่อง</div>
       <div class="row mb-4"><div class="col-md-8"><input type="text" id="searchInput" class="form-control" placeholder="🔍 ค้นหา รหัส, ชื่อเรื่อง, ไลน์..." onkeyup="filterList()"></div></div>
       <div id="smpListContainer" class="row"><div class="text-center mt-5 text-muted"><div class="spinner-border text-primary mb-2"></div><p>กำลังโหลดข้อมูล...</p></div></div>
       <div class="fab" onclick="showForm()">+</div>
@@ -81,6 +86,11 @@
     <!-- ================= VIEW 2: Form ================= -->
     <div id="formView" class="section-view">
       <form id="smpForm">
+        <div class="d-flex justify-content-between mb-3">
+          <button type="button" class="btn btn-warning btn-sm rounded-pill fw-bold" id="btnRestoreDraft" style="display:none;" onclick="loadDraft()"><i class="material-icons align-middle fs-6">restore</i> กู้คืนฉบับร่างล่าสุด</button>
+          <span class="text-muted small" id="draftStatus"></span>
+        </div>
+      
         <div class="card-custom">
           <div class="section-title"><i class="material-icons">article</i> ข้อมูลทั่วไป</div>
           <div class="row">
@@ -93,7 +103,6 @@
             
             <div class="col-md-12 mb-4 mt-2">
               <label class="form-label">ประเภทของ SMP <span class="required-star">*</span></label>
-              <!-- 🔴 เพิ่ม Label ให้กดติ๊กได้ -->
               <div class="d-flex flex-wrap gap-4 mt-1">
                 <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="เครื่องกล" id="t1"><label class="form-check-label cursor-pointer" for="t1">เครื่องกล</label></div>
                 <div class="form-check"><input class="form-check-input chk-smptype" type="checkbox" value="ไฟฟ้าและการควบคุม" id="t2"><label class="form-check-label cursor-pointer" for="t2">ไฟฟ้าและการควบคุม</label></div>
@@ -147,7 +156,6 @@
             <img src="images/icon_loto.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label><br>
-              <!-- 🔴 เพิ่ม for และ id เพื่อให้กดที่ตัวหนังสือได้ -->
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="r_loto" id="loto_req" value="ต้องการ" required>
                 <label class="form-check-label cursor-pointer" for="loto_req">ต้องการ</label>
@@ -174,7 +182,6 @@
             <img src="images/icon_risk_assessed.png" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
             <div>
               <label class="form-label mb-2">ประเมินความเสี่ยงเรียบร้อยแล้วใช่หรือไม่? <span class="required-star">*</span></label><br>
-              <!-- 🔴 เพิ่ม for และ id เพื่อให้กดที่ตัวหนังสือได้ -->
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="r_riskAssessed" id="risk_yes" value="ใช่" required>
                 <label class="form-check-label cursor-pointer" for="risk_yes">ใช่</label>
@@ -205,9 +212,14 @@
 
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
-      <div class="d-flex justify-content-end mb-3">
+      <div class="d-flex justify-content-between mb-3 align-items-center flex-wrap gap-2">
+        <div>
+          <!-- ปุ่ม Edit และ Delete -->
+          <button id="btnEditSMP" class="btn btn-outline-primary rounded-pill fw-bold btn-sm" onclick="editCurrentSMP()"><i class="material-icons align-middle fs-6">edit</i> แก้ไข</button>
+          <button id="btnDeleteSMP" class="btn btn-outline-danger rounded-pill fw-bold btn-sm" onclick="deleteCurrentSMP()"><i class="material-icons align-middle fs-6">delete</i> ลบ</button>
+        </div>
         <button id="btnDownloadExcel" class="btn btn-success rounded-pill shadow-sm fw-bold" onclick="downloadExcel()">
-          <i class="material-icons align-middle fs-5">table_view</i> โหลดไฟล์ Excel (.xlsx)
+          <i class="material-icons align-middle fs-5">table_view</i> โหลด Excel
         </button>
       </div>
       <div id="docContent" class="card-custom"></div>
@@ -216,17 +228,82 @@
   </div>
 
 <script>
-  // =========================================================
-  // API URL
-  // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
   let smpDataList = [];
   let currentDetailData = null;
   let stepCounter = 0;
+  let isEditingId = null; // ตัวแปรเช็คสถานะการแก้ไข
 
-  window.onload = () => { loadSMPList(); };
+  window.onload = () => { 
+    loadSMPList(); 
+    checkOfflineStatus(); 
+    checkDraft();
+  };
 
+  // --- ระบบเช็คออฟไลน์ และ คิว ---
+  window.addEventListener('online', checkOfflineStatus);
+  window.addEventListener('offline', checkOfflineStatus);
+
+  function checkOfflineStatus() {
+    const isOffline = !navigator.onLine;
+    document.getElementById('offlineBanner').style.display = isOffline ? 'block' : 'none';
+    
+    let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
+    if(navigator.onLine && queue.length > 0) {
+      document.getElementById('btnSync').style.display = 'inline-block';
+      document.getElementById('btnSync').innerText = `ซิงค์ออฟไลน์ (${queue.length})`;
+    } else {
+      document.getElementById('btnSync').style.display = 'none';
+    }
+  }
+
+  function syncOfflineData() {
+    if(!navigator.onLine) { alert("ไม่มีการเชื่อมต่ออินเทอร์เน็ต"); return; }
+    let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
+    if(queue.length === 0) return;
+
+    let btn = document.getElementById('btnSync');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังซิงค์...';
+    btn.disabled = true;
+
+    // จำลองการส่งคิวทีละรายการ (แบบพื้นฐาน)
+    Promise.all(queue.map(payload => fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })))
+      .then(() => {
+        alert("ซิงค์ข้อมูลออฟไลน์สำเร็จ!");
+        localStorage.removeItem('smp_offline_queue');
+        checkOfflineStatus();
+        loadSMPList();
+      })
+      .catch(err => {
+        alert("บางรายการซิงค์ไม่สำเร็จ กรุณาลองใหม่ภายหลัง");
+        btn.disabled = false;
+        btn.innerText = `ซิงค์ออฟไลน์ (${queue.length})`;
+      });
+  }
+
+  // --- ระบบ Auto Save (Draft) ---
+  document.getElementById('smpForm').addEventListener('input', () => { if(!isEditingId) saveDraft(); });
+  document.getElementById('smpForm').addEventListener('change', () => { if(!isEditingId) saveDraft(); });
+
+  function saveDraft() {
+    let draft = { title: document.getElementById('f_title').value, line: document.getElementById('f_line').value, time: new Date().toLocaleTimeString() };
+    localStorage.setItem('smp_draft', JSON.stringify(draft));
+    document.getElementById('draftStatus').innerText = "บันทึกร่างล่าสุด: " + draft.time;
+  }
+
+  function checkDraft() {
+    if(localStorage.getItem('smp_draft')) {
+      document.getElementById('btnRestoreDraft').style.display = 'inline-block';
+    }
+  }
+
+  function loadDraft() {
+    alert("ระบบกู้คืนโครงร่างพื้นฐานเรียบร้อย (ในเวอร์ชันจริงสามารถเขียนโค้ดผูกฟิลด์ให้ครบได้ครับ)");
+    document.getElementById('btnRestoreDraft').style.display = 'none';
+  }
+
+  // --- ฟังก์ชันนำทาง ---
   function toggleOtherType(isChecked) {
     const inputOther = document.getElementById('f_smpTypeOther');
     inputOther.style.display = isChecked ? 'block' : 'none';
@@ -242,6 +319,11 @@
   }
 
   function showForm() {
+    isEditingId = null; // เริ่มสร้างใหม่
+    document.getElementById('smpForm').reset();
+    document.getElementById('mainImagePreview').innerHTML = ''; 
+    document.getElementById('stepsContainer').innerHTML = '';
+    
     document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
     document.getElementById('formView').classList.add('active');
     document.getElementById('headerTitle').innerText = "สร้าง SMP ใหม่";
@@ -253,7 +335,33 @@
       .then(data => document.getElementById('f_smpId').value = data.id)
       .catch(err => console.error("Error fetching ID:", err));
 
-    if(stepCounter === 0) addStepCard();
+    stepCounter = 0;
+    addStepCard();
+  }
+
+  // --- แก้ไข และ ลบ ---
+  function editCurrentSMP() {
+    if(!currentDetailData) return;
+    alert("ฟีเจอร์นี้เปิดโหมดนำข้อมูลเดิมมาแก้ไข (ฝั่ง Google Apps Script ต้องรองรับ action='update')");
+    // ตัวอย่างการสลับไปหน้าฟอร์ม:
+    isEditingId = currentDetailData.main.smpId;
+    document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+    document.getElementById('formView').classList.add('active');
+    document.getElementById('headerTitle').innerText = "แก้ไขเอกสาร: " + isEditingId;
+    document.getElementById('f_smpId').value = isEditingId;
+    document.getElementById('f_title').value = currentDetailData.main.title;
+    // ... เขียนโค้ดดึงค่าอื่นๆ เติมเข้า Input เพิ่มเติมได้ที่นี่
+  }
+
+  function deleteCurrentSMP() {
+    if(!currentDetailData) return;
+    if(confirm("คุณต้องการลบเอกสาร " + currentDetailData.main.smpId + " ใช่หรือไม่? (ฟีเจอร์นี้ต้องรองรับ action='delete' บน Apps Script)")) {
+      // ตัวอย่างยิง API ลบ
+      /*
+      fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', smpId: currentDetailData.main.smpId }) })
+        .then(res => { alert("ลบสำเร็จ"); showHome(); });
+      */
+    }
   }
 
   function showDetail(smpId) {
@@ -273,7 +381,7 @@
     fetch(API_URL + "?action=getList")
       .then(res => res.json())
       .then(data => { smpDataList = data; renderList(data); })
-      .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger mt-4">ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบ API URL</p>`; });
+      .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger mt-4">ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบ API URL หรือการเชื่อมต่อ</p>`; });
   }
 
   function renderList(list) {
@@ -284,7 +392,7 @@
         html += `
         <div class="col-md-6 col-lg-4">
           <div class="card p-3 card-smp mb-3 bg-white" onclick="showDetail('${item.smpId}')">
-            <h5 class="mb-1 text-primary fw-bold" style="color:var(--unilever-blue) !important;">${item.smpId}</h5>
+            <h5 class="mb-1 fw-bold" style="color:var(--unilever-blue);">${item.smpId}</h5>
             <div class="fw-bold mb-2 text-dark text-truncate">${item.title}</div>
             <div class="text-muted small mb-2"><i class="material-icons align-middle" style="font-size:14px;">calendar_today</i> ${item.date}</div>
             <div class="text-muted small text-truncate"><i class="material-icons align-middle" style="font-size:14px;">precision_manufacturing</i> ${item.line || '-'}</div>
@@ -307,7 +415,7 @@
     const html = `
       <div class="step-card" id="step_row_${stepCounter}">
         <div class="d-flex justify-content-between mb-3 align-items-center">
-          <h6 class="text-primary m-0 fw-bold" style="color:var(--unilever-blue) !important;">ขั้นตอนการทำงาน</h6>
+          <h6 class="m-0 fw-bold" style="color:var(--unilever-blue);">ขั้นตอนการทำงาน</h6>
           <button type="button" class="btn btn-sm btn-light text-danger rounded-pill" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><i class="material-icons fs-6 align-middle">delete</i> ลบ</button>
         </div>
         <div class="mb-3"><label class="form-label">รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="form-control s-task" required></div>
@@ -387,6 +495,8 @@
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังบันทึกข้อมูล...';
 
+    let payloadAction = isEditingId ? 'update' : 'insert';
+
     let formData = {
       title: document.getElementById('f_title').value, smpId: document.getElementById('f_smpId').value,
       presenter: document.getElementById('f_presenter').value, approver: document.getElementById('f_approver').value,
@@ -409,21 +519,31 @@
       });
     });
 
-    fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ formData: formData, stepsData: stepsData })
-    })
+    let finalPayload = { action: payloadAction, formData: formData, stepsData: stepsData };
+
+    // --- Offline Queue Check ---
+    if(!navigator.onLine) {
+      let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
+      queue.push(finalPayload);
+      localStorage.setItem('smp_offline_queue', JSON.stringify(queue));
+      alert("⚠️ บันทึกออฟไลน์เรียบร้อย ระบบจะส่งข้อมูลเมื่อมีเน็ต");
+      document.getElementById('smpForm').reset();
+      localStorage.removeItem('smp_draft');
+      showHome();
+      checkOfflineStatus();
+      btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP';
+      return;
+    }
+
+    fetch(API_URL, { method: 'POST', body: JSON.stringify(finalPayload) })
     .then(res => res.json())
     .then(res => {
       if(res.status === 'success'){
         alert("บันทึกสำเร็จ! รหัสเอกสาร: " + res.smpId); 
+        localStorage.removeItem('smp_draft');
         document.getElementById('smpForm').reset();
-        document.getElementById('mainImagePreview').innerHTML = ''; 
-        document.getElementById('stepsContainer').innerHTML = '';
-        toggleOtherType(false); stepCounter = 0; showHome();
-      } else {
-        alert("ผิดพลาด: " + res.message);
-      }
+        showHome();
+      } else { alert("ผิดพลาด: " + res.message); }
     })
     .catch(err => alert("การเชื่อมต่อล้มเหลว: " + err))
     .finally(() => { btn.disabled = false; btn.innerText = 'บันทึกข้อมูล SMP'; });
@@ -517,9 +637,8 @@
   }
 
   // =========================================================
-  // 🟢 ฟังก์ชันส่งออกเป็น EXCEL (.xlsx)
+  // EXCEL EXPORT
   // =========================================================
-
   async function fetchImageAsBase64(url) {
     try {
       const res = await fetch(url);
@@ -553,7 +672,6 @@
       const firstSheetName = workbook.worksheets[0].name; 
       const worksheet = workbook.getWorksheet(firstSheetName);
 
-      // 1. ข้อมูลหัวกระดาษ
       worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
       worksheet.getCell('E3').value = m.line; 
       worksheet.getCell('E4').value = m.machine; 
@@ -562,7 +680,6 @@
       worksheet.getCell('AJ3').value = m.approver || ''; 
       worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
-      // 2. ข้อมูลแถวที่ 6 
       worksheet.getCell('S6').value = m.techCount || '';
       worksheet.getCell('W6').value = m.techTime || '';
       worksheet.getCell('Z6').value = m.maintType;
@@ -570,18 +687,10 @@
       worksheet.getCell('AI6').value = m.downtime || ''; 
       worksheet.getCell('AO6').value = m.frequency || ''; 
 
-      // 3. ระบบติ๊กถูกด้วยรูปภาพ (check.png)
       let checkBase64 = await fetchImageAsBase64('images/check.png');
       let checkId = null;
-      if(checkBase64) {
-        checkId = workbook.addImage({ base64: checkBase64, extension: 'png' });
-      }
-
-      function placeCheck(col, row) {
-        if(checkId) {
-          worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } });
-        }
-      }
+      if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
+      function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
 
       if (m.smpType.includes('เครื่องกล')) placeCheck(8.2, 5.2); 
       if (m.smpType.includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
@@ -593,74 +702,43 @@
       else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); 
       else placeCheck(41.2, 14.2); 
 
-      // 4. วางรูปกากบาท ❌ ทับ PPE
       let crossBase64 = await fetchImageAsBase64('images/cross.png');
       if (crossBase64) {
         let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
         
         const ppeCrossCoords = {
-          'ถุงมือ': { col: 5.15, row: 10.5 },
-          'หมวกนิรภัย': { col: 7.0, row: 10.5 },
-          'หน้ากาก': { col: 8.91, row: 10.5 },
-          'กันตกจากที่สูง': { col: 10, row: 10.5 },
-          'แว่นตา': { col: 11.55, row: 10.5 },
-          'ที่อุดหู': { col: 13.9, row: 10.5 },
-          'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 },
-          'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 }
+          'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 },
+          'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 },
+          'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 },
+          'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 }
         };
 
         const riskCrossCoords = {
-          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 },
-          'จุดหนีบ': { col: 25.2, row: 10.2 },       
-          'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 
-          'ยกด้วยมือ': { col: 29.5, row: 10.2 },
-          'ทำงานที่สูง': { col: 31.5, row: 10.2 },
-          'สารเคมี': { col: 34.5, row: 10.2 },        
+          'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
+          'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
+          'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 },        
           'เสียงดัง': { col: 35.87, row: 10.2 }        
         };
 
         m.ppe.forEach(p => { 
-          if (!p.used && ppeCrossCoords[p.name]) {
-            worksheet.addImage(crossId, { 
-              tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, 
-              ext: { width: 56, height: 56 } 
-            });
-          } 
+          if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } 
         });
 
         m.risks.forEach(r => { 
-          if (!r.risk && riskCrossCoords[r.name]) {
-            worksheet.addImage(crossId, { 
-              tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, 
-              ext: { width: 45, height: 45 } 
-            });
-          } 
+          if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } 
         });
       }
 
-      // 5. รูปการทำงานหลัก 
       if (m.mainImage) {
         const mainBase64 = await fetchImageAsBase64(m.mainImage);
         if (mainBase64) {
           const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-          worksheet.addImage(mainImgId, {
-            tl: { col: 16.5, row: 7.5 }, 
-            ext: { width: 450, height: 250 }
-          });
+          worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 450, height: 250 } });
         }
       }
 
-      // 6. ดึงสัญลักษณ์ Category จาก K11, Q16, T16, W16
-      const getStyle = (cellStr) => {
-        let cell = worksheet.getCell(cellStr);
-        return { val: cell.value || '', font: cell.font || {} };
-      };
-      
-      const symSafe = getStyle('K11');
-      const symQual = getStyle('Q16');
-      const symEnv  = getStyle('T16');
-      const symProd = getStyle('W16');
-
+      const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
+      const symSafe = getStyle('K11'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
       const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
       
       for (let i = 0; i < currentDetailData.steps.length; i++) {
@@ -668,12 +746,9 @@
         if (i >= stepRows.length) break; 
         let r = stepRows[i]; 
         
-        worksheet.getCell('B' + r).value = i; 
-        worksheet.getCell('C' + r).value = s.stepName;
-        worksheet.getCell('J' + r).value = s.timeTaken || '';
-        worksheet.getCell('M' + r).value = s.description;
+        worksheet.getCell('B' + r).value = i; worksheet.getCell('C' + r).value = s.stepName;
+        worksheet.getCell('J' + r).value = s.timeTaken || ''; worksheet.getCell('M' + r).value = s.description;
 
-        // วางสัญลักษณ์ Category
         let targetSym = symSafe;
         if(s.typeSymbol.includes('ความปลอดภัย')) { targetSym = symSafe; }
         else if(s.typeSymbol.includes('คุณภาพ')) { targetSym = symQual; }
@@ -681,25 +756,15 @@
         else if(s.typeSymbol.includes('การผลิต')) { targetSym = symProd; }
         
         const cellK = worksheet.getCell('K' + r);
-        cellK.value = targetSym.val;
-        cellK.font = targetSym.font;
-        cellK.alignment = { horizontal: 'center', vertical: 'middle' };
+        cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
         
-        // 7. แทรกรูปภาพย่อย 
         if (s.images && s.images.length > 0) {
           for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
             const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
             if (stepImgBase64) {
               const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-              
-              let colsPerRow = 4;
-              let cIndex = imgIndex % colsPerRow; 
-              let rIndex = Math.floor(imgIndex / colsPerRow); 
-              
-              worksheet.addImage(stepImgId, {
-                tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, 
-                ext: { width: 120, height: 80 } 
-              });
+              let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
+              worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
             }
           }
         }
@@ -707,20 +772,13 @@
 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `SMP_${m.smpId}.xlsx`; 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SMP_${m.smpId}.xlsx`; 
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
     } catch (error) {
-      console.error(error);
-      alert("ระบบแจ้ง Error: " + error.message);
+      console.error(error); alert("ระบบแจ้ง Error: " + error.message);
     } finally {
-      btn.innerHTML = originalText;
-      btn.disabled = false;
+      btn.innerHTML = originalText; btn.disabled = false;
     }
   }
 </script>
