@@ -1262,15 +1262,15 @@
         if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
         function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
 
-        if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.5, 5); 
-        if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5); 
+        if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.5, 5.5); 
+        if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.5); 
 
         if (m.loto === 'ต้องการ') placeCheck(22.2, 11.2); 
         else placeCheck(22.2, 13.5); 
 
-        if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); 
-        else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); 
-        else placeCheck(41.2, 14.2); 
+        if (m.riskAssessed === 'ใช่') placeCheck(41, 10.2); 
+        else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41, 12.2); 
+        else placeCheck(41, 14.2); 
 
         let crossBase64 = await fetchImageAsBase64('images/cross.png');
         if (crossBase64) {
@@ -1287,7 +1287,7 @@
             'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
             'อุปกรณ์เครื่องมือ': { col: 27.3, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
             'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.4, row: 10.2 },        
-            'เสียงดัง': { col: 35.2, row: 10.2 }        
+            'เสียงดัง': { col: 35.82, row: 10.2 }        
           };
 
           m.ppe.forEach(p => { 
