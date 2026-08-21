@@ -1055,7 +1055,7 @@
       document.getElementById('docContent').innerHTML = html;
     }
 
-    // 🔴 ปรับปรุงระบบโหลด Excel ให้กัน Error 
+// 🔴 ปรับปรุงระบบโหลด Excel ให้กัน Error 
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1072,7 +1072,10 @@
         const arrayBuffer = await response.arrayBuffer();
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(arrayBuffer);
-        const worksheet = workbook.getWorksheet(1);
+        
+        // 🔴 แก้ไขตรงนี้: บังคับดึงหน้า Sheet แรกสุดเสมอ
+        const firstSheetName = workbook.worksheets[0].name; 
+        const worksheet = workbook.getWorksheet(firstSheetName);
 
         worksheet.getCell('N2').value = "ชื่อเรื่อง: " + (m.title || '');
         worksheet.getCell('E3').value = m.line || ''; 
