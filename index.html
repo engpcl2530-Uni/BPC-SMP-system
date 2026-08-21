@@ -7,7 +7,6 @@
   <title>SMP Management System</title>
   
   <link rel="icon" type="image/png" href="images/logo.png">
-  <!-- เพิ่ม Bootstrap สำหรับแอนิเมชันและการจัด Layout -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
@@ -103,7 +102,11 @@
     .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
     .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
-    /* Dashboard & Filters */
+    /* Dashboard Settings Modal (Gear Icon) */
+    .dashboard-gear { background: #EDF2F7; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+    .dashboard-gear:hover { background: #E2E8F0; color: var(--primary); }
+
+    /* Filters */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
     .quick-filters::-webkit-scrollbar { display: none; }
@@ -125,9 +128,9 @@
     .btn-primary { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Prompt'; transition: 0.2s; box-shadow: var(--shadow-md);}
     .btn-primary:active { transform: scale(0.98); }
     .btn-danger-outline { background: transparent; color: #E53E3E; border: 1px solid #E53E3E; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px;}
-    .btn-success { background: #38A169; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: var(--shadow-sm);}
+    .btn-success { background: #38A169; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: var(--shadow-sm); transition: 0.2s;}
+    .btn-success:hover { background: #2F855A; }
     
-    /* Checkbox Grid (Techs) */
     .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
     .checkbox-grid label { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; cursor: pointer; color: var(--text-main);}
   </style>
@@ -167,8 +170,22 @@
       
       <!-- Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
-        <div class="card-title" style="margin-bottom: 10px;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">จำนวนเอกสาร SMP ที่จัดทำแยกตามผู้จัดทำ (Top 10)</p>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="card-title" style="margin: 0; border: none; padding: 0;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
+            <!-- 🔴 ปุ่มตั้งค่า Dashboard (Gear Icon) -->
+            <div class="dropdown">
+                <button class="dashboard-gear" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="material-symbols-rounded" style="font-size:20px;">settings</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; font-family: 'Prompt'; font-size:14px;">
+                    <li><h6 class="dropdown-header text-primary fw-bold">เลือกการแสดงผลกราฟ</h6></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('presenter'); return false;">📊 แยกตามรายบุคคล (ชื่อช่าง)</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('machine'); return false;">⚙️ แยกตามเครื่องจักร</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('line'); return false;">🏭 แยกตามแผนก/ไลน์</a></li>
+                </ul>
+            </div>
+        </div>
+        <p id="chartDescText" style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">จำนวนเอกสาร SMP ที่จัดทำแยกตามรายบุคคล (Top 10)</p>
         <div style="position: relative; height: 220px; width: 100%;">
           <canvas id="smpChart"></canvas>
         </div>
@@ -202,7 +219,6 @@
             </select>
           </div>
           <div class="form-group">
-            <!-- 🔴 เปลี่ยนคำว่า กลุ่มงาน เป็น ประเภท SMP -->
             <label>ประเภท SMP</label>
             <select id="filterType" onchange="applyFilters()">
               <option value="">-- ทั้งหมด --</option>
@@ -239,9 +255,9 @@
           
           <div class="form-row">
             <div class="form-group" style="flex:100%;">
-              <!-- 🔴 เปลี่ยนคำว่า กลุ่มงาน เป็น ประเภท SMP -->
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
+                <!-- 🔴 เมื่อกดเปลี่ยนจะเรียกฟังก์ชันเปลี่ยน Prefix ทันที -->
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ (GE)</label>
@@ -249,7 +265,7 @@
             </div>
 
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
-            <div class="form-group"><label>รหัสเอกสาร (SMP ID) <span class="required-star">*</span></label><input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF;" readonly required></div>
+            <div class="form-group"><label>รหัสเอกสาร (SMP ID) <span class="required-star">*</span></label><input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly required></div>
           </div>
 
           <div class="form-row">
@@ -417,11 +433,14 @@
 
   </div>
 
-  <!-- 🔴 Floating Toast สำหรับแจ้งเตือนแบบร่าง (ย้ายมาไว้ด้านล่างสุด) -->
+  <!-- 🔴 Floating Toast สำหรับแจ้งเตือนแบบร่าง -->
   <div id="draftToast" class="floating-toast" onclick="loadDraft()">
     <span class="material-symbols-rounded">restore_page</span> 
     <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
   </div>
+
+  <!-- 🔴 นำเข้า Bootstrap JS สำหรับ Dropdown -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- 🔴 SCRIPT 🔴 -->
   <script>
@@ -431,7 +450,9 @@
     let filteredDataList = [];
     let currentDetailData = null;
     let stepCounter = -1;
+    
     let myChart = null; 
+    let currentChartMode = 'presenter'; // ค่าเริ่มต้นของกราฟ
     
     const ITEMS_PER_PAGE = 100;
     let currentPage = 1;
@@ -483,13 +504,25 @@
       else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
     }
 
-    // --- รัน ID อัตโนมัติ ---
+    // --- 🔴 ระบบคำนวณ ID อัจฉริยะ (หน้าบ้าน) ---
     function updateSmpIdPrefix(prefix) {
-      let currentId = document.getElementById('f_smpId').value;
-      if(currentId && currentId !== "กำลังดึง ID...") {
-        let parts = currentId.split('-');
-        if(parts.length >= 3) { document.getElementById('f_smpId').value = `BPC-${prefix}-${parts[2]}`; }
+      let maxId = 0;
+      let prefixStr = `BPC-${prefix}-`;
+      
+      // หา ID ล่าสุดของหมวดหมู่นั้นๆ จากข้อมูลทั้งหมดที่ดึงมา
+      for (let item of allSmpDataList) {
+          if (item.smpId && item.smpId.startsWith(prefixStr)) {
+              let numPart = item.smpId.replace(prefixStr, '');
+              let num = parseInt(numPart, 10);
+              if (!isNaN(num) && num > maxId) {
+                  maxId = num;
+              }
+          }
       }
+      
+      let nextNum = maxId + 1;
+      // ปรับเป็นรหัส 4 หลัก
+      document.getElementById('f_smpId').value = `${prefixStr}${String(nextNum).padStart(4, '0')}`;
     }
 
     // --- Offline Mode ---
@@ -546,18 +579,12 @@
       document.getElementById('appSub').innerText = "กรอกรายละเอียดการปฏิบัติงาน";
       document.getElementById('btnCloseView').style.display = 'flex'; 
       
-      document.getElementById('f_smpId').value = "กำลังดึง ID...";
-      fetch(API_URL + "?action=generateId")
-        .then(res => res.json())
-        .then(data => { 
-          document.getElementById('f_smpId').value = data.id; 
-          let checkedType = document.querySelector('input[name="smpTypeGrp"]:checked');
-          if(checkedType) {
-            let prefix = checkedType.value === 'เครื่องกล' ? 'ME' : (checkedType.value === 'ไฟฟ้าและการควบคุม' ? 'EE' : 'GE');
-            updateSmpIdPrefix(prefix);
-          }
-        })
-        .catch(err => console.error(err));
+      // ถ้าข้อมูลโหลดมาแล้ว ค่อยรัน ID
+      if(allSmpDataList.length > 0) {
+        document.getElementById('f_smpId').value = "กรุณาเลือกประเภท SMP...";
+      } else {
+        document.getElementById('f_smpId').value = "กรุณารอโหลดข้อมูลสักครู่...";
+      }
 
       stepCounter = -1; 
       generateLockedSteps(); 
@@ -668,7 +695,6 @@
 
       let lSel = document.getElementById('filterLine');
       lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
-      // ✅ แก้ไข Syntax Error ตรงนี้แล้ว โดยการใส่ปีกกา { ... } ครอบฟังก์ชัน
       [...lines].sort().forEach(l => { lSel.innerHTML += `<option value="${l}">${l}</option>`; });
     }
 
@@ -769,15 +795,35 @@
 
     function loadMoreData() { currentPage++; renderPaginatedList(); }
 
+    // --- 🔴 Dashboard Chart Settings ---
+    function changeChartMode(mode) {
+      currentChartMode = mode;
+      let descText = "";
+      if(mode === 'presenter') descText = "จำนวนเอกสาร SMP ที่จัดทำแยกตามรายบุคคล (Top 10)";
+      if(mode === 'machine') descText = "จำนวนเอกสาร SMP แยกตามเครื่องจักร (Top 10)";
+      if(mode === 'line') descText = "จำนวนเอกสาร SMP แยกตามแผนก/ไลน์ (Top 10)";
+      document.getElementById('chartDescText').innerText = descText;
+      drawDashboardChart(filteredDataList);
+    }
+
     function drawDashboardChart(dataList) {
       document.getElementById('dashboardCard').style.display = 'block';
       let counts = {};
+      
       dataList.forEach(d => {
-        if(d.presenter) {
-          let ps = d.presenter.split(',').map(p => p.trim());
-          ps.forEach(p => { if(p) counts[p] = (counts[p] || 0) + 1; });
-        } else {
-          counts['ไม่ระบุ'] = (counts['ไม่ระบุ'] || 0) + 1;
+        if(currentChartMode === 'presenter') {
+          if(d.presenter) {
+            let ps = d.presenter.split(',').map(p => p.trim());
+            ps.forEach(p => { if(p) counts[p] = (counts[p] || 0) + 1; });
+          } else { counts['ไม่ระบุ'] = (counts['ไม่ระบุ'] || 0) + 1; }
+        } 
+        else if (currentChartMode === 'line') {
+          let l = d.line || 'ไม่ระบุ';
+          counts[l] = (counts[l] || 0) + 1;
+        }
+        else if (currentChartMode === 'machine') {
+          let m = d.machine || 'ไม่ระบุ';
+          counts[m] = (counts[m] || 0) + 1;
         }
       });
 
@@ -785,16 +831,19 @@
       let labels = sorted.map(x => x[0]);
       let values = sorted.map(x => x[1]);
 
+      let chartColor = currentChartMode === 'presenter' ? '#00A5D9' : (currentChartMode === 'line' ? '#38A169' : '#D69E2E');
+
       const ctx = document.getElementById('smpChart').getContext('2d');
       if(myChart) { myChart.destroy(); } 
       
       myChart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: labels, datasets: [{ label: 'จำนวนเอกสาร SMP', data: values, backgroundColor: '#00A5D9', borderRadius: 6 }] },
+        data: { labels: labels, datasets: [{ label: 'จำนวนเอกสาร', data: values, backgroundColor: chartColor, borderRadius: 6 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
       });
     }
 
+    // --- บีบอัดรูป ---
     async function compressFile(file) {
       return new Promise((resolve) => {
         let reader = new FileReader();
@@ -955,7 +1004,7 @@
         <div style="padding:25px;">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
             <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${m.date.split(' ')[0]}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div>
             <div><span style="color:var(--text-muted); font-size:12px;">ไลน์การผลิต</span><br><b>${m.line || '-'}</b></div>
@@ -975,7 +1024,6 @@
           <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-              <!-- 🔴 แยกคอลัมน์ รายละเอียด และ รูปภาพ ออกจากกัน -->
               <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
                 <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
                 <th style="padding:10px;">ขั้นตอน</th>
@@ -992,9 +1040,8 @@
         else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
         else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
 
-        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border);"></a>`).join('');
+        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
         
-        // 🔴 ปรับตารางใหม่ ให้ข้อมูลและรูปแยกเซลล์กัน (td) อย่างชัดเจน
         html += `<tr style="border-bottom:1px solid var(--border);">
                  <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
                  <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
@@ -1008,6 +1055,7 @@
       document.getElementById('docContent').innerHTML = html;
     }
 
+    // 🔴 ปรับปรุงระบบโหลด Excel ให้กัน Error 
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1019,54 +1067,58 @@
 
       try {
         const response = await fetch('SMP-Template.xlsx');
-        if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
+        if (!response.ok) throw new Error("ระบบไม่พบไฟล์ SMP-Template.xlsx ในเซิร์ฟเวอร์ กรุณาตรวจสอบการอัปโหลดไฟล์เทมเพลตครับ");
+        
         const arrayBuffer = await response.arrayBuffer();
-
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(arrayBuffer);
         const worksheet = workbook.getWorksheet(1);
 
-        worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
-        worksheet.getCell('E3').value = m.line; 
-        worksheet.getCell('E4').value = m.machine; 
-        worksheet.getCell('R3').value = m.smpId;
-        worksheet.getCell('Y3').value = m.presenter;
+        worksheet.getCell('N2').value = "ชื่อเรื่อง: " + (m.title || '');
+        worksheet.getCell('E3').value = m.line || ''; 
+        worksheet.getCell('E4').value = m.machine || ''; 
+        worksheet.getCell('R3').value = m.smpId || '';
+        worksheet.getCell('Y3').value = m.presenter || '';
         worksheet.getCell('AJ3').value = m.approver || ''; 
-        worksheet.getCell('AN4').value = m.date.split(' ')[0];
+        worksheet.getCell('AN4').value = (m.date || '').split(' ')[0] || '';
 
         worksheet.getCell('S6').value = m.techCount || '';
         worksheet.getCell('W6').value = m.techTime || '';
-        worksheet.getCell('Z6').value = m.maintType;
+        worksheet.getCell('Z6').value = m.maintType || '';
         worksheet.getCell('AD6').value = m.workTime || '';
         worksheet.getCell('AI6').value = m.downtime || ''; 
         worksheet.getCell('AO6').value = m.frequency || ''; 
 
-        let checkBase64 = await fetchImageAsBase64('images/check.png');
-        let checkId = null;
-        if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
-        function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
+        try {
+          let checkBase64 = await fetchImageAsBase64('images/check.png');
+          let checkId = null;
+          if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
+          function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
 
-        if (m.smpType.includes('เครื่องกล')) placeCheck(8.2, 5.2); 
-        if (m.smpType.includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
-        if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); else placeCheck(22.2, 13.2); 
-        if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); else placeCheck(41.2, 14.2); 
+          if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.2, 5.2); 
+          if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
+          if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); else placeCheck(22.2, 13.2); 
+          if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); else placeCheck(41.2, 14.2); 
 
-        let crossBase64 = await fetchImageAsBase64('images/cross.png');
-        if (crossBase64) {
-          let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
-          const ppeCrossCoords = { 'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 }, 'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 }, 'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 }, 'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 } };
-          const riskCrossCoords = { 'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 }, 'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 }, 'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 }, 'เสียงดัง': { col: 35.87, row: 10.2 } };
+          let crossBase64 = await fetchImageAsBase64('images/cross.png');
+          if (crossBase64) {
+            let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
+            const ppeCrossCoords = { 'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 }, 'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 }, 'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 }, 'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 } };
+            const riskCrossCoords = { 'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 }, 'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 }, 'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 }, 'เสียงดัง': { col: 35.87, row: 10.2 } };
 
-          m.ppe.forEach(p => { if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } });
-          m.risks.forEach(r => { if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } });
-        }
+            m.ppe.forEach(p => { if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } });
+            m.risks.forEach(r => { if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } });
+          }
+        } catch(imgErr) { console.warn("Image load error (non-fatal):", imgErr); }
 
         if (m.mainImage) {
-          const mainBase64 = await fetchImageAsBase64(m.mainImage);
-          if (mainBase64) {
-            const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-            worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 450, height: 250 } });
-          }
+          try {
+            const mainBase64 = await fetchImageAsBase64(m.mainImage);
+            if (mainBase64) {
+              const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
+              worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 450, height: 250 } });
+            }
+          } catch(mainImgErr) { console.warn("Main image error:", mainImgErr); }
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
@@ -1080,18 +1132,20 @@
           worksheet.getCell('J' + r).value = s.timeTaken || ''; worksheet.getCell('M' + r).value = s.description;
 
           let targetSym = symSafe;
-          if(s.typeSymbol.includes('ความปลอดภัย')) targetSym = symSafe; else if(s.typeSymbol.includes('คุณภาพ')) targetSym = symQual; else if(s.typeSymbol.includes('สิ่งแวดล้อม')) targetSym = symEnv; else if(s.typeSymbol.includes('การผลิต')) targetSym = symProd;
+          if((s.typeSymbol||'').includes('ความปลอดภัย')) targetSym = symSafe; else if((s.typeSymbol||'').includes('คุณภาพ')) targetSym = symQual; else if((s.typeSymbol||'').includes('สิ่งแวดล้อม')) targetSym = symEnv; else if((s.typeSymbol||'').includes('การผลิต')) targetSym = symProd;
           
           const cellK = worksheet.getCell('K' + r); cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
           
           if (s.images && s.images.length > 0) {
             for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
-              const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
-              if (stepImgBase64) {
-                const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-                let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
-                worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
-              }
+              try {
+                const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
+                if (stepImgBase64) {
+                  const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
+                  let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
+                  worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
+                }
+              } catch(stepImgErr) { console.warn("Step image error:", stepImgErr); }
             }
           }
         }
@@ -1102,7 +1156,8 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
       } catch (error) {
-        console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
+        console.error(error); 
+        showModal("เกิดข้อผิดพลาดในการโหลด Excel", error.message, "error", "#E53E3E");
       } finally {
         btn.innerHTML = originalText; btn.disabled = false;
       }
