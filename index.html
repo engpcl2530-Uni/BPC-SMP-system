@@ -32,6 +32,7 @@
     * { box-sizing: border-box; }
     body { font-family: 'Prompt', sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; }
     
+    /* Header Premium */
     .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px 20px 35px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--shadow-md); margin-bottom: -15px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;}
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-icon { font-size: 32px; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 12px; display:flex;}
@@ -42,14 +43,18 @@
     .btn-close-page:hover { background: #E53E3E; border-color: #E53E3E; transform: scale(1.05); box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4); }
 
     .container { padding: 0 15px; max-width: 800px; margin: auto; position: relative; z-index: 20; }
+    
+    /* View Toggling */
     .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
     .section-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* Cards */
     .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: var(--shadow-md); margin-bottom: 25px; border: 1px solid rgba(0, 94, 184, 0.05); }
     .card-title { color: var(--primary); font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;}
     .card-title .material-symbols-rounded { color: var(--secondary); font-size: 20px; }
     
+    /* Forms */
     .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;}
     .form-group { flex: 1; min-width: 140px; margin-bottom: 15px;}
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13.5px; color: var(--primary); }
@@ -58,15 +63,18 @@
     input:focus, select:focus, textarea:focus { border-color: var(--secondary); background: #FFF; box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.1); outline: none; }
     .required-star { color: #E53E3E; }
 
+    /* Radio / Checkbox Groups */
     .d-flex-wrap { display: flex; flex-wrap: wrap; gap: 15px; }
     .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: var(--text-main); font-weight: 500;}
     .custom-radio input { width: 18px; height: 18px; accent-color: var(--secondary); cursor: pointer; }
 
+    /* Upload UI */
     .upload-box { border: 1.5px dashed #CBD5E0; padding: 20px 15px; border-radius: 12px; background: #F8FAFC; transition: 0.3s; text-align: center; cursor: pointer;}
     .upload-box:hover { border-color: var(--secondary); background: #F0F7FF; }
     .gallery-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; justify-content: center;}
     .gallery-preview img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
 
+    /* PPE Icons */
     .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 100px; height: 105px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
     .custom-icon-img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; }
@@ -75,13 +83,16 @@
     .icon-checkbox.not-used .custom-icon-img { filter: grayscale(100%); opacity: 0.25; }
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Symbols Rounded'; color: #E53E3E; font-size: 50px; position: absolute; font-weight: 700; top: 15px; text-shadow: 0 0 5px white;}
 
+    /* FAB Menu */
     .fab-main { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); color: white; border: none; box-shadow: var(--shadow-md); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; z-index: 100;}
     .fab-main:hover { transform: scale(1.05); }
 
+    /* Floating Toast (Draft) */
     .floating-toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 500; display: none; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.3s ease-out;}
     @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     .floating-toast:hover { background: var(--secondary); }
 
+    /* Custom Modal */
     .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(3px); animation: fadeIn 0.2s ease-out; }
     .custom-modal-box { background: white; padding: 35px 25px; border-radius: 20px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease-out; }
     @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -91,15 +102,18 @@
     .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
     .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
+    /* Dashboard Settings Modal (Gear Icon) */
     .dashboard-gear { background: #EDF2F7; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
     .dashboard-gear:hover { background: #E2E8F0; color: var(--primary); }
 
+    /* Filters */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
     .quick-filters::-webkit-scrollbar { display: none; }
     .btn-quick { background: #EDF2F7; border: none; padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; font-family: 'Prompt'; transition: 0.2s;}
     .btn-quick.active { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(0, 94, 184, 0.2);}
 
+    /* SMP List Cards */
     .report-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid var(--accent); transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;}
     .report-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--secondary); border-left-color: var(--secondary); }
     .report-card-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;}
@@ -107,6 +121,7 @@
     .report-detail { font-size: 14px; color: #4A5568; line-height: 1.5; margin: 4px 0;}
     .badge-chip { background: #F0F7FF; color: var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(0, 94, 184, 0.1);}
 
+    /* Step Card */
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative; }
     .step-badge { position: absolute; top: -12px; left: 20px; background: var(--secondary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: var(--shadow-sm); }
     
@@ -458,6 +473,7 @@
     let filteredDataList = [];
     let currentDetailData = null;
     let stepCounter = -1;
+    let isEditingId = null; // ตัวแปรบอกสถานะการอัปเดต
     let myChart = null; 
     let currentChartMode = 'presenter'; 
     const ITEMS_PER_PAGE = 100;
@@ -508,6 +524,9 @@
     }
 
     function updateSmpIdPrefix(prefix) {
+      // ไม่ให้รัน ID ใหม่ถ้าอยู่ในโหมดแก้ไข
+      if(isEditingId) return; 
+
       let maxId = 0;
       let prefixStr = `BPC-${prefix}-`;
       for (let item of allSmpDataList) {
@@ -587,6 +606,10 @@
       document.getElementById('appSub').innerText = "กรอกรายละเอียดการปฏิบัติงาน";
       document.getElementById('btnCloseView').style.display = 'flex'; 
       
+      // Reset PPE and Risks to default active state
+      document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
+      document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
+
       if(allSmpDataList.length > 0) {
         document.getElementById('f_smpId').value = "กรุณาเลือกประเภท SMP...";
       } else {
@@ -659,7 +682,7 @@
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
 
-    // 🔴 🔴 ฟังก์ชันโหลดข้อมูลเดิมเพื่อนำมา "แก้ไข" (Edit Form) อย่างสมบูรณ์ 🔴 🔴
+    // 🔴 🔴 ฟังก์ชันโหลดข้อมูลเดิมเพื่อนำมา "แก้ไข" (Edit Form) อย่างสมบูรณ์แบบ
     function editCurrentSMP() { 
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -672,105 +695,116 @@
       document.getElementById('btnCloseView').style.display = 'flex';
       
       document.getElementById('smpForm').reset();
-      document.getElementById('f_smpId').value = m.smpId;
-      document.getElementById('f_title').value = m.title;
-      document.getElementById('f_approver').value = m.approver || '';
-      document.getElementById('f_machine').value = m.machine || '';
-      document.getElementById('f_techCount').value = m.techCount || '';
-      document.getElementById('f_techTime').value = m.techTime || '';
-      document.getElementById('f_workTime').value = m.workTime || '';
-      document.getElementById('f_downtime').value = m.downtime || '';
-      document.getElementById('f_maintType').value = m.maintType || '';
+      
+      try {
+          document.getElementById('f_smpId').value = m.smpId || '';
+          document.getElementById('f_title').value = m.title || '';
+          document.getElementById('f_approver').value = m.approver || '';
+          document.getElementById('f_machine').value = m.machine || '';
+          document.getElementById('f_techCount').value = m.techCount || '';
+          document.getElementById('f_techTime').value = m.techTime || '';
+          document.getElementById('f_workTime').value = m.workTime || '';
+          document.getElementById('f_downtime').value = m.downtime || '';
+          document.getElementById('f_maintType').value = m.maintType || '';
 
-      // Type 
-      let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
-      let typeFound = false;
-      typeRadios.forEach(r => { if (m.smpType && m.smpType.includes(r.value)) { r.checked = true; typeFound = true; } });
-      if (!typeFound && m.smpType) {
-          document.getElementById('t3').checked = true;
-          document.getElementById('f_smpTypeOther').style.display = 'block';
-          document.getElementById('f_smpTypeOther').value = m.smpType;
-      } else { document.getElementById('f_smpTypeOther').style.display = 'none'; }
+          // Type 
+          let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
+          let typeFound = false;
+          typeRadios.forEach(r => { if (m.smpType && m.smpType.includes(r.value)) { r.checked = true; typeFound = true; } });
+          if (!typeFound && m.smpType) {
+              document.getElementById('t3').checked = true;
+              document.getElementById('f_smpTypeOther').style.display = 'block';
+              document.getElementById('f_smpTypeOther').value = m.smpType;
+          } else { document.getElementById('f_smpTypeOther').style.display = 'none'; }
 
-      // Presenter
-      document.querySelectorAll('.pres-cb').forEach(cb => cb.checked = false);
-      document.getElementById('cbPresOther').checked = false;
-      document.getElementById('f_presenter_other').style.display = 'none';
-      if (m.presenter) {
-          let presArr = m.presenter.split(',').map(p => p.trim());
-          let presCbs = Array.from(document.querySelectorAll('.pres-cb'));
-          let others = [];
-          presArr.forEach(p => {
-              let matched = presCbs.find(cb => cb.value === p);
-              if (matched) matched.checked = true;
-              else if (p) others.push(p);
-          });
-          if (others.length > 0) {
-              document.getElementById('cbPresOther').checked = true;
-              document.getElementById('f_presenter_other').style.display = 'block';
-              document.getElementById('f_presenter_other').value = others.join(', ');
-          }
-      }
-
-      // Line
-      let lineSel = document.getElementById('f_line_sel');
-      let lineFound = Array.from(lineSel.options).some(o => o.value === m.line);
-      if (lineFound && m.line) { lineSel.value = m.line; document.getElementById('f_line_other').style.display = 'none'; } 
-      else if (m.line) { lineSel.value = 'other'; document.getElementById('f_line_other').style.display = 'block'; document.getElementById('f_line_other').value = m.line; }
-
-      // Frequency
-      let freqSel = document.getElementById('f_frequency_sel');
-      let freqFound = Array.from(freqSel.options).some(o => o.value === m.frequency);
-      if (freqFound && m.frequency) { freqSel.value = m.frequency; document.getElementById('f_frequency_other').style.display = 'none'; } 
-      else if (m.frequency) { freqSel.value = 'other'; document.getElementById('f_frequency_other').style.display = 'block'; document.getElementById('f_frequency_other').value = m.frequency; }
-
-      // LOTO
-      if(m.loto === 'ต้องการ') document.getElementById('loto_req').checked = true;
-      else if(m.loto === 'ไม่ต้องการ') document.getElementById('loto_not_req').checked = true;
-
-      // Risk Assessed
-      if(m.riskAssessed === 'ใช่') document.getElementById('risk_yes').checked = true;
-      else if(m.riskAssessed === 'ไม่ใช่') document.getElementById('risk_no').checked = true;
-      else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') document.getElementById('risk_na').checked = true;
-
-      // PPE
-      document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
-          let ppeData = m.ppe.find(p => p.name === el.dataset.val);
-          if (ppeData && !ppeData.used) el.classList.add('not-used');
-          else el.classList.remove('not-used');
-      });
-
-      // Risks
-      document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => {
-          let riskData = m.risks.find(r => r.name === el.dataset.val);
-          if (riskData && !riskData.risk) el.classList.add('not-used');
-          else el.classList.remove('not-used');
-      });
-
-      // Image Preview (ส่ง URL เก่ากลับไปให้ GS)
-      document.getElementById('f_mainImageBase64').value = ''; 
-      document.getElementById('f_mainImageOld').value = m.mainImage || ''; 
-      if(m.mainImage) { document.getElementById('mainImagePreview').innerHTML = `<img src="${m.mainImage}">`; }
-
-      // Steps 
-      document.getElementById('stepsContainer').innerHTML = '';
-      stepCounter = -1;
-      currentDetailData.steps.forEach((s) => {
-          let isLocked = (s.stepNo <= 2);
-          addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
-          
-          let card = document.getElementById('step_row_' + stepCounter); // ใช้ stepCounter แทน s.stepNo เพื่อป้องกันบั๊กเวลาข้ามขั้นตอน
-          if(card) {
-              card.querySelector('.s-desc').value = s.description || '';
-              let fileInput = card.querySelector('.s-imgs');
-              // เก็บรูปเก่าไว้ใน property ของ input
-              if(s.images && s.images.length > 0) {
-                  fileInput.oldImages = JSON.stringify(s.images);
-                  let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
-                  card.querySelector('.gallery-preview').innerHTML = imgHtml;
+          // Presenter (ป้องกันบั๊กเวลามีคนพิมพ์ตัวเลขล้วน)
+          document.querySelectorAll('.pres-cb').forEach(cb => cb.checked = false);
+          document.getElementById('cbPresOther').checked = false;
+          document.getElementById('f_presenter_other').style.display = 'none';
+          if (m.presenter) {
+              let presArr = String(m.presenter).split(',').map(p => p.trim());
+              let presCbs = Array.from(document.querySelectorAll('.pres-cb'));
+              let others = [];
+              presArr.forEach(p => {
+                  let matched = presCbs.find(cb => cb.value === p);
+                  if (matched) matched.checked = true;
+                  else if (p) others.push(p);
+              });
+              if (others.length > 0) {
+                  document.getElementById('cbPresOther').checked = true;
+                  document.getElementById('f_presenter_other').style.display = 'block';
+                  document.getElementById('f_presenter_other').value = others.join(', ');
               }
           }
-      });
+
+          // Line
+          let lineSel = document.getElementById('f_line_sel');
+          let lineFound = Array.from(lineSel.options).some(o => o.value === m.line);
+          if (lineFound && m.line) { lineSel.value = m.line; document.getElementById('f_line_other').style.display = 'none'; } 
+          else if (m.line) { lineSel.value = 'other'; document.getElementById('f_line_other').style.display = 'block'; document.getElementById('f_line_other').value = m.line; }
+
+          // Frequency
+          let freqSel = document.getElementById('f_frequency_sel');
+          let freqFound = Array.from(freqSel.options).some(o => o.value === m.frequency);
+          if (freqFound && m.frequency) { freqSel.value = m.frequency; document.getElementById('f_frequency_other').style.display = 'none'; } 
+          else if (m.frequency) { freqSel.value = 'other'; document.getElementById('f_frequency_other').style.display = 'block'; document.getElementById('f_frequency_other').value = m.frequency; }
+
+          // LOTO
+          if(m.loto === 'ต้องการ') document.getElementById('loto_req').checked = true;
+          else if(m.loto === 'ไม่ต้องการ') document.getElementById('loto_not_req').checked = true;
+
+          // Risk Assessed
+          if(m.riskAssessed === 'ใช่') document.getElementById('risk_yes').checked = true;
+          else if(m.riskAssessed === 'ไม่ใช่') document.getElementById('risk_no').checked = true;
+          else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') document.getElementById('risk_na').checked = true;
+
+          // PPE (ป้องกันบั๊กถ้าอาเรย์ว่างเปล่า)
+          let ppeArray = Array.isArray(m.ppe) ? m.ppe : [];
+          document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
+              if (ppeArray.length === 0) { el.classList.add('not-used'); return; }
+              let ppeData = ppeArray.find(p => p.name === el.dataset.val);
+              if (ppeData && ppeData.used) el.classList.remove('not-used');
+              else el.classList.add('not-used');
+          });
+
+          // Risks
+          let riskArray = Array.isArray(m.risks) ? m.risks : [];
+          document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => {
+              if (riskArray.length === 0) { el.classList.add('not-used'); return; }
+              let riskData = riskArray.find(r => r.name === el.dataset.val);
+              if (riskData && riskData.risk) el.classList.remove('not-used');
+              else el.classList.add('not-used');
+          });
+
+          // Image Preview (ส่ง URL เก่ากลับไปให้ GS)
+          document.getElementById('f_mainImageBase64').value = ''; 
+          document.getElementById('f_mainImageOld').value = m.mainImage || ''; 
+          if(m.mainImage) { document.getElementById('mainImagePreview').innerHTML = `<img src="${m.mainImage}">`; }
+
+          // Steps 
+          document.getElementById('stepsContainer').innerHTML = '';
+          stepCounter = -1;
+          let stepsList = currentDetailData.steps || [];
+          stepsList.forEach((s) => {
+              let isLocked = (s.stepNo <= 2);
+              addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
+              
+              let card = document.getElementById('step_row_' + stepCounter); // ใช้ stepCounter แทน
+              if(card) {
+                  card.querySelector('.s-desc').value = s.description || '';
+                  let fileInput = card.querySelector('.s-imgs');
+                  if(s.images && s.images.length > 0) {
+                      fileInput.oldImages = JSON.stringify(s.images);
+                      let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
+                      card.querySelector('.gallery-preview').innerHTML = imgHtml;
+                  }
+              }
+          });
+      } catch(e) {
+          console.error("Error populating edit form:", e);
+          showModal('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลเก่าบางส่วนได้: ' + e.message, 'error', '#E53E3E');
+      }
+      
       window.scrollTo(0,0);
     }
 
@@ -1219,6 +1253,7 @@
       }
     }
 
+    // 🔴 ฟังก์ชันดาวน์โหลดเดิมของคุณ 100% 🔴
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1306,8 +1341,7 @@
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
-        // 🔴 แก้ไขแล้ว: ดึงความปลอดภัยจาก K16 เพื่อให้สัญลักษณ์ติดมาครบถ้วน
-        const symSafe = getStyle('K16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
+        const symSafe = getStyle('M16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
         for (let i = 0; i < currentDetailData.steps.length; i++) {
@@ -1354,8 +1388,6 @@
         btn.innerHTML = originalText; btn.disabled = false;
       }
     }
-    
-    document.head.insertAdjacentHTML('beforeend', `<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>`);
   </script>
 </body>
 </html>
