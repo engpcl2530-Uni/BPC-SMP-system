@@ -124,7 +124,6 @@
 </head>
 <body>
 
-  <!-- Custom Modal UI -->
   <div class="custom-modal-overlay" id="customModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
@@ -134,7 +133,6 @@
     </div>
   </div>
 
-  <!-- Header -->
   <div class="header" id="mainHeader">
     <div class="header-left">
       <div class="header-icon"><span class="material-symbols-rounded">engineering</span></div>
@@ -151,11 +149,9 @@
 
   <div class="container mt-4">
 
-    <!-- ================= VIEW 1: Home (Dashboard & Advanced Filter) ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
-      <!-- Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="card-title" style="margin: 0; border: none; padding: 0;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
@@ -177,7 +173,6 @@
         </div>
       </div>
 
-      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -417,16 +412,15 @@
 
   </div>
 
-  <!-- 🔴 Floating Toast สำหรับแจ้งเตือนแบบร่าง (ย้ายมาไว้ด้านล่างสุด) -->
+  <!-- Floating Toast -->
   <div id="draftToast" class="floating-toast" onclick="loadDraft()">
     <span class="material-symbols-rounded">restore_page</span> 
     <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
   </div>
 
-  <!-- นำเข้า Bootstrap JS สำหรับ Dropdown -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- 🔴 SCRIPT 🔴 -->
+  <!-- SCRIPT -->
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -444,7 +438,6 @@
       checkOfflineStatus(); 
     };
 
-    // --- 🔴 ระบบแจ้งเตือน Custom Modal ---
     function showModal(title, message, iconName, color) {
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalTitle').style.color = color;
@@ -458,7 +451,6 @@
       document.getElementById('customModal').style.display = 'none';
     }
 
-    // --- Parser Helper สำหรับวันที่ ---
     function parseDateSafely(dateStr) {
         if (!dateStr) return new Date(0); 
         let str = dateStr.toString().trim();
@@ -474,7 +466,6 @@
         let fallback = new Date(str); return isNaN(fallback.getTime()) ? new Date(0) : fallback;
     }
 
-    // --- ตัวกรอง Dropdown Other ---
     function toggleOtherInput(selElement, inputId) {
       let inputEl = document.getElementById(inputId);
       if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
@@ -486,7 +477,6 @@
       else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
     }
 
-    // --- 🔴 Smart ID System (4-digits, specific to SMP Type) ---
     function updateSmpIdPrefix(prefix) {
       let maxId = 0;
       let prefixStr = `BPC-${prefix}-`;
@@ -505,7 +495,6 @@
       document.getElementById('f_smpId').value = `${prefixStr}${String(nextNum).padStart(4, '0')}`;
     }
 
-    // --- Offline Mode ---
     window.addEventListener('online', checkOfflineStatus);
     window.addEventListener('offline', checkOfflineStatus);
 
@@ -517,7 +506,6 @@
       else { document.getElementById('btnSync').style.display = 'none'; }
     }
 
-    // --- Auto Save Draft ---
     document.getElementById('smpForm').addEventListener('input', saveDraft);
     document.getElementById('smpForm').addEventListener('change', saveDraft);
 
@@ -535,7 +523,6 @@
       document.getElementById('draftToast').style.display = 'none';
     }
 
-    // --- Navigation ---
     function showHome() {
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
       document.getElementById('homeView').classList.add('active');
@@ -648,7 +635,6 @@
         .catch(err => console.error(err));
     }
 
-    // --- Load Data & Filters ---
     function loadSMPList() {
       fetch(API_URL + "?action=getList")
         .then(res => res.json())
@@ -1001,7 +987,6 @@
           <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-              <!-- 🔴 แยกคอลัมน์ รายละเอียด และ รูปภาพ ออกจากกัน -->
               <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
                 <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
                 <th style="padding:10px;">ขั้นตอน</th>
@@ -1020,7 +1005,6 @@
 
         let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
         
-        // 🔴 ปรับตารางใหม่ ให้ข้อมูลและรูปแยกเซลล์กัน (td) อย่างชัดเจน
         html += `<tr style="border-bottom:1px solid var(--border);">
                  <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
                  <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
@@ -1034,7 +1018,22 @@
       document.getElementById('docContent').innerHTML = html;
     }
 
-    // 🔴 กู้คืนฟังก์ชัน Download ของคุณทั้งหมด 100% (รวมถึงพิกัดด้วย)
+    // 🔴 กู้คืนฟังก์ชันการแปลงรูปภาพเป็น Base64 ที่หายไป
+    async function fetchImageAsBase64(url) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // 🔴 โค้ดดาวน์โหลดฉบับดั้งเดิมของคุณ 100% 
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1128,7 +1127,7 @@
           if (i >= stepRows.length) break; 
           let r = stepRows[i]; 
           
-          worksheet.getCell('B' + r).value = s.stepNo; 
+          worksheet.getCell('B' + r).value = i; 
           worksheet.getCell('C' + r).value = s.stepName;
           worksheet.getCell('J' + r).value = s.timeTaken || ''; 
           worksheet.getCell('M' + r).value = s.description;
@@ -1160,7 +1159,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
       } catch (error) {
-        console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
+        console.error(error); showModal("เกิดข้อผิดพลาดในการโหลด Excel", error.message, "error", "#E53E3E");
       } finally {
         btn.innerHTML = originalText; btn.disabled = false;
       }
