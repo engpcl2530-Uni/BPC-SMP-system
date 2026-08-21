@@ -187,9 +187,9 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; font-family: 'Prompt'; font-size:14px;">
                     <li><h6 class="dropdown-header text-primary fw-bold">เลือกการแสดงผลกราฟ</h6></li>
-                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('presenter'); return false;">📊 แยกตามรายบุคคล (ชื่อช่าง)</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('machine'); return false;">⚙️ แยกตามเครื่องจักร</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('line'); return false;">🏭 แยกตามแผนก/ไลน์</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('presenter'); return false;">แยกตามรายบุคคล</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('machine'); return false;">แยกตามเครื่องจักร</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="changeChartMode('line'); return false;">แยกตามแผนก/ไลน์</a></li>
                 </ul>
             </div>
         </div>
@@ -215,7 +215,7 @@
           <div class="form-group"><label>วันที่สิ้นสุด</label><input type="date" id="fEnd" onchange="applyFilters()"></div>
           
           <div class="form-group">
-            <label>ผู้จัดทำ (ช่าง)</label>
+            <label>ผู้จัดทำ </label>
             <select id="filterPresenter" onchange="applyFilters()">
               <option value="">-- ทั้งหมด --</option>
             </select>
@@ -230,9 +230,9 @@
             <label>ประเภท SMP</label>
             <select id="filterType" onchange="applyFilters()">
               <option value="">-- ทั้งหมด --</option>
-              <option value="เครื่องกล">เครื่องกล (ME)</option>
-              <option value="ไฟฟ้าและการควบคุม">ไฟฟ้า (EE)</option>
-              <option value="อื่นๆ">อื่นๆ (GE)</option>
+              <option value="เครื่องกล">เครื่องกล</option>
+              <option value="ไฟฟ้าและการควบคุม">ไฟฟ้า</option>
+              <option value="อื่นๆ">อื่นๆ</option>
             </select>
           </div>
           <div class="form-group" style="flex: 2;">
@@ -267,9 +267,9 @@
             <div class="form-group" style="flex:100%;">
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ (GE)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล </label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม </label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ </label>
               </div>
             </div>
 
@@ -308,7 +308,7 @@
           <div class="form-row">
             <div class="form-group"><label>ผู้อนุมัติ (Approved By)</label><input type="text" id="f_approver"></div>
             <div class="form-group">
-              <label>สายการผลิต (Line)</label>
+              <label>Line</label>
               <select id="f_line_sel" onchange="toggleOtherInput(this, 'f_line_other')">
                 <option value="">-- เลือกไลน์ --</option>
                 <option value="A1">A1</option><option value="A2">A2</option><option value="O1">O1</option><option value="C1">C1</option>
@@ -320,7 +320,7 @@
                 <option value="MIX-Utility">MIX-Utility</option><option value="Pre-Weight">Pre-Weight</option>
                 <option value="MIX#1">MIX#1</option><option value="MIX#2">MIX#2</option><option value="MIX#3">MIX#3</option>
                 <option value="MIX#4">MIX#4</option><option value="MIX#5">MIX#5</option><option value="MIX#6">MIX#6</option><option value="MIX#7">MIX#7</option>
-                <option value="other">-- อื่นๆ (พิมพ์เอง) --</option>
+                <option value="other">-- อื่นๆ--</option>
               </select>
               <input type="text" id="f_line_other" placeholder="พิมพ์ชื่อไลน์..." style="display:none; margin-top:8px;">
             </div>
@@ -1311,7 +1311,7 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
 
       const btn = document.getElementById('btnDownloadExcel');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<span class="material-symbols-rounded" style="animation: spin 1s linear infinite;">sync</span> สร้าง Excel...';
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> กำลังสร้าง Excel...';
       btn.disabled = true;
 
       try {
@@ -1412,7 +1412,9 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
           else if((s.typeSymbol||'').includes('การผลิต')) { targetSym = symProd; }
           
           const cellK = worksheet.getCell('K' + r);
-          cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
+          cellK.value = targetSym.val; cellK.font = targetSym.font;
+          if(targetSym.fill) { cellK.fill = targetSym.fill; }
+          cellK.alignment = { horizontal: 'center', vertical: 'middle' };
           
           if (s.images && s.images.length > 0) {
             for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
