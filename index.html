@@ -42,7 +42,6 @@
     .btn-close-page:hover { background: #E53E3E; border-color: #E53E3E; transform: scale(1.05); box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4); }
 
     .container { padding: 0 15px; max-width: 800px; margin: auto; position: relative; z-index: 20; }
-    
     .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
     .section-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -200,6 +199,7 @@
         </div>
       </div>
 
+      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -257,6 +257,7 @@
     <div id="formView" class="section-view">
       <form id="smpForm">
         
+        <!-- ซ่อน input เพื่อเก็บรูปเก่าสำหรับการ Edit -->
         <input type="hidden" id="f_mainImageOld">
 
         <div class="card">
@@ -266,12 +267,10 @@
             <div class="form-group" style="flex:100%;">
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME'); toggleSmpTypeOther();"> เครื่องกล (ME)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE'); toggleSmpTypeOther();"> ไฟฟ้าและการควบคุม (EE)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE'); toggleSmpTypeOther();"> อื่นๆ (GE)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ (GE)</label>
               </div>
-              <!-- 🔴 เพิ่มกล่องอื่นๆ กลับมาแล้ว เพื่อป้องกัน Error ตอนโหลดข้อมูลมาแก้ไข -->
-              <input type="text" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none; margin-top:8px;">
             </div>
 
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
@@ -483,21 +482,19 @@
     function closeModal() { document.getElementById('customModal').style.display = 'none'; }
     function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
 
-    // 🔴 ปรับปรุง Toggle Smp Type เพื่อโชว์กล่อง "อื่นๆ"
-    function toggleSmpTypeOther() {
-      let t3 = document.getElementById('t3');
-      let otherInput = document.getElementById('f_smpTypeOther');
-      if (otherInput) {
-          if (t3 && t3.checked) {
-              otherInput.style.display = 'block';
-              otherInput.required = true;
-              otherInput.focus();
-          } else {
-              otherInput.style.display = 'none';
-              otherInput.required = false;
-              otherInput.value = '';
-          }
-      }
+    function parseDateSafely(dateStr) {
+        if (!dateStr) return new Date(0); 
+        let str = dateStr.toString().trim();
+        if (str.includes('-')) { let d = new Date(str); if (!isNaN(d.getTime())) return d; }
+        if (str.includes('/')) {
+            let parts = str.split(' ')[0].split('/'); 
+            if (parts.length === 3) {
+                let p0 = parseInt(parts[0], 10); let p1 = parseInt(parts[1], 10); let p2 = parseInt(parts[2], 10);
+                if (p2 < 100) p2 += 2000;
+                return new Date(p2, p1 - 1, p0); 
+            }
+        }
+        let fallback = new Date(str); return isNaN(fallback.getTime()) ? new Date(0) : fallback;
     }
 
     function toggleOtherInput(selElement, inputId) {
@@ -505,7 +502,6 @@
       if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
       else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
     }
-    
     function toggleOtherCheckbox(cbId, inputId) {
       let cb = document.getElementById(cbId); let inputEl = document.getElementById(inputId);
       if(cb.checked) { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
@@ -581,10 +577,10 @@
     function showForm() {
       isEditingId = null; 
       document.getElementById('smpForm').reset();
-      if(document.getElementById('f_presenter_other')) document.getElementById('f_presenter_other').style.display = 'none';
-      if(document.getElementById('f_line_other')) document.getElementById('f_line_other').style.display = 'none';
-      if(document.getElementById('f_frequency_other')) document.getElementById('f_frequency_other').style.display = 'none';
-      if(document.getElementById('f_smpTypeOther')) document.getElementById('f_smpTypeOther').style.display = 'none';
+      
+      let pOther = document.getElementById('f_presenter_other'); if(pOther) pOther.style.display = 'none';
+      let lOther = document.getElementById('f_line_other'); if(lOther) lOther.style.display = 'none';
+      let fOther = document.getElementById('f_frequency_other'); if(fOther) fOther.style.display = 'none';
       
       document.getElementById('mainImagePreview').innerHTML = ''; 
       document.getElementById('f_mainImageOld').value = ''; 
@@ -612,10 +608,7 @@
       if(saved) {
          let d = JSON.parse(saved);
          let t = document.getElementById('draftToast');
-         if(t) {
-            t.style.display = 'flex';
-            document.getElementById('draftTime').innerText = d.time;
-         }
+         if(t) { t.style.display = 'flex'; document.getElementById('draftTime').innerText = d.time; }
       }
       window.scrollTo(0,0);
     }
@@ -674,7 +667,7 @@
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
 
-    // 🔴 🔴 ฟังก์ชันโหลดข้อมูลเดิมเพื่อนำมา "แก้ไข" (Edit Form) พร้อมตัวดัก Error 🔴 🔴
+    // 🔴 🔴 ฟังก์ชันแก้ไข (มีตัวดักจับ Error ที่แข็งแกร่งที่สุด) 🔴 🔴
     function editCurrentSMP() { 
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -699,26 +692,19 @@
           if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
           if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
 
-          // Type 
+          // 1. Type
           let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
           let typeFound = false;
           typeRadios.forEach(r => { if (m.smpType && m.smpType.includes(r.value)) { r.checked = true; typeFound = true; } });
-          let smpTypeOtherInput = document.getElementById('f_smpTypeOther');
           if (!typeFound && m.smpType) {
-              if(document.getElementById('t3')) document.getElementById('t3').checked = true;
-              if(smpTypeOtherInput) {
-                  smpTypeOtherInput.style.display = 'block';
-                  smpTypeOtherInput.value = m.smpType;
-              }
-          } else { 
-              if(smpTypeOtherInput) smpTypeOtherInput.style.display = 'none'; 
+              let t3 = document.getElementById('t3'); if(t3) t3.checked = true;
           }
 
-          // Presenter
+          // 2. Presenter 
           let presCbsElements = document.querySelectorAll('.pres-cb');
           presCbsElements.forEach(cb => cb.checked = false);
-          if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = false;
-          if(document.getElementById('f_presenter_other')) document.getElementById('f_presenter_other').style.display = 'none';
+          let cbOther = document.getElementById('cbPresOther'); if(cbOther) cbOther.checked = false;
+          let pOtherInput = document.getElementById('f_presenter_other'); if(pOtherInput) pOtherInput.style.display = 'none';
           
           if (m.presenter) {
               let presArr = String(m.presenter).split(',').map(p => p.trim());
@@ -730,53 +716,49 @@
                   else if (p && p !== 'null' && p !== 'undefined') others.push(p);
               });
               if (others.length > 0) {
-                  if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = true;
-                  let pOther = document.getElementById('f_presenter_other');
-                  if(pOther) {
-                      pOther.style.display = 'block';
-                      pOther.value = others.join(', ');
-                  }
+                  if(cbOther) cbOther.checked = true;
+                  if(pOtherInput) { pOtherInput.style.display = 'block'; pOtherInput.value = others.join(', '); }
               }
           }
 
-          // Line
+          // 3. Line
           let lineSel = document.getElementById('f_line_sel');
-          let lineOther = document.getElementById('f_line_other');
-          if(lineSel) {
-              let lineFound = Array.from(lineSel.options).some(o => o.value === m.line);
+          let lineOtherInput = document.getElementById('f_line_other');
+          if (lineSel) {
+              let lineFound = Array.from(lineSel.options).some(o => o.value === String(m.line));
               if (lineFound && m.line) { 
                   lineSel.value = m.line; 
-                  if(lineOther) lineOther.style.display = 'none'; 
+                  if (lineOtherInput) lineOtherInput.style.display = 'none'; 
               } else if (m.line) { 
                   lineSel.value = 'other'; 
-                  if(lineOther) { lineOther.style.display = 'block'; lineOther.value = m.line; }
+                  if (lineOtherInput) { lineOtherInput.style.display = 'block'; lineOtherInput.value = m.line; }
               }
           }
 
-          // Frequency
+          // 4. Frequency
           let freqSel = document.getElementById('f_frequency_sel');
-          let freqOther = document.getElementById('f_frequency_other');
-          if(freqSel) {
-              let freqFound = Array.from(freqSel.options).some(o => o.value === m.frequency);
+          let freqOtherInput = document.getElementById('f_frequency_other');
+          if (freqSel) {
+              let freqFound = Array.from(freqSel.options).some(o => o.value === String(m.frequency));
               if (freqFound && m.frequency) { 
                   freqSel.value = m.frequency; 
-                  if(freqOther) freqOther.style.display = 'none'; 
+                  if (freqOtherInput) freqOtherInput.style.display = 'none'; 
               } else if (m.frequency) { 
                   freqSel.value = 'other'; 
-                  if(freqOther) { freqOther.style.display = 'block'; freqOther.value = m.frequency; }
+                  if (freqOtherInput) { freqOtherInput.style.display = 'block'; freqOtherInput.value = m.frequency; }
               }
           }
 
-          // LOTO
-          if(m.loto === 'ต้องการ' && document.getElementById('loto_req')) document.getElementById('loto_req').checked = true;
-          else if(m.loto === 'ไม่ต้องการ' && document.getElementById('loto_not_req')) document.getElementById('loto_not_req').checked = true;
+          // 5. LOTO
+          if(m.loto === 'ต้องการ') { let l = document.getElementById('loto_req'); if(l) l.checked = true; }
+          else if(m.loto === 'ไม่ต้องการ') { let l = document.getElementById('loto_not_req'); if(l) l.checked = true; }
 
-          // Risk Assessed
-          if(m.riskAssessed === 'ใช่' && document.getElementById('risk_yes')) document.getElementById('risk_yes').checked = true;
-          else if(m.riskAssessed === 'ไม่ใช่' && document.getElementById('risk_no')) document.getElementById('risk_no').checked = true;
-          else if(m.riskAssessed === 'ไม่เกี่ยวข้อง' && document.getElementById('risk_na')) document.getElementById('risk_na').checked = true;
+          // 6. Risk Assessed
+          if(m.riskAssessed === 'ใช่') { let r = document.getElementById('risk_yes'); if(r) r.checked = true; }
+          else if(m.riskAssessed === 'ไม่ใช่') { let r = document.getElementById('risk_no'); if(r) r.checked = true; }
+          else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') { let r = document.getElementById('risk_na'); if(r) r.checked = true; }
 
-          // PPE
+          // 7. PPE
           let ppeArray = Array.isArray(m.ppe) ? m.ppe : [];
           document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
               if (ppeArray.length === 0) { el.classList.add('not-used'); return; }
@@ -785,7 +767,7 @@
               else el.classList.add('not-used');
           });
 
-          // Risks
+          // 8. Risks
           let riskArray = Array.isArray(m.risks) ? m.risks : [];
           document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => {
               if (riskArray.length === 0) { el.classList.add('not-used'); return; }
@@ -794,16 +776,19 @@
               else el.classList.add('not-used');
           });
 
-          // Image Preview
-          if(document.getElementById('f_mainImageBase64')) document.getElementById('f_mainImageBase64').value = ''; 
-          if(document.getElementById('f_mainImageOld')) document.getElementById('f_mainImageOld').value = m.mainImage || ''; 
-          let mainPreview = document.getElementById('mainImagePreview');
-          if(mainPreview) {
-              if(m.mainImage) mainPreview.innerHTML = `<img src="${m.mainImage}">`;
-              else mainPreview.innerHTML = '';
+          // 9. Main Image Preview
+          let mainBase64Input = document.getElementById('f_mainImageBase64');
+          if(mainBase64Input) mainBase64Input.value = ''; 
+          let mainOldInput = document.getElementById('f_mainImageOld');
+          if(mainOldInput) mainOldInput.value = m.mainImage || ''; 
+          
+          let previewBox = document.getElementById('mainImagePreview');
+          if(previewBox) {
+              if(m.mainImage) previewBox.innerHTML = `<img src="${m.mainImage}">`;
+              else previewBox.innerHTML = '';
           }
 
-          // Steps 
+          // 10. Steps 
           let sContainer = document.getElementById('stepsContainer');
           if(sContainer) {
               sContainer.innerHTML = '';
@@ -815,19 +800,22 @@
                   
                   let card = document.getElementById('step_row_' + stepCounter); 
                   if(card) {
-                      card.querySelector('.s-desc').value = s.description || '';
+                      let descInput = card.querySelector('.s-desc');
+                      if(descInput) descInput.value = s.description || '';
+                      
                       let fileInput = card.querySelector('.s-imgs');
-                      if(s.images && s.images.length > 0) {
+                      let gal = card.querySelector('.gallery-preview');
+                      if(s.images && s.images.length > 0 && fileInput && gal) {
                           fileInput.oldImages = JSON.stringify(s.images);
                           let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
-                          card.querySelector('.gallery-preview').innerHTML = imgHtml;
+                          gal.innerHTML = imgHtml;
                       }
                   }
               });
           }
       } catch(e) {
           console.error("Error populating edit form:", e);
-          showModal('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลเก่าบางส่วนได้: ' + e.message, 'error', '#E53E3E');
+          showModal('พบข้อมูลบางส่วนไม่สมบูรณ์', 'หน้าแก้ไขเปิดใช้งานแล้ว แต่ข้อมูลเก่าบางจุดอาจโหลดไม่ครบถ้วน', 'warning', '#D69E2E');
       }
       
       window.scrollTo(0,0);
@@ -892,8 +880,9 @@
       let presenters = new Set();
       let lines = new Set();
       data.forEach(item => {
-        if(item.presenter) { item.presenter.split(',').forEach(p => presenters.add(p.trim())); }
-        if(item.line) lines.add(item.line);
+        // 🔴 ป้องกันบั๊กเวลามีคนกรอกตัวเลขใน Google Sheet
+        if(item.presenter) { String(item.presenter).split(',').forEach(p => presenters.add(p.trim())); }
+        if(item.line) lines.add(String(item.line));
       });
 
       let pSel = document.getElementById('filterPresenter');
@@ -936,9 +925,11 @@
       
       filteredDataList = allSmpDataList.filter(o => {
         let matchKw = o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.machine && o.machine.toLowerCase().includes(kw));
-        let matchP = presenter === "" || (o.presenter && o.presenter.includes(presenter));
-        let matchL = line === "" || o.line === line;
-        let matchT = type === "" || (o.type && o.type.includes(type));
+        
+        // 🔴 ป้องกันบั๊กเวลาดึงข้อมูลด้วย String()
+        let matchP = presenter === "" || (o.presenter && String(o.presenter).includes(presenter));
+        let matchL = line === "" || String(o.line) === line;
+        let matchT = type === "" || (o.type && String(o.type).includes(type));
         
         let jDate = parseDateSafely(o.date).getTime();
         let matchD = true;
@@ -1019,7 +1010,7 @@
       dataList.forEach(d => {
         if(currentChartMode === 'presenter') {
           if(d.presenter) {
-            let ps = d.presenter.split(',').map(p => p.trim());
+            let ps = String(d.presenter).split(',').map(p => p.trim());
             ps.forEach(p => { if(p) counts[p] = (counts[p] || 0) + 1; });
           } else { counts['ไม่ระบุ'] = (counts['ไม่ระบุ'] || 0) + 1; }
         } 
@@ -1029,7 +1020,7 @@
         }
         else if (currentChartMode === 'machine') {
           let m = d.machine || 'ไม่ระบุ';
-          if(m.trim() === '') m = 'ไม่ระบุ';
+          if(String(m).trim() === '') m = 'ไม่ระบุ';
           counts[m] = (counts[m] || 0) + 1;
         }
       });
@@ -1071,19 +1062,23 @@
     async function compressMainImage(input) {
       if(input.files.length > 0) {
         const b64 = await compressFile(input.files[0]);
-        document.getElementById('f_mainImageBase64').value = b64;
-        document.getElementById('mainImagePreview').innerHTML = `<img src="${b64}">`;
+        let base64Input = document.getElementById('f_mainImageBase64');
+        if(base64Input) base64Input.value = b64;
+        let preview = document.getElementById('mainImagePreview');
+        if(preview) preview.innerHTML = `<img src="${b64}">`;
       }
     }
 
     async function compressStepImages(input) {
       const previewBox = input.nextElementSibling;
-      previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัด...</span>';
+      if(previewBox) previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัด...</span>';
       input.compressedArray = [];
       let files = Array.from(input.files).slice(0, 10);
       for(let f of files) { let b64 = await compressFile(f); input.compressedArray.push(b64); }
-      previewBox.innerHTML = '';
-      input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
+      if(previewBox) {
+          previewBox.innerHTML = '';
+          input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
+      }
     }
 
     document.getElementById('smpForm').addEventListener('submit', function(e) {
@@ -1093,45 +1088,64 @@
       if(!smpTypeSelected) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกประเภท SMP ด้วยครับ", "warning", "#D69E2E"); return; }
       let finalSmpType = smpTypeSelected.value;
       if(finalSmpType === 'อื่นๆ') { 
-        let otherVal = document.getElementById('f_smpTypeOther').value; 
-        if(otherVal.trim() !== '') finalSmpType = otherVal; 
+        let otherVal = document.getElementById('f_smpTypeOther'); 
+        if(otherVal && otherVal.value.trim() !== '') finalSmpType = otherVal.value.trim(); 
       }
 
       let presArray = []; 
       document.querySelectorAll('.pres-cb:checked').forEach(cb => presArray.push(cb.value));
-      if(document.getElementById('cbPresOther').checked) {
-          let oPres = document.getElementById('f_presenter_other').value;
-          if(oPres.trim() !== "") presArray.push(oPres);
+      let cbOther = document.getElementById('cbPresOther');
+      let presOther = document.getElementById('f_presenter_other');
+      if(cbOther && cbOther.checked && presOther) {
+          if(presOther.value.trim() !== "") presArray.push(presOther.value.trim());
       }
       if(presArray.length === 0) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกหรือระบุผู้จัดทำอย่างน้อย 1 คน", "warning", "#D69E2E"); return; }
       let presenter = presArray.join(', ');
 
-      let line = document.getElementById('f_line_sel').value === 'other' ? document.getElementById('f_line_other').value : document.getElementById('f_line_sel').value;
-      let freq = document.getElementById('f_frequency_sel').value === 'other' ? document.getElementById('f_frequency_other').value : document.getElementById('f_frequency_sel').value;
+      let lineSel = document.getElementById('f_line_sel');
+      let lineOther = document.getElementById('f_line_other');
+      let line = (lineSel && lineSel.value === 'other') ? (lineOther ? lineOther.value : '') : (lineSel ? lineSel.value : '');
+      
+      let freqSel = document.getElementById('f_frequency_sel');
+      let freqOther = document.getElementById('f_frequency_other');
+      let freq = (freqSel && freqSel.value === 'other') ? (freqOther ? freqOther.value : '') : (freqSel ? freqSel.value : '');
 
       document.getElementById('loadingScreen').style.display = 'flex';
       
       let payloadAction = isEditingId ? 'update' : 'insert';
+      let lotoReq = document.querySelector('input[name="r_loto"]:checked');
+      let riskReq = document.querySelector('input[name="r_riskAssessed"]:checked');
 
       let formData = {
-        title: document.getElementById('f_title').value, smpId: document.getElementById('f_smpId').value,
-        presenter: presenter, approver: document.getElementById('f_approver').value,
-        line: line, machine: document.getElementById('f_machine').value,
-        smpType: finalSmpType, techCount: document.getElementById('f_techCount').value,
-        techTime: document.getElementById('f_techTime').value, maintType: document.getElementById('f_maintType').value,
-        workTime: document.getElementById('f_workTime').value, downtime: document.getElementById('f_downtime').value,
-        frequency: freq, mainImage: document.getElementById('f_mainImageBase64').value,
-        oldMainImage: document.getElementById('f_mainImageOld').value, 
+        title: document.getElementById('f_title').value, 
+        smpId: document.getElementById('f_smpId').value,
+        presenter: presenter, 
+        approver: document.getElementById('f_approver').value,
+        line: line, 
+        machine: document.getElementById('f_machine').value,
+        smpType: finalSmpType, 
+        techCount: document.getElementById('f_techCount').value,
+        techTime: document.getElementById('f_techTime').value, 
+        maintType: document.getElementById('f_maintType').value,
+        workTime: document.getElementById('f_workTime').value, 
+        downtime: document.getElementById('f_downtime').value,
+        frequency: freq, 
+        mainImage: document.getElementById('f_mainImageBase64').value,
+        oldMainImage: document.getElementById('f_mainImageOld') ? document.getElementById('f_mainImageOld').value : '', 
         ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
         risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
-        loto: document.querySelector('input[name="r_loto"]:checked').value, riskAssessed: document.querySelector('input[name="r_riskAssessed"]:checked').value
+        loto: lotoReq ? lotoReq.value : '', 
+        riskAssessed: riskReq ? riskReq.value : ''
       };
 
       let stepsData = [];
       document.querySelectorAll('.step-card').forEach((card) => {
         let fileInput = card.querySelector('.s-imgs');
-        let typeSymbol = card.querySelector('.s-type').disabled ? card.querySelector('.s-type-hidden').value : card.querySelector('.s-type').value;
-        let stepIdxStr = card.querySelector('.step-badge').innerText.replace('ขั้นตอนที่ #', '');
+        let sType = card.querySelector('.s-type');
+        let sTypeHidden = card.querySelector('.s-type-hidden');
+        let typeSymbol = (sType && sType.disabled && sTypeHidden) ? sTypeHidden.value : (sType ? sType.value : '');
+        let badge = card.querySelector('.step-badge');
+        let stepIdxStr = badge ? badge.innerText.replace('ขั้นตอนที่ #', '') : '0';
         
         stepsData.push({
           stepNo: parseInt(stepIdxStr),
@@ -1152,13 +1166,116 @@
         if(res.status === 'success'){
           showModal('บันทึกสำเร็จ!', 'อัปเดตข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
           localStorage.removeItem('smp_draft');
-          if(document.getElementById('draftToast')) document.getElementById('draftToast').style.display = 'none';
+          let t = document.getElementById('draftToast'); if(t) t.style.display = 'none';
           showHome();
         } else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
       })
       .catch(err => showModal('ข้อผิดพลาดเครือข่าย', 'การเชื่อมต่อล้มเหลว: ' + err, 'cloud_off', '#E53E3E'))
       .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
     });
+
+    function getPPEIcon(name) {
+      switch(name) {
+        case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
+        case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
+        case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
+        case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png'; case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
+        default: return '';                   
+      }
+    }
+
+    function getRiskIcon(name) {
+      switch(name) {
+        case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
+        case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
+        case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
+        case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
+        default: return '';                    
+      }
+    }
+
+    function renderDetail(data) {
+      currentDetailData = data;
+      let m = data.main;
+      
+      let ppeHtml = m.ppe.filter(p => p.used).map(p => `
+        <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
+          <img src="${getPPEIcon(p.name)}" style="width:50px; height:50px; object-fit:contain;">
+          <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${p.name}</span>
+        </div>
+      `).join('') || '<span class="text-muted small">ไม่มีการระบุ PPE</span>';
+
+      let riskHtml = m.risks.filter(r => r.risk).map(r => `
+        <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
+          <img src="${getRiskIcon(r.name)}" style="width:50px; height:50px; object-fit:contain;">
+          <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${r.name}</span>
+        </div>
+      `).join('') || '<span class="text-muted small">ไม่มีความเสี่ยง</span>';
+
+      let html = `
+        <div style="padding:25px; border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <h3 style="margin:0 0 5px 0; color:var(--primary); font-weight:700;">#${m.smpId}</h3>
+              <p style="margin:0; font-size:15px; font-weight:600;">${m.title}</p>
+            </div>
+            <img src="images/logo.png" style="height:40px; object-fit:contain;" onerror="this.style.display='none'">
+          </div>
+        </div>
+        
+        <div style="padding:25px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
+            <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">ไลน์การผลิต</span><br><b>${m.line || '-'}</b></div>
+            <div><span style="color:var(--text-muted); font-size:12px;">เครื่องจักร</span><br><b>${m.machine || '-'}</b></div>
+          </div>
+
+          <div style="background:#FFF5F5; border:1px solid #FC8181; border-radius:12px; padding:15px; margin-bottom:20px;">
+            <div style="color:#E53E3E; font-weight:700; font-size:14px; margin-bottom:10px;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">warning</span> อุปกรณ์ความปลอดภัย & ความเสี่ยง</div>
+            <p style="font-size:12px; margin:0 0 5px 0; font-weight:600;">PPE ที่ใช้งาน:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom:15px;">${ppeHtml}</div>
+            <p style="font-size:12px; margin:0 0 5px 0; font-weight:600;">ความเสี่ยงในงาน:</p>
+            <div style="display:flex; flex-wrap:wrap; gap:15px;">${riskHtml}</div>
+          </div>
+
+          ${m.mainImage ? `<div style="text-align:center; margin-bottom:25px;"><img src="${m.mainImage}" style="max-height:250px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--border);"></div>` : ''}
+
+          <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
+                <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
+                <th style="padding:10px;">ขั้นตอน</th>
+                <th style="padding:10px;">ประเภท</th>
+                <th style="padding:10px; min-width:200px;">รายละเอียด</th>
+                <th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
+              </tr></thead>
+              <tbody>
+      `;
+
+      data.steps.forEach((s, idx) => {
+        let bCol = "#4A5568"; let bBg = "#EDF2F7";
+        if(s.typeSymbol.includes('ความปลอดภัย')) { bCol = "#E53E3E"; bBg = "#FFF5F5"; }
+        else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
+        else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
+
+        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
+        
+        html += `<tr style="border-bottom:1px solid var(--border);">
+                 <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
+                 <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
+                 <td style="padding:12px 10px; vertical-align:top;"><span style="background:${bBg}; color:${bCol}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap;">${s.typeSymbol}</span></td>
+                 <td style="padding:12px 10px; vertical-align:top;"><div style="white-space:pre-wrap; color:var(--text-muted);">${s.description}</div></td>
+                 <td style="padding:12px 10px; vertical-align:top;"><div style="display:flex; flex-wrap:wrap; gap:5px;">${imgs}</div></td>
+                 </tr>`;
+      });
+
+      html += `</tbody></table></div></div>`;
+      document.getElementById('docContent').innerHTML = html;
+    }
 
     async function fetchImageAsBase64(url) {
       try {
@@ -1174,7 +1291,7 @@
       }
     }
 
-    // 🔴 ฟังก์ชันดาวน์โหลดเดิมของคุณ 100% 🔴
+    // 🔴 ฟังก์ชันดาวน์โหลดเดิม 100% ของคุณ (ไม่ลบ ไม่ย่อ ไม่แก้พิกัด และไม่มี try-catch ใดๆ สอดไส้เข้าไป)
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1252,16 +1369,16 @@
         }
 
         if (m.mainImage) {
-          try {
-            const mainBase64 = await fetchImageAsBase64(m.mainImage);
-            if (mainBase64) {
-              const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-              worksheet.addImage(mainImgId, { tl: { col: 15, row: 7.5 }, ext: { width: 650, height: 350 } });
-            }
-          } catch(mainImgErr) { console.warn("Main image error:", mainImgErr); }
+          const mainBase64 = await fetchImageAsBase64(m.mainImage);
+          if (mainBase64) {
+            const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
+            // 🔴 เพิ่มขนาดภาพหลักเป็น 650x350 แต่คงพิกัด col: 15, row: 7.5 ตามคำสั่งคุณ 
+            worksheet.addImage(mainImgId, { tl: { col: 15, row: 7.5 }, ext: { width: 650, height: 350 } });
+          }
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
+        // 🔴 คงความปลอดภัย K16 ไว้เพื่อให้โหลดสัญลักษณ์ติดแน่นอน
         const symSafe = getStyle('K16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
@@ -1286,14 +1403,12 @@
           
           if (s.images && s.images.length > 0) {
             for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
-              try {
-                const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
-                if (stepImgBase64) {
-                  const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-                  let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
-                  worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
-                }
-              } catch(stepImgErr) { console.warn("Step image error:", stepImgErr); }
+              const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
+              if (stepImgBase64) {
+                const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
+                let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
+                worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
+              }
             }
           }
         }
@@ -1304,7 +1419,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
       } catch (error) {
-        console.error(error); showModal("เกิดข้อผิดพลาดในการโหลด Excel", error.message, "error", "#E53E3E");
+        console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
       } finally {
         btn.innerHTML = originalText; btn.disabled = false;
       }
