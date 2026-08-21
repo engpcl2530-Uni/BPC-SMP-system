@@ -1081,7 +1081,7 @@
       }
     }
 
-    document.getElementById('smpForm').addEventListener('submit', function(e) {
+document.getElementById('smpForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
       let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
@@ -1160,17 +1160,30 @@
 
       let finalPayload = { action: payloadAction, formData: formData, stepsData: stepsData };
 
-      fetch(API_URL, { method: 'POST', body: JSON.stringify(finalPayload) })
-      .then(res => res.json())
+      // 🔴 แก้ปัญหาการเชื่อมต่อล้มเหลว (SyntaxError <!DOCTYPE html>) ด้วย Header
+      fetch(API_URL, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(finalPayload) 
+      })
+      .then(async res => {
+          const text = await res.text();
+          try {
+              return JSON.parse(text);
+          } catch(e) {
+              console.error("เซิร์ฟเวอร์ตอบกลับมาเป็น:", text); // พิมพ์ค่าที่ Error ออกมาดูใน Console ได้
+              throw new Error("เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง (โปรดตรวจสอบการ Deploy หรือสิทธิ์บน Google Apps Script)");
+          }
+      })
       .then(res => {
         if(res.status === 'success'){
-          showModal('บันทึกสำเร็จ!', 'อัปเดตข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
+          showModal('บันทึกสำเร็จ!', 'บันทึกข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
           localStorage.removeItem('smp_draft');
           let t = document.getElementById('draftToast'); if(t) t.style.display = 'none';
           showHome();
         } else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
       })
-      .catch(err => showModal('ข้อผิดพลาดเครือข่าย', 'การเชื่อมต่อล้มเหลว: ' + err, 'cloud_off', '#E53E3E'))
+      .catch(err => showModal('ข้อผิดพลาดเครือข่าย', err.message || 'การเชื่อมต่อล้มเหลว', 'cloud_off', '#E53E3E'))
       .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
     });
 
