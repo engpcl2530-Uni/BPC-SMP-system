@@ -1287,7 +1287,7 @@
           };
 
           m.ppe.forEach(p => { 
-            if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 95, height: 56 } }); } 
+            if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 75 } }); } 
           });
 
           m.risks.forEach(r => { 
@@ -1300,7 +1300,7 @@
             const mainBase64 = await fetchImageAsBase64(m.mainImage);
             if (mainBase64) {
               const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-              worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 650, height: 350 } });
+              worksheet.addImage(mainImgId, { tl: { col: 15, row: 7.5 }, ext: { width: 650, height: 350 } });
             }
           } catch(mainImgErr) { console.warn("Main image error:", mainImgErr); }
         }
