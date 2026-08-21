@@ -32,7 +32,7 @@
     * { box-sizing: border-box; }
     body { font-family: 'Prompt', sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; }
     
-    /* Header */
+    /* Header Premium */
     .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px 20px 35px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--shadow-md); margin-bottom: -15px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;}
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-icon { font-size: 32px; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 12px; display:flex;}
@@ -151,10 +151,11 @@
 
   <div class="container mt-4">
 
-    <!-- ================= VIEW 1: Home ================= -->
+    <!-- ================= VIEW 1: Home (Dashboard & Advanced Filter) ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
+      <!-- Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="card-title" style="margin: 0; border: none; padding: 0;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
@@ -176,6 +177,7 @@
         </div>
       </div>
 
+      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -415,15 +417,16 @@
 
   </div>
 
-  <!-- Floating Toast -->
+  <!-- 🔴 Floating Toast สำหรับแจ้งเตือนแบบร่าง (ย้ายมาไว้ด้านล่างสุด) -->
   <div id="draftToast" class="floating-toast" onclick="loadDraft()">
     <span class="material-symbols-rounded">restore_page</span> 
     <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
   </div>
 
+  <!-- นำเข้า Bootstrap JS สำหรับ Dropdown -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- SCRIPT -->
+  <!-- 🔴 SCRIPT 🔴 -->
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -441,6 +444,7 @@
       checkOfflineStatus(); 
     };
 
+    // --- 🔴 ระบบแจ้งเตือน Custom Modal ---
     function showModal(title, message, iconName, color) {
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalTitle').style.color = color;
@@ -454,6 +458,7 @@
       document.getElementById('customModal').style.display = 'none';
     }
 
+    // --- Parser Helper สำหรับวันที่ ---
     function parseDateSafely(dateStr) {
         if (!dateStr) return new Date(0); 
         let str = dateStr.toString().trim();
@@ -469,6 +474,7 @@
         let fallback = new Date(str); return isNaN(fallback.getTime()) ? new Date(0) : fallback;
     }
 
+    // --- ตัวกรอง Dropdown Other ---
     function toggleOtherInput(selElement, inputId) {
       let inputEl = document.getElementById(inputId);
       if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
@@ -499,6 +505,7 @@
       document.getElementById('f_smpId').value = `${prefixStr}${String(nextNum).padStart(4, '0')}`;
     }
 
+    // --- Offline Mode ---
     window.addEventListener('online', checkOfflineStatus);
     window.addEventListener('offline', checkOfflineStatus);
 
@@ -510,6 +517,7 @@
       else { document.getElementById('btnSync').style.display = 'none'; }
     }
 
+    // --- Auto Save Draft ---
     document.getElementById('smpForm').addEventListener('input', saveDraft);
     document.getElementById('smpForm').addEventListener('change', saveDraft);
 
@@ -527,6 +535,7 @@
       document.getElementById('draftToast').style.display = 'none';
     }
 
+    // --- Navigation ---
     function showHome() {
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
       document.getElementById('homeView').classList.add('active');
@@ -639,6 +648,7 @@
         .catch(err => console.error(err));
     }
 
+    // --- Load Data & Filters ---
     function loadSMPList() {
       fetch(API_URL + "?action=getList")
         .then(res => res.json())
@@ -991,6 +1001,7 @@
           <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <!-- 🔴 แยกคอลัมน์ รายละเอียด และ รูปภาพ ออกจากกัน -->
               <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
                 <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
                 <th style="padding:10px;">ขั้นตอน</th>
@@ -1009,6 +1020,7 @@
 
         let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
         
+        // 🔴 ปรับตารางใหม่ ให้ข้อมูลและรูปแยกเซลล์กัน (td) อย่างชัดเจน
         html += `<tr style="border-bottom:1px solid var(--border);">
                  <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
                  <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
@@ -1022,7 +1034,7 @@
       document.getElementById('docContent').innerHTML = html;
     }
 
-    // 🔴 🔴 ระบบดาวน์โหลด (กู้คืนพิกัดทั้งหมดแล้ว) 🔴 🔴
+    // 🔴 กู้คืนฟังก์ชัน Download ของคุณทั้งหมด 100% (รวมถึงพิกัดด้วย)
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1034,63 +1046,77 @@
 
       try {
         const response = await fetch('SMP-Template.xlsx');
-        if (!response.ok) throw new Error("ระบบไม่พบไฟล์ SMP-Template.xlsx ในเซิร์ฟเวอร์ กรุณาตรวจสอบการอัปโหลดไฟล์เทมเพลตครับ");
-        
+        if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
         const arrayBuffer = await response.arrayBuffer();
+
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(arrayBuffer);
-        
-        // บังคับดึงหน้าแรกสุดแก้บั๊ก Undefined
         const firstSheetName = workbook.worksheets[0].name; 
         const worksheet = workbook.getWorksheet(firstSheetName);
 
-        worksheet.getCell('N2').value = "ชื่อเรื่อง: " + (m.title || '');
-        worksheet.getCell('E3').value = m.line || ''; 
-        worksheet.getCell('E4').value = m.machine || ''; 
-        worksheet.getCell('R3').value = m.smpId || '';
-        worksheet.getCell('Y3').value = m.presenter || '';
+        worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
+        worksheet.getCell('E3').value = m.line; 
+        worksheet.getCell('E4').value = m.machine; 
+        worksheet.getCell('R3').value = m.smpId;
+        worksheet.getCell('Y3').value = m.presenter;
         worksheet.getCell('AJ3').value = m.approver || ''; 
-        worksheet.getCell('AN4').value = (m.date || '').split(' ')[0] || '';
+        worksheet.getCell('AN4').value = m.date.split(' ')[0];
 
         worksheet.getCell('S6').value = m.techCount || '';
         worksheet.getCell('W6').value = m.techTime || '';
-        worksheet.getCell('Z6').value = m.maintType || '';
+        worksheet.getCell('Z6').value = m.maintType;
         worksheet.getCell('AD6').value = m.workTime || '';
         worksheet.getCell('AI6').value = m.downtime || ''; 
         worksheet.getCell('AO6').value = m.frequency || ''; 
 
-        try {
-          let checkBase64 = await fetchImageAsBase64('images/check.png');
-          let checkId = null;
-          if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
-          function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
+        let checkBase64 = await fetchImageAsBase64('images/check.png');
+        let checkId = null;
+        if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
+        function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
 
-          if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.2, 5.2); 
-          if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
-          if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); else placeCheck(22.2, 13.2); 
-          if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); else placeCheck(41.2, 14.2); 
+        if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.2, 5.2); 
+        if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
 
-          let crossBase64 = await fetchImageAsBase64('images/cross.png');
-          if (crossBase64) {
-            let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
-            
-            // 🔴 กู้คืนพิกัดกากบาท PPE ของคุณทั้งหมด
-            const ppeCrossCoords = { 'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 }, 'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 }, 'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 }, 'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 } };
-            const riskCrossCoords = { 'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 }, 'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 }, 'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 }, 'เสียงดัง': { col: 35.87, row: 10.2 } };
+        if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); 
+        else placeCheck(22.2, 13.2); 
 
-            m.ppe.forEach(p => { if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 95, height: 56 } }); } });
-            m.risks.forEach(r => { if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } });
-          }
-        } catch(imgErr) { console.warn("Image error:", imgErr); }
+        if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); 
+        else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); 
+        else placeCheck(41.2, 14.2); 
+
+        let crossBase64 = await fetchImageAsBase64('images/cross.png');
+        if (crossBase64) {
+          let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
+          
+          const ppeCrossCoords = {
+            'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 },
+            'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 },
+            'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 },
+            'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 }
+          };
+
+          const riskCrossCoords = {
+            'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
+            'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
+            'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 },        
+            'เสียงดัง': { col: 35.87, row: 10.2 }        
+          };
+
+          m.ppe.forEach(p => { 
+            if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } 
+          });
+
+          m.risks.forEach(r => { 
+            if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } 
+          });
+        }
 
         if (m.mainImage) {
-          try {
-            const mainBase64 = await fetchImageAsBase64(m.mainImage);
-            if (mainBase64) {
-              const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-              worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 450, height: 250 } });
-            }
-          } catch(mainImgErr) { console.warn("Main image error:", mainImgErr); }
+          const mainBase64 = await fetchImageAsBase64(m.mainImage);
+          if (mainBase64) {
+            const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
+            worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 450, height: 250 } });
+          }
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
@@ -1098,27 +1124,32 @@
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
         for (let i = 0; i < currentDetailData.steps.length; i++) {
-          let s = currentDetailData.steps[i]; if (i >= stepRows.length) break; let r = stepRows[i]; 
+          let s = currentDetailData.steps[i];
+          if (i >= stepRows.length) break; 
+          let r = stepRows[i]; 
           
-          worksheet.getCell('B' + r).value = s.stepNo; worksheet.getCell('C' + r).value = s.stepName;
-          worksheet.getCell('J' + r).value = s.timeTaken || ''; worksheet.getCell('M' + r).value = s.description;
+          worksheet.getCell('B' + r).value = s.stepNo; 
+          worksheet.getCell('C' + r).value = s.stepName;
+          worksheet.getCell('J' + r).value = s.timeTaken || ''; 
+          worksheet.getCell('M' + r).value = s.description;
 
           let targetSym = symSafe;
-          if((s.typeSymbol||'').includes('ความปลอดภัย')) targetSym = symSafe; else if((s.typeSymbol||'').includes('คุณภาพ')) targetSym = symQual; else if((s.typeSymbol||'').includes('สิ่งแวดล้อม')) targetSym = symEnv; else if((s.typeSymbol||'').includes('การผลิต')) targetSym = symProd;
+          if((s.typeSymbol||'').includes('ความปลอดภัย')) { targetSym = symSafe; }
+          else if((s.typeSymbol||'').includes('คุณภาพ')) { targetSym = symQual; }
+          else if((s.typeSymbol||'').includes('สิ่งแวดล้อม')) { targetSym = symEnv; }
+          else if((s.typeSymbol||'').includes('การผลิต')) { targetSym = symProd; }
           
-          const cellK = worksheet.getCell('K' + r); cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
+          const cellK = worksheet.getCell('K' + r);
+          cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
           
-          // 🔴 กู้คืนพิกัดรูปภาพขั้นตอนของคุณ 
           if (s.images && s.images.length > 0) {
             for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
-              try {
-                const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
-                if (stepImgBase64) {
-                  const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-                  let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
-                  worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
-                }
-              } catch(stepImgErr) { console.warn("Step image error:", stepImgErr); }
+              const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
+              if (stepImgBase64) {
+                const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
+                let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
+                worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
+              }
             }
           }
         }
@@ -1129,14 +1160,11 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
       } catch (error) {
-        console.error(error); 
-        showModal("เกิดข้อผิดพลาดในการโหลด Excel", error.message, "error", "#E53E3E");
+        console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
       } finally {
         btn.innerHTML = originalText; btn.disabled = false;
       }
     }
-    
-    document.head.insertAdjacentHTML('beforeend', `<style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>`);
   </script>
 </body>
 </html>
