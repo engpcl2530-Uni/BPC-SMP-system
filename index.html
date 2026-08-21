@@ -1262,15 +1262,15 @@
         if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
         function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
 
-        if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.2, 5.2); 
-        if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.2); 
+        if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.5, 6); 
+        if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 6); 
 
-        if (m.loto === 'ต้องการ') placeCheck(22.2, 10.2); 
-        else placeCheck(22.2, 13.2); 
+        if (m.loto === 'ต้องการ') placeCheck(22.2, 11.2); 
+        else placeCheck(22.2, 13.5); 
 
-        if (m.riskAssessed === 'ใช่') placeCheck(41.2, 10.2); 
-        else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41.2, 12.2); 
-        else placeCheck(41.2, 14.2); 
+        if (m.riskAssessed === 'ใช่') placeCheck(40.2, 10.2); 
+        else if (m.riskAssessed === 'ไม่ใช่') placeCheck(40.2, 12.2); 
+        else placeCheck(40.2, 14.2); 
 
         let crossBase64 = await fetchImageAsBase64('images/cross.png');
         if (crossBase64) {
@@ -1291,7 +1291,7 @@
           };
 
           m.ppe.forEach(p => { 
-            if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 95, height: 56 } }); } 
+            if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 75 } }); } 
           });
 
           m.risks.forEach(r => { 
@@ -1304,7 +1304,7 @@
           if (mainBase64) {
             const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
             // 🔴 เพิ่มขนาดภาพหลักจาก 450x250 เป็น 600x350 แต่คงพิกัด col: 16.5, row: 7.5 ไว้
-            worksheet.addImage(mainImgId, { tl: { col: 16.5, row: 7.5 }, ext: { width: 600, height: 350 } });
+            worksheet.addImage(mainImgId, { tl: { col: 15, row: 7.5 }, ext: { width: 896, height: 504 } });
           }
         }
 
