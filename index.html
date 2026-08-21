@@ -32,7 +32,6 @@
     * { box-sizing: border-box; }
     body { font-family: 'Prompt', sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; }
     
-    /* Header Premium */
     .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px 20px 35px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--shadow-md); margin-bottom: -15px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;}
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-icon { font-size: 32px; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 12px; display:flex;}
@@ -44,17 +43,14 @@
 
     .container { padding: 0 15px; max-width: 800px; margin: auto; position: relative; z-index: 20; }
     
-    /* View Toggling */
     .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
     .section-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Cards */
     .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: var(--shadow-md); margin-bottom: 25px; border: 1px solid rgba(0, 94, 184, 0.05); }
     .card-title { color: var(--primary); font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;}
     .card-title .material-symbols-rounded { color: var(--secondary); font-size: 20px; }
     
-    /* Forms */
     .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;}
     .form-group { flex: 1; min-width: 140px; margin-bottom: 15px;}
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13.5px; color: var(--primary); }
@@ -63,18 +59,15 @@
     input:focus, select:focus, textarea:focus { border-color: var(--secondary); background: #FFF; box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.1); outline: none; }
     .required-star { color: #E53E3E; }
 
-    /* Radio / Checkbox Groups */
     .d-flex-wrap { display: flex; flex-wrap: wrap; gap: 15px; }
     .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: var(--text-main); font-weight: 500;}
     .custom-radio input { width: 18px; height: 18px; accent-color: var(--secondary); cursor: pointer; }
 
-    /* Upload UI */
     .upload-box { border: 1.5px dashed #CBD5E0; padding: 20px 15px; border-radius: 12px; background: #F8FAFC; transition: 0.3s; text-align: center; cursor: pointer;}
     .upload-box:hover { border-color: var(--secondary); background: #F0F7FF; }
     .gallery-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; justify-content: center;}
     .gallery-preview img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
 
-    /* PPE Icons */
     .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 100px; height: 105px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
     .custom-icon-img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; }
@@ -83,16 +76,13 @@
     .icon-checkbox.not-used .custom-icon-img { filter: grayscale(100%); opacity: 0.25; }
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Symbols Rounded'; color: #E53E3E; font-size: 50px; position: absolute; font-weight: 700; top: 15px; text-shadow: 0 0 5px white;}
 
-    /* FAB Menu */
     .fab-main { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); color: white; border: none; box-shadow: var(--shadow-md); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; z-index: 100;}
     .fab-main:hover { transform: scale(1.05); }
 
-    /* Floating Toast (Draft) */
     .floating-toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 500; display: none; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.3s ease-out;}
     @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     .floating-toast:hover { background: var(--secondary); }
 
-    /* Custom Modal */
     .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(3px); animation: fadeIn 0.2s ease-out; }
     .custom-modal-box { background: white; padding: 35px 25px; border-radius: 20px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease-out; }
     @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -102,18 +92,15 @@
     .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
     .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
-    /* Dashboard Settings Modal (Gear Icon) */
     .dashboard-gear { background: #EDF2F7; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
     .dashboard-gear:hover { background: #E2E8F0; color: var(--primary); }
 
-    /* Filters */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
     .quick-filters::-webkit-scrollbar { display: none; }
     .btn-quick { background: #EDF2F7; border: none; padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; font-family: 'Prompt'; transition: 0.2s;}
     .btn-quick.active { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(0, 94, 184, 0.2);}
 
-    /* SMP List Cards */
     .report-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid var(--accent); transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;}
     .report-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--secondary); border-left-color: var(--secondary); }
     .report-card-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;}
@@ -121,7 +108,6 @@
     .report-detail { font-size: 14px; color: #4A5568; line-height: 1.5; margin: 4px 0;}
     .badge-chip { background: #F0F7FF; color: var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(0, 94, 184, 0.1);}
 
-    /* Step Card */
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative; }
     .step-badge { position: absolute; top: -12px; left: 20px; background: var(--secondary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: var(--shadow-sm); }
     
@@ -214,7 +200,6 @@
         </div>
       </div>
 
-      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -272,7 +257,6 @@
     <div id="formView" class="section-view">
       <form id="smpForm">
         
-        <!-- ซ่อน input เพื่อเก็บรูปเก่าสำหรับการ Edit -->
         <input type="hidden" id="f_mainImageOld">
 
         <div class="card">
@@ -282,10 +266,12 @@
             <div class="form-group" style="flex:100%;">
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ (GE)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME'); toggleSmpTypeOther();"> เครื่องกล (ME)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE'); toggleSmpTypeOther();"> ไฟฟ้าและการควบคุม (EE)</label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE'); toggleSmpTypeOther();"> อื่นๆ (GE)</label>
               </div>
+              <!-- 🔴 เพิ่มกล่องอื่นๆ กลับมาแล้ว เพื่อป้องกัน Error ตอนโหลดข้อมูลมาแก้ไข -->
+              <input type="text" id="f_smpTypeOther" placeholder="โปรดระบุประเภท SMP..." style="display:none; margin-top:8px;">
             </div>
 
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
@@ -473,7 +459,7 @@
     let filteredDataList = [];
     let currentDetailData = null;
     let stepCounter = -1;
-    let isEditingId = null; // ตัวแปรบอกสถานะการอัปเดต
+    let isEditingId = null; 
     let myChart = null; 
     let currentChartMode = 'presenter'; 
     const ITEMS_PER_PAGE = 100;
@@ -497,19 +483,21 @@
     function closeModal() { document.getElementById('customModal').style.display = 'none'; }
     function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
 
-    function parseDateSafely(dateStr) {
-        if (!dateStr) return new Date(0); 
-        let str = dateStr.toString().trim();
-        if (str.includes('-')) { let d = new Date(str); if (!isNaN(d.getTime())) return d; }
-        if (str.includes('/')) {
-            let parts = str.split(' ')[0].split('/'); 
-            if (parts.length === 3) {
-                let p0 = parseInt(parts[0], 10); let p1 = parseInt(parts[1], 10); let p2 = parseInt(parts[2], 10);
-                if (p2 < 100) p2 += 2000;
-                return new Date(p2, p1 - 1, p0); 
-            }
-        }
-        let fallback = new Date(str); return isNaN(fallback.getTime()) ? new Date(0) : fallback;
+    // 🔴 ปรับปรุง Toggle Smp Type เพื่อโชว์กล่อง "อื่นๆ"
+    function toggleSmpTypeOther() {
+      let t3 = document.getElementById('t3');
+      let otherInput = document.getElementById('f_smpTypeOther');
+      if (otherInput) {
+          if (t3 && t3.checked) {
+              otherInput.style.display = 'block';
+              otherInput.required = true;
+              otherInput.focus();
+          } else {
+              otherInput.style.display = 'none';
+              otherInput.required = false;
+              otherInput.value = '';
+          }
+      }
     }
 
     function toggleOtherInput(selElement, inputId) {
@@ -517,6 +505,7 @@
       if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
       else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
     }
+    
     function toggleOtherCheckbox(cbId, inputId) {
       let cb = document.getElementById(cbId); let inputEl = document.getElementById(inputId);
       if(cb.checked) { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
@@ -524,7 +513,6 @@
     }
 
     function updateSmpIdPrefix(prefix) {
-      // ไม่ให้รัน ID ใหม่ถ้าอยู่ในโหมดแก้ไข
       if(isEditingId) return; 
 
       let maxId = 0;
@@ -577,7 +565,7 @@
     }
 
     function loadDraft() {
-      showModal('กู้คืนข้อมูลสำเร็จ', 'ระบบได้โหลดข้อมูลร่างของคุณกลับมาแล้ว (หมายเหตุ: ในโค้ดจริงต้องดึงค่ามาใส่ input ให้ครบ)', 'restore', 'var(--secondary)');
+      showModal('กู้คืนข้อมูลสำเร็จ', 'ระบบได้โหลดข้อมูลร่างของคุณกลับมาแล้ว', 'restore', 'var(--secondary)');
       document.getElementById('draftToast').style.display = 'none';
     }
 
@@ -586,16 +574,18 @@
       document.getElementById('homeView').classList.add('active');
       document.getElementById('appTitle').innerText = "SMP System";
       document.getElementById('appSub').innerText = "ระบบจัดการเอกสารมาตรฐาน";
-      document.getElementById('btnCloseView').style.display = 'none';
+      if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'none';
       if(allSmpDataList.length === 0) loadSMPList();
     }
 
     function showForm() {
       isEditingId = null; 
       document.getElementById('smpForm').reset();
-      document.getElementById('f_presenter_other').style.display = 'none';
-      document.getElementById('f_line_other').style.display = 'none';
-      document.getElementById('f_frequency_other').style.display = 'none';
+      if(document.getElementById('f_presenter_other')) document.getElementById('f_presenter_other').style.display = 'none';
+      if(document.getElementById('f_line_other')) document.getElementById('f_line_other').style.display = 'none';
+      if(document.getElementById('f_frequency_other')) document.getElementById('f_frequency_other').style.display = 'none';
+      if(document.getElementById('f_smpTypeOther')) document.getElementById('f_smpTypeOther').style.display = 'none';
+      
       document.getElementById('mainImagePreview').innerHTML = ''; 
       document.getElementById('f_mainImageOld').value = ''; 
       document.getElementById('stepsContainer').innerHTML = '';
@@ -604,9 +594,8 @@
       document.getElementById('formView').classList.add('active');
       document.getElementById('appTitle').innerText = "สร้าง SMP ใหม่";
       document.getElementById('appSub').innerText = "กรอกรายละเอียดการปฏิบัติงาน";
-      document.getElementById('btnCloseView').style.display = 'flex'; 
+      if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'flex'; 
       
-      // Reset PPE and Risks to default active state
       document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
       document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
 
@@ -622,8 +611,11 @@
       let saved = localStorage.getItem('smp_draft');
       if(saved) {
          let d = JSON.parse(saved);
-         document.getElementById('draftToast').style.display = 'flex';
-         document.getElementById('draftTime').innerText = d.time;
+         let t = document.getElementById('draftToast');
+         if(t) {
+            t.style.display = 'flex';
+            document.getElementById('draftTime').innerText = d.time;
+         }
       }
       window.scrollTo(0,0);
     }
@@ -682,7 +674,7 @@
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
 
-    // 🔴 🔴 ฟังก์ชันโหลดข้อมูลเดิมเพื่อนำมา "แก้ไข" (Edit Form) อย่างสมบูรณ์แบบ
+    // 🔴 🔴 ฟังก์ชันโหลดข้อมูลเดิมเพื่อนำมา "แก้ไข" (Edit Form) พร้อมตัวดัก Error 🔴 🔴
     function editCurrentSMP() { 
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -692,73 +684,99 @@
       document.getElementById('formView').classList.add('active');
       document.getElementById('appTitle').innerText = "แก้ไขเอกสาร";
       document.getElementById('appSub').innerText = m.smpId;
-      document.getElementById('btnCloseView').style.display = 'flex';
+      if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'flex';
       
       document.getElementById('smpForm').reset();
       
       try {
-          document.getElementById('f_smpId').value = m.smpId || '';
-          document.getElementById('f_title').value = m.title || '';
-          document.getElementById('f_approver').value = m.approver || '';
-          document.getElementById('f_machine').value = m.machine || '';
-          document.getElementById('f_techCount').value = m.techCount || '';
-          document.getElementById('f_techTime').value = m.techTime || '';
-          document.getElementById('f_workTime').value = m.workTime || '';
-          document.getElementById('f_downtime').value = m.downtime || '';
-          document.getElementById('f_maintType').value = m.maintType || '';
+          if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = m.smpId || '';
+          if(document.getElementById('f_title')) document.getElementById('f_title').value = m.title || '';
+          if(document.getElementById('f_approver')) document.getElementById('f_approver').value = m.approver || '';
+          if(document.getElementById('f_machine')) document.getElementById('f_machine').value = m.machine || '';
+          if(document.getElementById('f_techCount')) document.getElementById('f_techCount').value = m.techCount || '';
+          if(document.getElementById('f_techTime')) document.getElementById('f_techTime').value = m.techTime || '';
+          if(document.getElementById('f_workTime')) document.getElementById('f_workTime').value = m.workTime || '';
+          if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
+          if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
 
           // Type 
           let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
           let typeFound = false;
           typeRadios.forEach(r => { if (m.smpType && m.smpType.includes(r.value)) { r.checked = true; typeFound = true; } });
+          let smpTypeOtherInput = document.getElementById('f_smpTypeOther');
           if (!typeFound && m.smpType) {
-              document.getElementById('t3').checked = true;
-              document.getElementById('f_smpTypeOther').style.display = 'block';
-              document.getElementById('f_smpTypeOther').value = m.smpType;
-          } else { document.getElementById('f_smpTypeOther').style.display = 'none'; }
+              if(document.getElementById('t3')) document.getElementById('t3').checked = true;
+              if(smpTypeOtherInput) {
+                  smpTypeOtherInput.style.display = 'block';
+                  smpTypeOtherInput.value = m.smpType;
+              }
+          } else { 
+              if(smpTypeOtherInput) smpTypeOtherInput.style.display = 'none'; 
+          }
 
-          // Presenter (ป้องกันบั๊กเวลามีคนพิมพ์ตัวเลขล้วน)
-          document.querySelectorAll('.pres-cb').forEach(cb => cb.checked = false);
-          document.getElementById('cbPresOther').checked = false;
-          document.getElementById('f_presenter_other').style.display = 'none';
+          // Presenter
+          let presCbsElements = document.querySelectorAll('.pres-cb');
+          presCbsElements.forEach(cb => cb.checked = false);
+          if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = false;
+          if(document.getElementById('f_presenter_other')) document.getElementById('f_presenter_other').style.display = 'none';
+          
           if (m.presenter) {
               let presArr = String(m.presenter).split(',').map(p => p.trim());
-              let presCbs = Array.from(document.querySelectorAll('.pres-cb'));
+              let presCbs = Array.from(presCbsElements);
               let others = [];
               presArr.forEach(p => {
                   let matched = presCbs.find(cb => cb.value === p);
                   if (matched) matched.checked = true;
-                  else if (p) others.push(p);
+                  else if (p && p !== 'null' && p !== 'undefined') others.push(p);
               });
               if (others.length > 0) {
-                  document.getElementById('cbPresOther').checked = true;
-                  document.getElementById('f_presenter_other').style.display = 'block';
-                  document.getElementById('f_presenter_other').value = others.join(', ');
+                  if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = true;
+                  let pOther = document.getElementById('f_presenter_other');
+                  if(pOther) {
+                      pOther.style.display = 'block';
+                      pOther.value = others.join(', ');
+                  }
               }
           }
 
           // Line
           let lineSel = document.getElementById('f_line_sel');
-          let lineFound = Array.from(lineSel.options).some(o => o.value === m.line);
-          if (lineFound && m.line) { lineSel.value = m.line; document.getElementById('f_line_other').style.display = 'none'; } 
-          else if (m.line) { lineSel.value = 'other'; document.getElementById('f_line_other').style.display = 'block'; document.getElementById('f_line_other').value = m.line; }
+          let lineOther = document.getElementById('f_line_other');
+          if(lineSel) {
+              let lineFound = Array.from(lineSel.options).some(o => o.value === m.line);
+              if (lineFound && m.line) { 
+                  lineSel.value = m.line; 
+                  if(lineOther) lineOther.style.display = 'none'; 
+              } else if (m.line) { 
+                  lineSel.value = 'other'; 
+                  if(lineOther) { lineOther.style.display = 'block'; lineOther.value = m.line; }
+              }
+          }
 
           // Frequency
           let freqSel = document.getElementById('f_frequency_sel');
-          let freqFound = Array.from(freqSel.options).some(o => o.value === m.frequency);
-          if (freqFound && m.frequency) { freqSel.value = m.frequency; document.getElementById('f_frequency_other').style.display = 'none'; } 
-          else if (m.frequency) { freqSel.value = 'other'; document.getElementById('f_frequency_other').style.display = 'block'; document.getElementById('f_frequency_other').value = m.frequency; }
+          let freqOther = document.getElementById('f_frequency_other');
+          if(freqSel) {
+              let freqFound = Array.from(freqSel.options).some(o => o.value === m.frequency);
+              if (freqFound && m.frequency) { 
+                  freqSel.value = m.frequency; 
+                  if(freqOther) freqOther.style.display = 'none'; 
+              } else if (m.frequency) { 
+                  freqSel.value = 'other'; 
+                  if(freqOther) { freqOther.style.display = 'block'; freqOther.value = m.frequency; }
+              }
+          }
 
           // LOTO
-          if(m.loto === 'ต้องการ') document.getElementById('loto_req').checked = true;
-          else if(m.loto === 'ไม่ต้องการ') document.getElementById('loto_not_req').checked = true;
+          if(m.loto === 'ต้องการ' && document.getElementById('loto_req')) document.getElementById('loto_req').checked = true;
+          else if(m.loto === 'ไม่ต้องการ' && document.getElementById('loto_not_req')) document.getElementById('loto_not_req').checked = true;
 
           // Risk Assessed
-          if(m.riskAssessed === 'ใช่') document.getElementById('risk_yes').checked = true;
-          else if(m.riskAssessed === 'ไม่ใช่') document.getElementById('risk_no').checked = true;
-          else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') document.getElementById('risk_na').checked = true;
+          if(m.riskAssessed === 'ใช่' && document.getElementById('risk_yes')) document.getElementById('risk_yes').checked = true;
+          else if(m.riskAssessed === 'ไม่ใช่' && document.getElementById('risk_no')) document.getElementById('risk_no').checked = true;
+          else if(m.riskAssessed === 'ไม่เกี่ยวข้อง' && document.getElementById('risk_na')) document.getElementById('risk_na').checked = true;
 
-          // PPE (ป้องกันบั๊กถ้าอาเรย์ว่างเปล่า)
+          // PPE
           let ppeArray = Array.isArray(m.ppe) ? m.ppe : [];
           document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
               if (ppeArray.length === 0) { el.classList.add('not-used'); return; }
@@ -776,30 +794,37 @@
               else el.classList.add('not-used');
           });
 
-          // Image Preview (ส่ง URL เก่ากลับไปให้ GS)
-          document.getElementById('f_mainImageBase64').value = ''; 
-          document.getElementById('f_mainImageOld').value = m.mainImage || ''; 
-          if(m.mainImage) { document.getElementById('mainImagePreview').innerHTML = `<img src="${m.mainImage}">`; }
+          // Image Preview
+          if(document.getElementById('f_mainImageBase64')) document.getElementById('f_mainImageBase64').value = ''; 
+          if(document.getElementById('f_mainImageOld')) document.getElementById('f_mainImageOld').value = m.mainImage || ''; 
+          let mainPreview = document.getElementById('mainImagePreview');
+          if(mainPreview) {
+              if(m.mainImage) mainPreview.innerHTML = `<img src="${m.mainImage}">`;
+              else mainPreview.innerHTML = '';
+          }
 
           // Steps 
-          document.getElementById('stepsContainer').innerHTML = '';
-          stepCounter = -1;
-          let stepsList = currentDetailData.steps || [];
-          stepsList.forEach((s) => {
-              let isLocked = (s.stepNo <= 2);
-              addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
-              
-              let card = document.getElementById('step_row_' + stepCounter); // ใช้ stepCounter แทน
-              if(card) {
-                  card.querySelector('.s-desc').value = s.description || '';
-                  let fileInput = card.querySelector('.s-imgs');
-                  if(s.images && s.images.length > 0) {
-                      fileInput.oldImages = JSON.stringify(s.images);
-                      let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
-                      card.querySelector('.gallery-preview').innerHTML = imgHtml;
+          let sContainer = document.getElementById('stepsContainer');
+          if(sContainer) {
+              sContainer.innerHTML = '';
+              stepCounter = -1;
+              let stepsList = currentDetailData.steps || [];
+              stepsList.forEach((s) => {
+                  let isLocked = (s.stepNo <= 2);
+                  addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
+                  
+                  let card = document.getElementById('step_row_' + stepCounter); 
+                  if(card) {
+                      card.querySelector('.s-desc').value = s.description || '';
+                      let fileInput = card.querySelector('.s-imgs');
+                      if(s.images && s.images.length > 0) {
+                          fileInput.oldImages = JSON.stringify(s.images);
+                          let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
+                          card.querySelector('.gallery-preview').innerHTML = imgHtml;
+                      }
                   }
-              }
-          });
+              });
+          }
       } catch(e) {
           console.error("Error populating edit form:", e);
           showModal('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลเก่าบางส่วนได้: ' + e.message, 'error', '#E53E3E');
@@ -808,7 +833,6 @@
       window.scrollTo(0,0);
     }
 
-    // --- 🔴 🔴 ฟังก์ชันยืนยันการลบ (Delete via Custom Modal) 🔴 🔴 ---
     function deleteCurrentSMP() { 
       if(!currentDetailData) return;
       document.getElementById('confirmMessage').innerText = `คุณต้องการลบเอกสารรหัส #${currentDetailData.main.smpId} ใช่หรือไม่?`;
@@ -839,7 +863,7 @@
       document.getElementById('detailView').classList.add('active');
       document.getElementById('appTitle').innerText = "เอกสาร: " + smpId;
       document.getElementById('appSub').innerText = "รายละเอียดและขั้นตอน";
-      document.getElementById('btnCloseView').style.display = 'flex'; 
+      if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'flex'; 
       
       document.getElementById('docContent').innerHTML = ``;
       document.getElementById('loadingScreen').style.display = 'flex';
@@ -1097,7 +1121,7 @@
         techTime: document.getElementById('f_techTime').value, maintType: document.getElementById('f_maintType').value,
         workTime: document.getElementById('f_workTime').value, downtime: document.getElementById('f_downtime').value,
         frequency: freq, mainImage: document.getElementById('f_mainImageBase64').value,
-        oldMainImage: document.getElementById('f_mainImageOld').value, // 🔴 แนบรูปล่าสุดไปเผื่อไม่อัปเดตใหม่
+        oldMainImage: document.getElementById('f_mainImageOld').value, 
         ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
         risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
         loto: document.querySelector('input[name="r_loto"]:checked').value, riskAssessed: document.querySelector('input[name="r_riskAssessed"]:checked').value
@@ -1116,7 +1140,7 @@
           typeSymbol: typeSymbol, 
           description: card.querySelector('.s-desc').value, 
           images: fileInput.compressedArray || [],
-          oldImages: fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] // 🔴 แนบรูปเก่าถ้ามี
+          oldImages: fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] 
         });
       });
 
@@ -1128,116 +1152,13 @@
         if(res.status === 'success'){
           showModal('บันทึกสำเร็จ!', 'อัปเดตข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
           localStorage.removeItem('smp_draft');
-          document.getElementById('draftToast').style.display = 'none';
+          if(document.getElementById('draftToast')) document.getElementById('draftToast').style.display = 'none';
           showHome();
         } else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
       })
       .catch(err => showModal('ข้อผิดพลาดเครือข่าย', 'การเชื่อมต่อล้มเหลว: ' + err, 'cloud_off', '#E53E3E'))
       .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
     });
-
-    function getPPEIcon(name) {
-      switch(name) {
-        case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-        case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-        case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
-        case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png'; case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
-        default: return '';                   
-      }
-    }
-
-    function getRiskIcon(name) {
-      switch(name) {
-        case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
-        case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
-        case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
-        case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
-        default: return '';                    
-      }
-    }
-
-    function renderDetail(data) {
-      currentDetailData = data;
-      let m = data.main;
-      
-      let ppeHtml = m.ppe.filter(p => p.used).map(p => `
-        <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
-          <img src="${getPPEIcon(p.name)}" style="width:50px; height:50px; object-fit:contain;">
-          <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${p.name}</span>
-        </div>
-      `).join('') || '<span class="text-muted small">ไม่มีการระบุ PPE</span>';
-
-      let riskHtml = m.risks.filter(r => r.risk).map(r => `
-        <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
-          <img src="${getRiskIcon(r.name)}" style="width:50px; height:50px; object-fit:contain;">
-          <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${r.name}</span>
-        </div>
-      `).join('') || '<span class="text-muted small">ไม่มีความเสี่ยง</span>';
-
-      let html = `
-        <div style="padding:25px; border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <h3 style="margin:0 0 5px 0; color:var(--primary); font-weight:700;">#${m.smpId}</h3>
-              <p style="margin:0; font-size:15px; font-weight:600;">${m.title}</p>
-            </div>
-            <img src="images/logo.png" style="height:40px; object-fit:contain;" onerror="this.style.display='none'">
-          </div>
-        </div>
-        
-        <div style="padding:25px;">
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
-            <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">ไลน์การผลิต</span><br><b>${m.line || '-'}</b></div>
-            <div><span style="color:var(--text-muted); font-size:12px;">เครื่องจักร</span><br><b>${m.machine || '-'}</b></div>
-          </div>
-
-          <div style="background:#FFF5F5; border:1px solid #FC8181; border-radius:12px; padding:15px; margin-bottom:20px;">
-            <div style="color:#E53E3E; font-weight:700; font-size:14px; margin-bottom:10px;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">warning</span> อุปกรณ์ความปลอดภัย & ความเสี่ยง</div>
-            <p style="font-size:12px; margin:0 0 5px 0; font-weight:600;">PPE ที่ใช้งาน:</p>
-            <div style="display:flex; flex-wrap:wrap; gap:15px; margin-bottom:15px;">${ppeHtml}</div>
-            <p style="font-size:12px; margin:0 0 5px 0; font-weight:600;">ความเสี่ยงในงาน:</p>
-            <div style="display:flex; flex-wrap:wrap; gap:15px;">${riskHtml}</div>
-          </div>
-
-          ${m.mainImage ? `<div style="text-align:center; margin-bottom:25px;"><img src="${m.mainImage}" style="max-height:250px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--border);"></div>` : ''}
-
-          <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
-          <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-              <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
-                <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
-                <th style="padding:10px;">ขั้นตอน</th>
-                <th style="padding:10px;">ประเภท</th>
-                <th style="padding:10px; min-width:200px;">รายละเอียด</th>
-                <th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
-              </tr></thead>
-              <tbody>
-      `;
-
-      data.steps.forEach((s, idx) => {
-        let bCol = "#4A5568"; let bBg = "#EDF2F7";
-        if(s.typeSymbol.includes('ความปลอดภัย')) { bCol = "#E53E3E"; bBg = "#FFF5F5"; }
-        else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
-        else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
-
-        let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
-        
-        html += `<tr style="border-bottom:1px solid var(--border);">
-                 <td style="padding:12px 10px; font-weight:bold; color:var(--text-muted); vertical-align:top;">${s.stepNo}</td>
-                 <td style="padding:12px 10px; font-weight:600; vertical-align:top;">${s.stepName}</td>
-                 <td style="padding:12px 10px; vertical-align:top;"><span style="background:${bBg}; color:${bCol}; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap;">${s.typeSymbol}</span></td>
-                 <td style="padding:12px 10px; vertical-align:top;"><div style="white-space:pre-wrap; color:var(--text-muted);">${s.description}</div></td>
-                 <td style="padding:12px 10px; vertical-align:top;"><div style="display:flex; flex-wrap:wrap; gap:5px;">${imgs}</div></td>
-                 </tr>`;
-      });
-
-      html += `</tbody></table></div></div>`;
-      document.getElementById('docContent').innerHTML = html;
-    }
 
     async function fetchImageAsBase64(url) {
       try {
@@ -1341,7 +1262,7 @@
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
-        const symSafe = getStyle('M16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
+        const symSafe = getStyle('K16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
         for (let i = 0; i < currentDetailData.steps.length; i++) {
