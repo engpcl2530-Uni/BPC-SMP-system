@@ -1286,7 +1286,7 @@
           const riskCrossCoords = {
             'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
             'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
-            'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 },        
+            'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34, row: 10.2 },        
             'เสียงดัง': { col: 35.87, row: 10.2 }        
           };
 
@@ -1304,7 +1304,7 @@
           if (mainBase64) {
             const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
             // 🔴 เพิ่มขนาดภาพหลักจาก 450x250 เป็น 600x350 แต่คงพิกัด col: 16.5, row: 7.5 ไว้
-            worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 768, height: 432 } });
+            worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 640, height: 360 } });
           }
         }
 
