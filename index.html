@@ -1373,13 +1373,13 @@
           if (mainBase64) {
             const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
             // 🔴 เพิ่มขนาดภาพหลักเป็น 650x350 แต่คงพิกัด col: 15, row: 7.5 ตามคำสั่งคุณ 
-            worksheet.addImage(mainImgId, { tl: { col: 15, row: 7.5 }, ext: { width: 650, height: 350 } });
+            worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 650, height: 350 } });
           }
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
-        // 🔴 คงความปลอดภัย K16 ไว้เพื่อให้โหลดสัญลักษณ์ติดแน่นอน
-        const symSafe = getStyle('K16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
+        // 🔴 คงความปลอดภัย M16 ไว้เพื่อให้โหลดสัญลักษณ์ติดแน่นอน
+        const symSafe = getStyle('M16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
         for (let i = 0; i < currentDetailData.steps.length; i++) {
