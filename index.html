@@ -32,7 +32,7 @@
     * { box-sizing: border-box; }
     body { font-family: 'Prompt', sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text-main); padding-bottom: 100px; }
     
-    /* Header Premium */
+    /* Header */
     .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 25px 20px 35px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--shadow-md); margin-bottom: -15px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;}
     .header-left { display: flex; align-items: center; gap: 15px; }
     .header-icon { font-size: 32px; background: rgba(255,255,255,0.15); padding: 10px; border-radius: 12px; display:flex;}
@@ -44,17 +44,14 @@
 
     .container { padding: 0 15px; max-width: 800px; margin: auto; position: relative; z-index: 20; }
     
-    /* View Toggling */
     .section-view { display: none; animation: fadeIn 0.4s ease-in-out; }
     .section-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Cards */
     .card { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: var(--shadow-md); margin-bottom: 25px; border: 1px solid rgba(0, 94, 184, 0.05); }
     .card-title { color: var(--primary); font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); padding-bottom: 12px;}
     .card-title .material-symbols-rounded { color: var(--secondary); font-size: 20px; }
     
-    /* Forms */
     .form-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;}
     .form-group { flex: 1; min-width: 140px; margin-bottom: 15px;}
     label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13.5px; color: var(--primary); }
@@ -63,18 +60,15 @@
     input:focus, select:focus, textarea:focus { border-color: var(--secondary); background: #FFF; box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.1); outline: none; }
     .required-star { color: #E53E3E; }
 
-    /* Radio / Checkbox Groups */
     .d-flex-wrap { display: flex; flex-wrap: wrap; gap: 15px; }
     .custom-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; color: var(--text-main); font-weight: 500;}
     .custom-radio input { width: 18px; height: 18px; accent-color: var(--secondary); cursor: pointer; }
 
-    /* Upload UI */
     .upload-box { border: 1.5px dashed #CBD5E0; padding: 20px 15px; border-radius: 12px; background: #F8FAFC; transition: 0.3s; text-align: center; cursor: pointer;}
     .upload-box:hover { border-color: var(--secondary); background: #F0F7FF; }
     .gallery-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; justify-content: center;}
     .gallery-preview img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
 
-    /* PPE Icons */
     .icon-checkbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 100px; height: 105px; cursor: pointer; position: relative; background: #F3F4F6; border: 2px solid transparent; border-radius: 12px; transition: 0.2s; padding: 10px; }
     .icon-checkbox:hover { background: #E5E7EB; }
     .custom-icon-img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; }
@@ -83,16 +77,13 @@
     .icon-checkbox.not-used .custom-icon-img { filter: grayscale(100%); opacity: 0.25; }
     .icon-checkbox.not-used::after { content: 'close'; font-family: 'Material Symbols Rounded'; color: #E53E3E; font-size: 50px; position: absolute; font-weight: 700; top: 15px; text-shadow: 0 0 5px white;}
 
-    /* FAB Menu */
     .fab-main { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); color: white; border: none; box-shadow: var(--shadow-md); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; z-index: 100;}
     .fab-main:hover { transform: scale(1.05); }
 
-    /* Floating Toast (Draft) */
     .floating-toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 500; display: none; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); cursor: pointer; border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.3s ease-out;}
     @keyframes slideUp { from { bottom: -50px; opacity: 0; } to { bottom: 25px; opacity: 1; } }
     .floating-toast:hover { background: var(--secondary); }
 
-    /* Custom Modal */
     .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(3px); animation: fadeIn 0.2s ease-out; }
     .custom-modal-box { background: white; padding: 35px 25px; border-radius: 20px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease-out; }
     @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -102,18 +93,15 @@
     .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
     .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
-    /* Dashboard Settings Modal (Gear Icon) */
     .dashboard-gear { background: #EDF2F7; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
     .dashboard-gear:hover { background: #E2E8F0; color: var(--primary); }
 
-    /* Filters */
     .filter-section { background: white; padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0, 94, 184, 0.05); margin-top: 25px;}
     .quick-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
     .quick-filters::-webkit-scrollbar { display: none; }
     .btn-quick { background: #EDF2F7; border: none; padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; font-family: 'Prompt'; transition: 0.2s;}
     .btn-quick.active { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(0, 94, 184, 0.2);}
 
-    /* SMP List Cards */
     .report-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid var(--accent); transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;}
     .report-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--secondary); border-left-color: var(--secondary); }
     .report-card-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #F1F5F9; padding-bottom: 10px;}
@@ -121,7 +109,6 @@
     .report-detail { font-size: 14px; color: #4A5568; line-height: 1.5; margin: 4px 0;}
     .badge-chip { background: #F0F7FF; color: var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(0, 94, 184, 0.1);}
 
-    /* Step Card */
     .step-card { background: #FAFAFA; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative; }
     .step-badge { position: absolute; top: -12px; left: 20px; background: var(--secondary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: var(--shadow-sm); }
     
@@ -137,7 +124,7 @@
 </head>
 <body>
 
-  <!-- 🔴 Custom Modal UI -->
+  <!-- Custom Modal UI -->
   <div class="custom-modal-overlay" id="customModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
@@ -147,7 +134,7 @@
     </div>
   </div>
 
-  <!-- 🔴 Header -->
+  <!-- Header -->
   <div class="header" id="mainHeader">
     <div class="header-left">
       <div class="header-icon"><span class="material-symbols-rounded">engineering</span></div>
@@ -164,15 +151,13 @@
 
   <div class="container mt-4">
 
-    <!-- ================= VIEW 1: Home (Dashboard & Advanced Filter) ================= -->
+    <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
-      <!-- Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="card-title" style="margin: 0; border: none; padding: 0;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
-            <!-- 🔴 ปุ่มตั้งค่า Dashboard (Gear Icon) -->
             <div class="dropdown">
                 <button class="dashboard-gear" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="material-symbols-rounded" style="font-size:20px;">settings</span>
@@ -191,7 +176,6 @@
         </div>
       </div>
 
-      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -238,7 +222,6 @@
         <div class="text-center mt-5 text-muted">กำลังโหลดข้อมูล...</div>
       </div>
       
-      <!-- Pagination -->
       <div style="display:flex; justify-content:center; margin: 20px 0 40px;">
         <button id="btnLoadMore" style="display:none; background:white; border:1px solid var(--secondary); color:var(--secondary); padding:8px 20px; border-radius:20px; cursor:pointer; font-family:'Prompt'; font-weight:600;" onclick="loadMoreData()">แสดงเพิ่มเติม (<span id="countLoaded">0</span>/<span id="countTotal">0</span>)</button>
       </div>
@@ -257,7 +240,6 @@
             <div class="form-group" style="flex:100%;">
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
-                <!-- 🔴 เมื่อกดเปลี่ยนจะเรียกฟังก์ชันเปลี่ยน Prefix ทันที -->
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล (ME)</label>
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม (EE)</label>
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ (GE)</label>
@@ -433,16 +415,15 @@
 
   </div>
 
-  <!-- 🔴 Floating Toast สำหรับแจ้งเตือนแบบร่าง -->
+  <!-- Floating Toast -->
   <div id="draftToast" class="floating-toast" onclick="loadDraft()">
     <span class="material-symbols-rounded">restore_page</span> 
     <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
   </div>
 
-  <!-- 🔴 นำเข้า Bootstrap JS สำหรับ Dropdown -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- 🔴 SCRIPT 🔴 -->
+  <!-- SCRIPT -->
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
@@ -450,10 +431,8 @@
     let filteredDataList = [];
     let currentDetailData = null;
     let stepCounter = -1;
-    
     let myChart = null; 
-    let currentChartMode = 'presenter'; // ค่าเริ่มต้นของกราฟ
-    
+    let currentChartMode = 'presenter'; 
     const ITEMS_PER_PAGE = 100;
     let currentPage = 1;
 
@@ -462,7 +441,6 @@
       checkOfflineStatus(); 
     };
 
-    // --- 🔴 ระบบแจ้งเตือน Custom Modal ---
     function showModal(title, message, iconName, color) {
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalTitle').style.color = color;
@@ -476,7 +454,6 @@
       document.getElementById('customModal').style.display = 'none';
     }
 
-    // --- Parser Helper สำหรับวันที่ ---
     function parseDateSafely(dateStr) {
         if (!dateStr) return new Date(0); 
         let str = dateStr.toString().trim();
@@ -492,7 +469,6 @@
         let fallback = new Date(str); return isNaN(fallback.getTime()) ? new Date(0) : fallback;
     }
 
-    // --- ตัวกรอง Dropdown Other ---
     function toggleOtherInput(selElement, inputId) {
       let inputEl = document.getElementById(inputId);
       if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
@@ -504,12 +480,11 @@
       else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
     }
 
-    // --- 🔴 ระบบคำนวณ ID อัจฉริยะ (หน้าบ้าน) ---
+    // --- 🔴 Smart ID System (4-digits, specific to SMP Type) ---
     function updateSmpIdPrefix(prefix) {
       let maxId = 0;
       let prefixStr = `BPC-${prefix}-`;
       
-      // หา ID ล่าสุดของหมวดหมู่นั้นๆ จากข้อมูลทั้งหมดที่ดึงมา
       for (let item of allSmpDataList) {
           if (item.smpId && item.smpId.startsWith(prefixStr)) {
               let numPart = item.smpId.replace(prefixStr, '');
@@ -521,11 +496,9 @@
       }
       
       let nextNum = maxId + 1;
-      // ปรับเป็นรหัส 4 หลัก
       document.getElementById('f_smpId').value = `${prefixStr}${String(nextNum).padStart(4, '0')}`;
     }
 
-    // --- Offline Mode ---
     window.addEventListener('online', checkOfflineStatus);
     window.addEventListener('offline', checkOfflineStatus);
 
@@ -537,7 +510,6 @@
       else { document.getElementById('btnSync').style.display = 'none'; }
     }
 
-    // --- Auto Save Draft ---
     document.getElementById('smpForm').addEventListener('input', saveDraft);
     document.getElementById('smpForm').addEventListener('change', saveDraft);
 
@@ -555,7 +527,6 @@
       document.getElementById('draftToast').style.display = 'none';
     }
 
-    // --- Navigation ---
     function showHome() {
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
       document.getElementById('homeView').classList.add('active');
@@ -579,7 +550,6 @@
       document.getElementById('appSub').innerText = "กรอกรายละเอียดการปฏิบัติงาน";
       document.getElementById('btnCloseView').style.display = 'flex'; 
       
-      // ถ้าข้อมูลโหลดมาแล้ว ค่อยรัน ID
       if(allSmpDataList.length > 0) {
         document.getElementById('f_smpId').value = "กรุณาเลือกประเภท SMP...";
       } else {
@@ -669,7 +639,6 @@
         .catch(err => console.error(err));
     }
 
-    // --- Load Data & Filters ---
     function loadSMPList() {
       fetch(API_URL + "?action=getList")
         .then(res => res.json())
@@ -795,7 +764,6 @@
 
     function loadMoreData() { currentPage++; renderPaginatedList(); }
 
-    // --- 🔴 Dashboard Chart Settings ---
     function changeChartMode(mode) {
       currentChartMode = mode;
       let descText = "";
@@ -823,6 +791,7 @@
         }
         else if (currentChartMode === 'machine') {
           let m = d.machine || 'ไม่ระบุ';
+          if(m.trim() === '') m = 'ไม่ระบุ';
           counts[m] = (counts[m] || 0) + 1;
         }
       });
@@ -843,7 +812,6 @@
       });
     }
 
-    // --- บีบอัดรูป ---
     async function compressFile(file) {
       return new Promise((resolve) => {
         let reader = new FileReader();
@@ -951,7 +919,6 @@
       .finally(() => { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded">cloud_upload</span> บันทึกเข้าระบบ (Submit)'; });
     });
 
-    // --- แสดงรายละเอียด และ Export ---
     function getPPEIcon(name) {
       switch(name) {
         case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
@@ -1055,7 +1022,7 @@
       document.getElementById('docContent').innerHTML = html;
     }
 
-// 🔴 ปรับปรุงระบบโหลด Excel ให้กัน Error 
+    // 🔴 🔴 ระบบดาวน์โหลด (กู้คืนพิกัดทั้งหมดแล้ว) 🔴 🔴
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1073,7 +1040,7 @@
         const workbook = new ExcelJS.Workbook();
         await workbook.xlsx.load(arrayBuffer);
         
-        // 🔴 แก้ไขตรงนี้: บังคับดึงหน้า Sheet แรกสุดเสมอ
+        // บังคับดึงหน้าแรกสุดแก้บั๊ก Undefined
         const firstSheetName = workbook.worksheets[0].name; 
         const worksheet = workbook.getWorksheet(firstSheetName);
 
@@ -1106,13 +1073,15 @@
           let crossBase64 = await fetchImageAsBase64('images/cross.png');
           if (crossBase64) {
             let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
+            
+            // 🔴 กู้คืนพิกัดกากบาท PPE ของคุณทั้งหมด
             const ppeCrossCoords = { 'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 }, 'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 }, 'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 }, 'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 } };
             const riskCrossCoords = { 'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 }, 'อุปกรณ์เครื่องมือ': { col: 27, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 }, 'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.5, row: 10.2 }, 'เสียงดัง': { col: 35.87, row: 10.2 } };
 
-            m.ppe.forEach(p => { if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 56 } }); } });
+            m.ppe.forEach(p => { if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 95, height: 56 } }); } });
             m.risks.forEach(r => { if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } });
           }
-        } catch(imgErr) { console.warn("Image load error (non-fatal):", imgErr); }
+        } catch(imgErr) { console.warn("Image error:", imgErr); }
 
         if (m.mainImage) {
           try {
@@ -1139,6 +1108,7 @@
           
           const cellK = worksheet.getCell('K' + r); cellK.value = targetSym.val; cellK.font = targetSym.font; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
           
+          // 🔴 กู้คืนพิกัดรูปภาพขั้นตอนของคุณ 
           if (s.images && s.images.length > 0) {
             for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
               try {
