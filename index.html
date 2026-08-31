@@ -368,7 +368,7 @@
 
           <div class="upload-box" style="margin-top:15px;">
             <div style="font-size:14px; font-weight:700; color:var(--primary); margin-bottom:10px;"><span class="material-symbols-rounded" style="vertical-align:bottom;">photo_camera</span> ภาพถ่ายเครื่องจักร/ชิ้นส่วนหลัก (Main Image)</div>
-            <input type="file" accept="image/*" capture="environment" onchange="compressMainImage(this)" style="display:block; margin:auto; width:auto; border:none; background:transparent;">
+            <input type="file" accept="image/*" onchange="compressMainImage(this)" style="display:block; margin:auto; width:auto; border:none; background:transparent;">
             <input type="hidden" id="f_mainImageBase64">
             <div id="mainImagePreview" class="gallery-preview"></div>
           </div>
@@ -639,6 +639,69 @@
       addStepCard(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", 0, "ความปลอดภัย");
     }
 
+function updateStepNumbers() {
+      let cards = document.querySelectorAll('#stepsContainer .step-card');
+      cards.forEach((card, index) => {
+        let badge = card.querySelector('.step-badge');
+        if (badge) {
+          badge.innerText = `ขั้นตอนที่ #${index}`;
+        }
+        // อัปเดต ID ของการ์ดให้ตรงกับลำดับใหม่เสมอ
+        card.id = `step_row_${index}`;
+      });
+      stepCounter = cards.length - 1;
+    }
+
+    function insertStepCard(btn) {
+      let currentCard = btn.closest('.step-card');
+      
+      const html = `
+        <div class="step-card">
+          <span class="step-badge">ขั้นตอนที่ #</span>
+          <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
+            <h6 class="m-0 fw-bold" style="color:var(--primary);">รายละเอียดขั้นตอน</h6>
+            <div>
+              <button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt'; margin-right:10px;" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>
+              <button type="button" style="background:transparent; color:#E53E3E; border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">delete</span> ลบ</button>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label>รายละเอียดการทำงาน <span class="required-star">*</span></label>
+            <input type="text" class="s-task" value="" required>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>เวลา (นาที)</label>
+              <input type="number" class="s-time" value="" required>
+            </div>
+            <div class="form-group">
+              <label>ประเภท <span class="required-star">*</span></label>
+              <select class="s-type" required>
+                <option value="">-- เลือก --</option>
+                <option value="ความปลอดภัย">ความปลอดภัย</option>
+                <option value="คุณภาพ">คุณภาพ</option>
+                <option value="สิ่งแวดล้อม">สิ่งแวดล้อม</option>
+                <option value="การผลิต">การผลิต</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3"><label>คำอธิบายเพิ่มเติม</label><textarea class="s-desc" rows="2"></textarea></div>
+          <div>
+            <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
+            <!-- 🔴 นำ capture="environment" ออก เพื่อให้เลือกจากอัลบั้มได้ -->
+            <input type="file" class="s-imgs" accept="image/*" multiple onchange="compressStepImages(this)" style="background:white;">
+            <div class="gallery-preview"></div>
+          </div>
+        </div>`;
+        
+      // แทรกการ์ดใหม่ต่อท้ายการ์ดที่กดปุ่ม
+      currentCard.insertAdjacentHTML('afterend', html);
+      // สั่งจัดเรียงหมายเลขขั้นตอนใหม่ทันที
+      updateStepNumbers();
+    }
+
     function addStepCard(isLocked = false, defaultName = "", defaultTime = "", defaultType = "") {
       stepCounter++;
       let stepIndex = stepCounter; 
@@ -647,12 +710,24 @@
       let lockSelAttr = isLocked ? 'disabled style="background:#F1F5F9;"' : 'required';
       let hiddenInputs = isLocked ? `<input type="hidden" class="s-type-hidden" value="${defaultType}">` : '';
 
+      // 🔴 สร้างปุ่มแทรกและลบ (จะโชว์ปุ่มแทรกเฉพาะขั้นตอนที่ 2 เป็นต้นไป เพื่อป้องกันการแทรกเข้ามาระหว่างขั้นตอนบังคับ 3 ข้อแรก)
+      let buttonsHtml = '';
+      if (!isLocked) {
+         buttonsHtml = `
+            <button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt'; margin-right:10px;" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>
+            <button type="button" style="background:transparent; color:#E53E3E; border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">delete</span> ลบ</button>
+         `;
+      } else if (stepIndex === 2) {
+         // อนุญาตให้ขั้นตอนที่ 2 มีปุ่ม "แทรกด้านล่าง" ได้
+         buttonsHtml = `<button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>`;
+      }
+
       const html = `
         <div class="step-card" id="step_row_${stepIndex}">
           <span class="step-badge">ขั้นตอนที่ #${stepIndex}</span>
           <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
             <h6 class="m-0 fw-bold" style="color:var(--primary);">รายละเอียดขั้นตอน</h6>
-            ${!isLocked ? `<button type="button" style="background:transparent; color:#E53E3E; border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="this.closest('.step-card').remove();"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">delete</span> ลบ</button>` : ''}
+            <div>${buttonsHtml}</div>
           </div>
           
           <div class="mb-3">
@@ -680,13 +755,13 @@
           <div class="mb-3"><label>คำอธิบายเพิ่มเติม</label><textarea class="s-desc" rows="2"></textarea></div>
           <div>
             <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
-            <input type="file" class="s-imgs" accept="image/*" multiple capture="environment" onchange="compressStepImages(this)" style="background:white;">
+            <!-- 🔴 นำ capture="environment" ออก เพื่อให้มือถือเลือกรูปจากอัลบั้มได้ -->
+            <input type="file" class="s-imgs" accept="image/*" multiple onchange="compressStepImages(this)" style="background:white;">
             <div class="gallery-preview"></div>
           </div>
         </div>`;
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
-
     // 🔴 🔴 ฟังก์ชันแก้ไข (มีตัวดักจับ Error ที่แข็งแกร่งที่สุด) 🔴 🔴
     function editCurrentSMP() { 
       if(!currentDetailData) return;
