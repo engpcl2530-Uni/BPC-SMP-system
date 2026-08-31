@@ -366,13 +366,23 @@
             </div>
           </div>
 
-          <div class="upload-box" style="margin-top:15px;">
+        <div class="upload-box" style="margin-top:15px;">
             <div style="font-size:14px; font-weight:700; color:var(--primary); margin-bottom:10px;"><span class="material-symbols-rounded" style="vertical-align:bottom;">photo_camera</span> ภาพถ่ายเครื่องจักร/ชิ้นส่วนหลัก (Main Image)</div>
-            <input type="file" accept="image/*" onchange="compressMainImage(this)" style="display:block; margin:auto; width:auto; border:none; background:transparent;">
+            
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <label style="background:#FFF; border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; cursor:pointer; color:var(--secondary); font-size:13px; font-weight:600; box-shadow:var(--shadow-sm);">
+                    <span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่
+                    <input type="file" accept="image/*" capture="environment" onchange="compressMainImage(this)" style="display:none;">
+                </label>
+                <label style="background:#FFF; border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; cursor:pointer; color:var(--secondary); font-size:13px; font-weight:600; box-shadow:var(--shadow-sm);">
+                    <span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">photo_library</span> เลือกจากอัลบั้ม
+                    <input type="file" accept="image/*" onchange="compressMainImage(this)" style="display:none;">
+                </label>
+            </div>
+
             <input type="hidden" id="f_mainImageBase64">
             <div id="mainImagePreview" class="gallery-preview"></div>
           </div>
-        </div>
 
         <div class="card">
           <div class="card-title" style="color:#D69E2E; border-bottom-color:#FEFCBF;"><span class="material-symbols-rounded" style="color:#D69E2E;">security</span> ส่วนที่ 2: ความปลอดภัยและอาชีวอนามัย (Safety & Health)</div>
@@ -652,7 +662,7 @@ function updateStepNumbers() {
       stepCounter = cards.length - 1;
     }
 
-    function insertStepCard(btn) {
+function insertStepCard(btn) {
       let currentCard = btn.closest('.step-card');
       
       const html = `
@@ -660,9 +670,13 @@ function updateStepNumbers() {
           <span class="step-badge">ขั้นตอนที่ #</span>
           <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
             <h6 class="m-0 fw-bold" style="color:var(--primary);">รายละเอียดขั้นตอน</h6>
-            <div>
-              <button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt'; margin-right:10px;" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>
-              <button type="button" style="background:transparent; color:#E53E3E; border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">delete</span> ลบ</button>
+            <div style="display:flex; gap:8px;">
+              <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
+                <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
+              </button>
+              <button type="button" style="background:#FFF5F5; color:#E53E3E; border:1px solid #FC8181; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='#E53E3E'; this.style.color='#FFF';" onmouseout="this.style.background='#FFF5F5'; this.style.color='#E53E3E';" onclick="this.closest('.step-card').remove(); updateStepNumbers();">
+                <span class="material-symbols-rounded" style="font-size:16px;">delete</span> ลบ
+              </button>
             </div>
           </div>
           
@@ -690,15 +704,22 @@ function updateStepNumbers() {
           <div class="mb-3"><label>คำอธิบายเพิ่มเติม</label><textarea class="s-desc" rows="2"></textarea></div>
           <div>
             <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
-            <!-- 🔴 นำ capture="environment" ออก เพื่อให้เลือกจากอัลบั้มได้ -->
-            <input type="file" class="s-imgs" accept="image/*" multiple onchange="compressStepImages(this)" style="background:white;">
+            <div style="display:flex; gap:10px; margin-bottom:5px;">
+                <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
+                    <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่
+                    <input type="file" accept="image/*" capture="environment" onchange="compressStepImages(this)" style="display:none;">
+                </label>
+                <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
+                    <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_library</span> จากอัลบั้ม
+                    <input type="file" accept="image/*" multiple onchange="compressStepImages(this)" style="display:none;">
+                </label>
+            </div>
+            <input type="hidden" class="s-imgs">
             <div class="gallery-preview"></div>
           </div>
         </div>`;
         
-      // แทรกการ์ดใหม่ต่อท้ายการ์ดที่กดปุ่ม
       currentCard.insertAdjacentHTML('afterend', html);
-      // สั่งจัดเรียงหมายเลขขั้นตอนใหม่ทันที
       updateStepNumbers();
     }
 
@@ -710,16 +731,24 @@ function updateStepNumbers() {
       let lockSelAttr = isLocked ? 'disabled style="background:#F1F5F9;"' : 'required';
       let hiddenInputs = isLocked ? `<input type="hidden" class="s-type-hidden" value="${defaultType}">` : '';
 
-      // 🔴 สร้างปุ่มแทรกและลบ (จะโชว์ปุ่มแทรกเฉพาะขั้นตอนที่ 2 เป็นต้นไป เพื่อป้องกันการแทรกเข้ามาระหว่างขั้นตอนบังคับ 3 ข้อแรก)
       let buttonsHtml = '';
       if (!isLocked) {
          buttonsHtml = `
-            <button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt'; margin-right:10px;" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>
-            <button type="button" style="background:transparent; color:#E53E3E; border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">delete</span> ลบ</button>
+            <div style="display:flex; gap:8px;">
+              <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
+                <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
+              </button>
+              <button type="button" style="background:#FFF5F5; color:#E53E3E; border:1px solid #FC8181; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='#E53E3E'; this.style.color='#FFF';" onmouseout="this.style.background='#FFF5F5'; this.style.color='#E53E3E';" onclick="this.closest('.step-card').remove(); updateStepNumbers();">
+                <span class="material-symbols-rounded" style="font-size:16px;">delete</span> ลบ
+              </button>
+            </div>
          `;
       } else if (stepIndex === 2) {
-         // อนุญาตให้ขั้นตอนที่ 2 มีปุ่ม "แทรกด้านล่าง" ได้
-         buttonsHtml = `<button type="button" style="background:transparent; color:var(--secondary); border:none; cursor:pointer; font-weight:600; font-family:'Prompt';" onclick="insertStepCard(this)"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">add_to_photos</span> แทรกด้านล่าง</button>`;
+         buttonsHtml = `
+            <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
+              <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
+            </button>
+         `;
       }
 
       const html = `
@@ -755,13 +784,23 @@ function updateStepNumbers() {
           <div class="mb-3"><label>คำอธิบายเพิ่มเติม</label><textarea class="s-desc" rows="2"></textarea></div>
           <div>
             <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
-            <!-- 🔴 นำ capture="environment" ออก เพื่อให้มือถือเลือกรูปจากอัลบั้มได้ -->
-            <input type="file" class="s-imgs" accept="image/*" multiple onchange="compressStepImages(this)" style="background:white;">
+            <div style="display:flex; gap:10px; margin-bottom:5px;">
+                <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
+                    <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่
+                    <input type="file" accept="image/*" capture="environment" onchange="compressStepImages(this)" style="display:none;">
+                </label>
+                <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
+                    <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_library</span> จากอัลบั้ม
+                    <input type="file" accept="image/*" multiple onchange="compressStepImages(this)" style="display:none;">
+                </label>
+            </div>
+            <input type="hidden" class="s-imgs">
             <div class="gallery-preview"></div>
           </div>
         </div>`;
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
+    
     // 🔴 🔴 ฟังก์ชันแก้ไข (มีตัวดักจับ Error ที่แข็งแกร่งที่สุด) 🔴 🔴
     function editCurrentSMP() { 
       if(!currentDetailData) return;
@@ -1164,15 +1203,23 @@ function updateStepNumbers() {
       }
     }
 
-    async function compressStepImages(input) {
-      const previewBox = input.nextElementSibling;
+   async function compressStepImages(fileInput) {
+      const card = fileInput.closest('.step-card');
+      const storageInput = card.querySelector('.s-imgs');
+      const previewBox = card.querySelector('.gallery-preview');
+
       if(previewBox) previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัด...</span>';
-      input.compressedArray = [];
-      let files = Array.from(input.files).slice(0, 10);
-      for(let f of files) { let b64 = await compressFile(f); input.compressedArray.push(b64); }
+      
+      storageInput.compressedArray = [];
+      let files = Array.from(fileInput.files).slice(0, 10);
+      for(let f of files) { 
+          let b64 = await compressFile(f); 
+          storageInput.compressedArray.push(b64); 
+      }
+      
       if(previewBox) {
           previewBox.innerHTML = '';
-          input.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
+          storageInput.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
       }
     }
 
