@@ -801,21 +801,31 @@ function insertStepCard(btn) {
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
     
-    // 🔴 🔴 ฟังก์ชันแก้ไข (มีตัวดักจับ Error ที่แข็งแกร่งที่สุด) 🔴 🔴
+// 🔴 🔴 ฟังก์ชันแก้ไข (อัปเกรดระบบดักจับ Error และป้องกันข้อมูลผิดประเภทขั้นสูงสุด) 🔴 🔴
     function editCurrentSMP() { 
-      if(!currentDetailData) return;
-      let m = currentDetailData.main;
-      isEditingId = m.smpId;
-
-      document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-      document.getElementById('formView').classList.add('active');
-      document.getElementById('appTitle').innerText = "แก้ไขเอกสาร";
-      document.getElementById('appSub').innerText = m.smpId;
-      if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'flex';
-      
-      document.getElementById('smpForm').reset();
-      
       try {
+          if(!currentDetailData || !currentDetailData.main) {
+              alert("ไม่พบข้อมูลสำหรับการแก้ไข กรุณาลองโหลดหน้าเว็บใหม่อีกครั้ง");
+              return;
+          }
+          let m = currentDetailData.main;
+          isEditingId = m.smpId;
+
+          // สลับหน้าจอมาที่หน้า Form
+          document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
+          document.getElementById('formView').classList.add('active');
+          
+          let titleEl = document.getElementById('appTitle');
+          if(titleEl) titleEl.innerText = "แก้ไขเอกสาร";
+          let subEl = document.getElementById('appSub');
+          if(subEl) subEl.innerText = m.smpId || "กำลังแก้ไข";
+          let closeBtn = document.getElementById('btnCloseView');
+          if(closeBtn) closeBtn.style.display = 'flex';
+
+          let formEl = document.getElementById('smpForm');
+          if(formEl) formEl.reset();
+
+          // ข้อมูลทั่วไป (แปลงข้อมูลให้ปลอดภัยก่อนยัดลงฟอร์ม)
           if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = m.smpId || '';
           if(document.getElementById('f_title')) document.getElementById('f_title').value = m.title || '';
           if(document.getElementById('f_approver')) document.getElementById('f_approver').value = m.approver || '';
@@ -829,16 +839,25 @@ function insertStepCard(btn) {
           // 1. Type
           let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
           let typeFound = false;
-          typeRadios.forEach(r => { if (m.smpType && m.smpType.includes(r.value)) { r.checked = true; typeFound = true; } });
-          if (!typeFound && m.smpType) {
-              let t3 = document.getElementById('t3'); if(t3) t3.checked = true;
+          let currentSmpType = String(m.smpType || ''); // บังคับให้เป็น String เสมอ
+          typeRadios.forEach(r => { 
+              if (currentSmpType.includes(r.value)) { 
+                  r.checked = true; 
+                  typeFound = true; 
+              } 
+          });
+          let t3 = document.getElementById('t3');
+          if (!typeFound && currentSmpType && t3) {
+              t3.checked = true;
           }
 
           // 2. Presenter 
           let presCbsElements = document.querySelectorAll('.pres-cb');
           presCbsElements.forEach(cb => cb.checked = false);
-          let cbOther = document.getElementById('cbPresOther'); if(cbOther) cbOther.checked = false;
-          let pOtherInput = document.getElementById('f_presenter_other'); if(pOtherInput) pOtherInput.style.display = 'none';
+          let cbOther = document.getElementById('cbPresOther'); 
+          if(cbOther) cbOther.checked = false;
+          let pOtherInput = document.getElementById('f_presenter_other'); 
+          if(pOtherInput) pOtherInput.style.display = 'none';
           
           if (m.presenter) {
               let presArr = String(m.presenter).split(',').map(p => p.trim());
@@ -859,13 +878,14 @@ function insertStepCard(btn) {
           let lineSel = document.getElementById('f_line_sel');
           let lineOtherInput = document.getElementById('f_line_other');
           if (lineSel) {
-              let lineFound = Array.from(lineSel.options).some(o => o.value === String(m.line));
-              if (lineFound && m.line) { 
-                  lineSel.value = m.line; 
+              let currentLine = String(m.line || '');
+              let lineFound = Array.from(lineSel.options).some(o => o.value === currentLine);
+              if (lineFound && currentLine) { 
+                  lineSel.value = currentLine; 
                   if (lineOtherInput) lineOtherInput.style.display = 'none'; 
-              } else if (m.line) { 
+              } else if (currentLine) { 
                   lineSel.value = 'other'; 
-                  if (lineOtherInput) { lineOtherInput.style.display = 'block'; lineOtherInput.value = m.line; }
+                  if (lineOtherInput) { lineOtherInput.style.display = 'block'; lineOtherInput.value = currentLine; }
               }
           }
 
@@ -873,13 +893,14 @@ function insertStepCard(btn) {
           let freqSel = document.getElementById('f_frequency_sel');
           let freqOtherInput = document.getElementById('f_frequency_other');
           if (freqSel) {
-              let freqFound = Array.from(freqSel.options).some(o => o.value === String(m.frequency));
-              if (freqFound && m.frequency) { 
-                  freqSel.value = m.frequency; 
+              let currentFreq = String(m.frequency || '');
+              let freqFound = Array.from(freqSel.options).some(o => o.value === currentFreq);
+              if (freqFound && currentFreq) { 
+                  freqSel.value = currentFreq; 
                   if (freqOtherInput) freqOtherInput.style.display = 'none'; 
-              } else if (m.frequency) { 
+              } else if (currentFreq) { 
                   freqSel.value = 'other'; 
-                  if (freqOtherInput) { freqOtherInput.style.display = 'block'; freqOtherInput.value = m.frequency; }
+                  if (freqOtherInput) { freqOtherInput.style.display = 'block'; freqOtherInput.value = currentFreq; }
               }
           }
 
@@ -927,7 +948,8 @@ function insertStepCard(btn) {
           if(sContainer) {
               sContainer.innerHTML = '';
               stepCounter = -1;
-              let stepsList = currentDetailData.steps || [];
+              let stepsList = Array.isArray(currentDetailData.steps) ? currentDetailData.steps : [];
+              
               stepsList.forEach((s) => {
                   let isLocked = (s.stepNo <= 2);
                   addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
@@ -939,22 +961,29 @@ function insertStepCard(btn) {
                       
                       let fileInput = card.querySelector('.s-imgs');
                       let gal = card.querySelector('.gallery-preview');
-                      if(s.images && s.images.length > 0 && fileInput && gal) {
-                          fileInput.oldImages = JSON.stringify(s.images);
-                          let imgHtml = s.images.map(url => `<img src="${url}">`).join('');
-                          gal.innerHTML = imgHtml;
+                      
+                      if(s.images && fileInput && gal) {
+                          // ป้องกันบั๊กกรณี s.images ไม่ใช่ Array
+                          let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' ? [s.images] : []);
+                          if (imgArray.length > 0) {
+                              fileInput.oldImages = JSON.stringify(imgArray);
+                              let imgHtml = imgArray.map(url => `<img src="${url}">`).join('');
+                              gal.innerHTML = imgHtml;
+                          }
                       }
                   }
               });
           }
+          
+          window.scrollTo(0,0);
+          
       } catch(e) {
           console.error("Error populating edit form:", e);
-          showModal('พบข้อมูลบางส่วนไม่สมบูรณ์', 'หน้าแก้ไขเปิดใช้งานแล้ว แต่ข้อมูลเก่าบางจุดอาจโหลดไม่ครบถ้วน', 'warning', '#D69E2E');
+          // ใช้ alert เพื่อบังคับแสดงผลกรณี Modal โดนขัดขวางบนมือถือ
+          alert("เกิดข้อผิดพลาดในการเปิดหน้าแก้ไข กรุณาแจ้งผู้ดูแลระบบ:\n" + e.message);
       }
-      
-      window.scrollTo(0,0);
     }
-
+    
     function deleteCurrentSMP() { 
       if(!currentDetailData) return;
       document.getElementById('confirmMessage').innerText = `คุณต้องการลบเอกสารรหัส #${currentDetailData.main.smpId} ใช่หรือไม่?`;
