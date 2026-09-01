@@ -119,35 +119,17 @@
     .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
     .checkbox-grid label { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; cursor: pointer; color: var(--text-main);}
 
-/* 🔴 Loading Screen CSS (สไตล์ Modern Web) */
+    /* 🔴 Loading Screen CSS (สไตล์ Modern Web) */
     #loadingScreen { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(244, 247, 249, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: all 0.3s ease; }
-    .modern-spinner {
-      width: 60px;
-      height: 60px;
-      border: 6px solid rgba(0, 94, 184, 0.15); /* สีวงแหวนจางๆ */
-      border-top: 6px solid var(--secondary); /* สีเส้นวิ่ง */
-      border-radius: 50%;
-      animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
-    
-    .loading-pulse {
-      animation: pulse 1.5s ease-in-out infinite alternate;
-    }
-    
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
-    }
-    @keyframes pulse { 
-      0% { opacity: 0.5; transform: scale(0.98); } 
-      100% { opacity: 1; transform: scale(1); } 
-    }
-    
+    .modern-spinner { width: 60px; height: 60px; border: 6px solid rgba(0, 94, 184, 0.15); border-top: 6px solid var(--secondary); border-radius: 50%; animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+    .loading-pulse { animation: pulse 1.5s ease-in-out infinite alternate; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body>
   
-<!-- Loading Screen Animation -->
+  <!-- Loading Screen Animation -->
   <div id="loadingScreen" style="display:none;">
     <div class="modern-spinner"></div>
     <h3 class="loading-pulse" style="margin-top:25px; color:var(--primary); font-weight:700;">กำลังประมวลผล...</h3>
@@ -366,7 +348,7 @@
             </div>
           </div>
 
-        <div class="upload-box" style="margin-top:15px;">
+          <div class="upload-box" style="margin-top:15px;">
             <div style="font-size:14px; font-weight:700; color:var(--primary); margin-bottom:10px;"><span class="material-symbols-rounded" style="vertical-align:bottom;">photo_camera</span> ภาพถ่ายเครื่องจักร/ชิ้นส่วนหลัก (Main Image)</div>
             
             <div style="display:flex; gap:10px; justify-content:center;">
@@ -383,6 +365,7 @@
             <input type="hidden" id="f_mainImageBase64">
             <div id="mainImagePreview" class="gallery-preview"></div>
           </div>
+        </div>
 
         <div class="card">
           <div class="card-title" style="color:#D69E2E; border-bottom-color:#FEFCBF;"><span class="material-symbols-rounded" style="color:#D69E2E;">security</span> ส่วนที่ 2: ความปลอดภัยและอาชีวอนามัย (Safety & Health)</div>
@@ -471,17 +454,16 @@
     </div>
 
   </div>
-
+  
   <!-- Floating Toast สำหรับแจ้งเตือนแบบร่าง -->
   <div id="draftToast" class="floating-toast" onclick="loadDraft()">
     <span class="material-symbols-rounded">restore_page</span> 
     <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
   </div>
+</body>
+</html>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- SCRIPT -->
-  <script>
+<script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4nf_7Daou3hqzx9LQCrstQdKJNxG8sLOtaeulIh6YMtD0FPw/exec"; 
 
     let allSmpDataList = [];
@@ -649,20 +631,19 @@
       addStepCard(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", 0, "ความปลอดภัย");
     }
 
-function updateStepNumbers() {
+    function updateStepNumbers() {
       let cards = document.querySelectorAll('#stepsContainer .step-card');
       cards.forEach((card, index) => {
         let badge = card.querySelector('.step-badge');
         if (badge) {
           badge.innerText = `ขั้นตอนที่ #${index}`;
         }
-        // อัปเดต ID ของการ์ดให้ตรงกับลำดับใหม่เสมอ
         card.id = `step_row_${index}`;
       });
       stepCounter = cards.length - 1;
     }
 
-function insertStepCard(btn) {
+    function insertStepCard(btn) {
       let currentCard = btn.closest('.step-card');
       
       const html = `
@@ -800,8 +781,7 @@ function insertStepCard(btn) {
         </div>`;
       document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
     }
-    
-// 🔴 🔴 ฟังก์ชันแก้ไข (อัปเกรดระบบดักจับ Error และป้องกันข้อมูลผิดประเภทขั้นสูงสุด) 🔴 🔴
+
     function editCurrentSMP() { 
       try {
           if(!currentDetailData || !currentDetailData.main) {
@@ -811,7 +791,6 @@ function insertStepCard(btn) {
           let m = currentDetailData.main;
           isEditingId = m.smpId;
 
-          // สลับหน้าจอมาที่หน้า Form
           document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
           document.getElementById('formView').classList.add('active');
           
@@ -825,7 +804,6 @@ function insertStepCard(btn) {
           let formEl = document.getElementById('smpForm');
           if(formEl) formEl.reset();
 
-          // ข้อมูลทั่วไป (แปลงข้อมูลให้ปลอดภัยก่อนยัดลงฟอร์ม)
           if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = m.smpId || '';
           if(document.getElementById('f_title')) document.getElementById('f_title').value = m.title || '';
           if(document.getElementById('f_approver')) document.getElementById('f_approver').value = m.approver || '';
@@ -836,10 +814,9 @@ function insertStepCard(btn) {
           if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
           if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
 
-          // 1. Type
           let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
           let typeFound = false;
-          let currentSmpType = String(m.smpType || ''); // บังคับให้เป็น String เสมอ
+          let currentSmpType = String(m.smpType || ''); 
           typeRadios.forEach(r => { 
               if (currentSmpType.includes(r.value)) { 
                   r.checked = true; 
@@ -851,7 +828,6 @@ function insertStepCard(btn) {
               t3.checked = true;
           }
 
-          // 2. Presenter 
           let presCbsElements = document.querySelectorAll('.pres-cb');
           presCbsElements.forEach(cb => cb.checked = false);
           let cbOther = document.getElementById('cbPresOther'); 
@@ -874,7 +850,6 @@ function insertStepCard(btn) {
               }
           }
 
-          // 3. Line
           let lineSel = document.getElementById('f_line_sel');
           let lineOtherInput = document.getElementById('f_line_other');
           if (lineSel) {
@@ -889,7 +864,6 @@ function insertStepCard(btn) {
               }
           }
 
-          // 4. Frequency
           let freqSel = document.getElementById('f_frequency_sel');
           let freqOtherInput = document.getElementById('f_frequency_other');
           if (freqSel) {
@@ -904,16 +878,13 @@ function insertStepCard(btn) {
               }
           }
 
-          // 5. LOTO
           if(m.loto === 'ต้องการ') { let l = document.getElementById('loto_req'); if(l) l.checked = true; }
           else if(m.loto === 'ไม่ต้องการ') { let l = document.getElementById('loto_not_req'); if(l) l.checked = true; }
 
-          // 6. Risk Assessed
           if(m.riskAssessed === 'ใช่') { let r = document.getElementById('risk_yes'); if(r) r.checked = true; }
           else if(m.riskAssessed === 'ไม่ใช่') { let r = document.getElementById('risk_no'); if(r) r.checked = true; }
           else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') { let r = document.getElementById('risk_na'); if(r) r.checked = true; }
 
-          // 7. PPE
           let ppeArray = Array.isArray(m.ppe) ? m.ppe : [];
           document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
               if (ppeArray.length === 0) { el.classList.add('not-used'); return; }
@@ -922,7 +893,6 @@ function insertStepCard(btn) {
               else el.classList.add('not-used');
           });
 
-          // 8. Risks
           let riskArray = Array.isArray(m.risks) ? m.risks : [];
           document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => {
               if (riskArray.length === 0) { el.classList.add('not-used'); return; }
@@ -931,7 +901,6 @@ function insertStepCard(btn) {
               else el.classList.add('not-used');
           });
 
-          // 9. Main Image Preview
           let mainBase64Input = document.getElementById('f_mainImageBase64');
           if(mainBase64Input) mainBase64Input.value = ''; 
           let mainOldInput = document.getElementById('f_mainImageOld');
@@ -943,7 +912,6 @@ function insertStepCard(btn) {
               else previewBox.innerHTML = '';
           }
 
-          // 10. Steps 
           let sContainer = document.getElementById('stepsContainer');
           if(sContainer) {
               sContainer.innerHTML = '';
@@ -963,7 +931,6 @@ function insertStepCard(btn) {
                       let gal = card.querySelector('.gallery-preview');
                       
                       if(s.images && fileInput && gal) {
-                          // ป้องกันบั๊กกรณี s.images ไม่ใช่ Array
                           let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' ? [s.images] : []);
                           if (imgArray.length > 0) {
                               fileInput.oldImages = JSON.stringify(imgArray);
@@ -979,11 +946,10 @@ function insertStepCard(btn) {
           
       } catch(e) {
           console.error("Error populating edit form:", e);
-          // ใช้ alert เพื่อบังคับแสดงผลกรณี Modal โดนขัดขวางบนมือถือ
           alert("เกิดข้อผิดพลาดในการเปิดหน้าแก้ไข กรุณาแจ้งผู้ดูแลระบบ:\n" + e.message);
       }
     }
-    
+
     function deleteCurrentSMP() { 
       if(!currentDetailData) return;
       document.getElementById('confirmMessage').innerText = `คุณต้องการลบเอกสารรหัส #${currentDetailData.main.smpId} ใช่หรือไม่?`;
@@ -1043,7 +1009,6 @@ function insertStepCard(btn) {
       let presenters = new Set();
       let lines = new Set();
       data.forEach(item => {
-        // 🔴 ป้องกันบั๊กเวลามีคนกรอกตัวเลขใน Google Sheet
         if(item.presenter) { String(item.presenter).split(',').forEach(p => presenters.add(p.trim())); }
         if(item.line) lines.add(String(item.line));
       });
@@ -1089,7 +1054,6 @@ function insertStepCard(btn) {
       filteredDataList = allSmpDataList.filter(o => {
         let matchKw = o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.machine && o.machine.toLowerCase().includes(kw));
         
-        // 🔴 ป้องกันบั๊กเวลาดึงข้อมูลด้วย String()
         let matchP = presenter === "" || (o.presenter && String(o.presenter).includes(presenter));
         let matchL = line === "" || String(o.line) === line;
         let matchT = type === "" || (o.type && String(o.type).includes(type));
@@ -1252,7 +1216,7 @@ function insertStepCard(btn) {
       }
     }
 
-document.getElementById('smpForm').addEventListener('submit', function(e) {
+    document.getElementById('smpForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
       let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
@@ -1331,7 +1295,6 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
 
       let finalPayload = { action: payloadAction, formData: formData, stepsData: stepsData };
 
-      // 🔴 แก้ปัญหาการเชื่อมต่อล้มเหลว (SyntaxError <!DOCTYPE html>) ด้วย Header
       fetch(API_URL, { 
           method: 'POST', 
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1342,7 +1305,7 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
           try {
               return JSON.parse(text);
           } catch(e) {
-              console.error("เซิร์ฟเวอร์ตอบกลับมาเป็น:", text); // พิมพ์ค่าที่ Error ออกมาดูใน Console ได้
+              console.error("เซิร์ฟเวอร์ตอบกลับมาเป็น:", text); 
               throw new Error("เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง (โปรดตรวจสอบการ Deploy หรือสิทธิ์บน Google Apps Script)");
           }
       })
@@ -1475,7 +1438,6 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
       }
     }
 
-    // 🔴 ฟังก์ชันดาวน์โหลดเดิม 100% ของคุณ (ไม่ลบ ไม่ย่อ ไม่แก้พิกัด และไม่มี try-catch ใดๆ สอดไส้เข้าไป)
     async function downloadExcel() {
       if(!currentDetailData) return;
       let m = currentDetailData.main;
@@ -1556,13 +1518,11 @@ document.getElementById('smpForm').addEventListener('submit', function(e) {
           const mainBase64 = await fetchImageAsBase64(m.mainImage);
           if (mainBase64) {
             const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-            // 🔴 เพิ่มขนาดภาพหลักเป็น 650x350 แต่คงพิกัด col: 15, row: 7.5 ตามคำสั่งคุณ 
             worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 650, height: 350 } });
           }
         }
 
         const getStyle = (cellStr) => { let cell = worksheet.getCell(cellStr); return { val: cell.value || '', font: cell.font || {} }; };
-        // 🔴 คงความปลอดภัย M16 ไว้เพื่อให้โหลดสัญลักษณ์ติดแน่นอน
         const symSafe = getStyle('M16'); const symQual = getStyle('Q16'); const symEnv  = getStyle('T16'); const symProd = getStyle('W16');
         const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
         
