@@ -55,28 +55,32 @@ function parseDateSafely(dateStr) {
 
 function toggleOtherInput(selElement, inputId) {
   let inputEl = document.getElementById(inputId);
-  if(selElement.value === 'other') { 
-      inputEl.style.display = 'block'; 
-      inputEl.required = true; 
-      inputEl.focus(); 
-  } else { 
-      inputEl.style.display = 'none'; 
-      inputEl.required = false; 
-      inputEl.value = ''; 
+  if(inputEl) {
+    if(selElement.value === 'other') { 
+        inputEl.style.display = 'block'; 
+        inputEl.required = true; 
+        inputEl.focus(); 
+    } else { 
+        inputEl.style.display = 'none'; 
+        inputEl.required = false; 
+        inputEl.value = ''; 
+    }
   }
 }
 
 function toggleOtherCheckbox(cbId, inputId) {
   let cb = document.getElementById(cbId); 
   let inputEl = document.getElementById(inputId);
-  if(cb.checked) { 
-      inputEl.style.display = 'block'; 
-      inputEl.required = true; 
-      inputEl.focus(); 
-  } else { 
-      inputEl.style.display = 'none'; 
-      inputEl.required = false; 
-      inputEl.value = ''; 
+  if(cb && inputEl) {
+    if(cb.checked) { 
+        inputEl.style.display = 'block'; 
+        inputEl.required = true; 
+        inputEl.focus(); 
+    } else { 
+        inputEl.style.display = 'none'; 
+        inputEl.required = false; 
+        inputEl.value = ''; 
+    }
   }
 }
 
@@ -115,9 +119,12 @@ window.addEventListener('offline', checkOfflineStatus);
 
 function checkOfflineStatus() {
   const isOffline = !navigator.onLine;
-  document.getElementById('offlineBanner').style.display = isOffline ? 'block' : 'none';
+  let offlineBanner = document.getElementById('offlineBanner');
+  if(offlineBanner) offlineBanner.style.display = isOffline ? 'block' : 'none';
+  
   let queue = JSON.parse(localStorage.getItem('smp_offline_queue') || '[]');
-  document.getElementById('btnSync').style.display = (navigator.onLine && queue.length > 0) ? 'flex' : 'none';
+  let syncBtn = document.getElementById('btnSync');
+  if(syncBtn) syncBtn.style.display = (navigator.onLine && queue.length > 0) ? 'flex' : 'none';
 }
 
 function syncOfflineData() {
@@ -147,7 +154,8 @@ function syncOfflineData() {
 // ======================== MULTI-DRAFT SYSTEM ========================
 function saveDataAsDraft() {
     let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
-    let title = document.getElementById('f_title').value.trim();
+    let titleEl = document.getElementById('f_title');
+    let title = titleEl ? titleEl.value.trim() : '';
 
     if(!smpTypeSelected || !title) {
         showModal("ข้อมูลไม่ครบ", "กรุณาระบุ 'ประเภท SMP' และ 'ชื่อเรื่อง' ก่อนบันทึกแบบร่าง", "warning", "#D69E2E");
@@ -160,12 +168,14 @@ function saveDataAsDraft() {
         if(otherVal && otherVal.value.trim() !== '') type = otherVal.value.trim(); 
     }
 
-    document.getElementById('f_status').value = 'Unfinished';
+    let statusEl = document.getElementById('f_status');
+    if(statusEl) statusEl.value = 'Unfinished';
 
-    let draftId = document.getElementById('f_draftId').value;
+    let draftIdEl = document.getElementById('f_draftId');
+    let draftId = draftIdEl ? draftIdEl.value : '';
     if (!draftId) { 
         draftId = generateId(type, true); 
-        document.getElementById('f_draftId').value = draftId; 
+        if(draftIdEl) draftIdEl.value = draftId; 
     }
     
     let draftData = collectFormData(); 
@@ -211,6 +221,7 @@ function openDraftListModal() {
     } catch(e) { drafts = []; }
     
     let container = document.getElementById('draftListContainer');
+    if(!container) return;
     
     if(drafts.length === 0) { 
         container.innerHTML = '<p class="text-center text-muted">ไม่มีแบบร่างที่บันทึกไว้</p>'; 
@@ -230,12 +241,16 @@ function openDraftListModal() {
         });
         container.innerHTML = html;
     }
-    document.getElementById('draftListModal').style.display = 'flex';
-    document.getElementById('draftToast').style.display = 'none';
+    
+    let modal = document.getElementById('draftListModal');
+    if(modal) modal.style.display = 'flex';
+    
+    let toast = document.getElementById('draftToast');
+    if(toast) toast.style.display = 'none';
 }
 
 function deleteDraft(event, draftId) {
-    event.stopPropagation(); 
+    if(event) event.stopPropagation(); 
     let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
     drafts = drafts.filter(d => d.id !== draftId);
     localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts));
@@ -251,33 +266,53 @@ function loadDraftIntoForm(draftId) {
     
     if(draft && draft.data) {
         currentDetailData = { main: draft.data.formData, steps: draft.data.stepsData };
-        document.getElementById('draftListModal').style.display = 'none';
+        let modal = document.getElementById('draftListModal');
+        if(modal) modal.style.display = 'none';
         
         proceedToEdit(); 
         
         isEditingId = null; 
-        document.getElementById('f_draftId').value = draft.id;
-        document.getElementById('smpIdContainer').style.display = 'none'; 
         
-        document.getElementById('presenterCheckboxGrid').classList.remove('locked');
-        document.getElementById('lockWarning').style.display = 'none';
-        document.querySelector('.btn-draft').style.display = 'flex';
-        document.getElementById('fabDraftBtn').style.display = 'flex';
+        let draftIdEl = document.getElementById('f_draftId');
+        if(draftIdEl) draftIdEl.value = draft.id;
+        
+        let smpIdContainer = document.getElementById('smpIdContainer');
+        if(smpIdContainer) smpIdContainer.style.display = 'none'; 
+        
+        let presenterGrid = document.getElementById('presenterCheckboxGrid');
+        if(presenterGrid) presenterGrid.classList.remove('locked');
+        
+        let lockWarning = document.getElementById('lockWarning');
+        if(lockWarning) lockWarning.style.display = 'none';
+        
+        let draftBtn = document.querySelector('.btn-draft');
+        if(draftBtn) draftBtn.style.display = 'flex';
+        
+        let fabDraft = document.getElementById('fabDraftBtn');
+        if(fabDraft) fabDraft.style.display = 'flex';
         
         showModal('กู้คืนแบบร่างสำเร็จ', `โหลดเอกสาร "${draft.title}" แล้ว`, 'restore', 'var(--secondary)');
     } else {
         alert("ข้อมูลแบบร่างไม่สมบูรณ์ หรือถูกลบไปแล้ว");
-        deleteDraft(event, draftId);
+        deleteDraft(null, draftId);
     }
 }
 
 // ======================== VIEW NAVIGATION ========================
 function showHome() {
   document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-  document.getElementById('homeView').classList.add('active');
-  document.getElementById('appTitle').innerText = "SMP System";
-  document.getElementById('appSub').innerText = "ระบบจัดการเอกสารมาตรฐาน";
-  document.getElementById('btnCloseView').style.display = 'none';
+  
+  let homeView = document.getElementById('homeView');
+  if(homeView) homeView.classList.add('active');
+  
+  let titleEl = document.getElementById('appTitle');
+  if(titleEl) titleEl.innerText = "SMP System";
+  
+  let subEl = document.getElementById('appSub');
+  if(subEl) subEl.innerText = "ระบบจัดการเอกสารมาตรฐาน";
+  
+  let btnClose = document.getElementById('btnCloseView');
+  if(btnClose) btnClose.style.display = 'none';
   
   let toast = document.getElementById('draftToast');
   if(toast) toast.style.display = 'none';
@@ -292,36 +327,63 @@ function showHome() {
 
 function showForm() {
   isEditingId = null; 
-  document.getElementById('smpForm').reset();
+  let formEl = document.getElementById('smpForm');
+  if(formEl) formEl.reset();
   
   let pOther = document.getElementById('f_presenter_other'); if(pOther) pOther.style.display = 'none';
   let lOther = document.getElementById('f_line_other'); if(lOther) lOther.style.display = 'none';
   let fOther = document.getElementById('f_frequency_other'); if(fOther) fOther.style.display = 'none';
   
-  document.getElementById('presenterCheckboxGrid').classList.remove('locked');
-  document.getElementById('lockWarning').style.display = 'none';
-  document.querySelector('.btn-draft').style.display = 'flex';
-  document.getElementById('fabDraftBtn').style.display = 'flex';
-  document.getElementById('smpIdContainer').style.display = 'none'; 
+  let presenterGrid = document.getElementById('presenterCheckboxGrid');
+  if(presenterGrid) presenterGrid.classList.remove('locked');
+  
+  let lockWarning = document.getElementById('lockWarning');
+  if(lockWarning) lockWarning.style.display = 'none';
+  
+  let draftBtn = document.querySelector('.btn-draft');
+  if(draftBtn) draftBtn.style.display = 'flex';
+  
+  let fabDraft = document.getElementById('fabDraftBtn');
+  if(fabDraft) fabDraft.style.display = 'flex';
+  
+  let smpIdContainer = document.getElementById('smpIdContainer');
+  if(smpIdContainer) smpIdContainer.style.display = 'none'; 
   
   mainImagesArray = []; 
-  document.getElementById('mainImagePreview').innerHTML = ''; 
-  document.getElementById('f_mainImageBase64').value = ''; 
-  document.getElementById('f_mainImageOld').value = ''; 
+  let preview = document.getElementById('mainImagePreview');
+  if(preview) preview.innerHTML = ''; 
   
-  document.getElementById('stepsContainer').innerHTML = ''; 
-  document.getElementById('f_draftId').value = ''; 
+  let mainBase = document.getElementById('f_mainImageBase64');
+  if(mainBase) mainBase.value = ''; 
+  
+  let mainOld = document.getElementById('f_mainImageOld');
+  if(mainOld) mainOld.value = ''; 
+  
+  let stepsCont = document.getElementById('stepsContainer');
+  if(stepsCont) stepsCont.innerHTML = ''; 
+  
+  let fDraft = document.getElementById('f_draftId');
+  if(fDraft) fDraft.value = ''; 
   
   document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-  document.getElementById('formView').classList.add('active');
-  document.getElementById('appTitle').innerText = "สร้าง SMP ใหม่";
-  document.getElementById('appSub').innerText = "กรอกรายละเอียดการปฏิบัติงาน";
-  document.getElementById('btnCloseView').style.display = 'flex'; 
+  
+  let formView = document.getElementById('formView');
+  if(formView) formView.classList.add('active');
+  
+  let titleEl = document.getElementById('appTitle');
+  if(titleEl) titleEl.innerText = "สร้าง SMP ใหม่";
+  
+  let subEl = document.getElementById('appSub');
+  if(subEl) subEl.innerText = "กรอกรายละเอียดการปฏิบัติงาน";
+  
+  let closeBtn = document.getElementById('btnCloseView');
+  if(closeBtn) closeBtn.style.display = 'flex'; 
   
   document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
   document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
 
-  document.getElementById('f_status').value = "Unfinished"; 
+  let fStatus = document.getElementById('f_status');
+  if(fStatus) fStatus.value = "Unfinished"; 
 
   generateLockedSteps(); 
   initSortable(); 
@@ -395,6 +457,7 @@ function getStepCardHTML(isFirstStep = false, isMandatory = false, defaultName =
 
 function initSortable() {
     let el = document.getElementById('stepsContainer');
+    if (!el) return;
     if (stepSortable) stepSortable.destroy(); 
     stepSortable = Sortable.create(el, { 
         handle: '.drag-handle:not(.disabled)', 
@@ -406,6 +469,7 @@ function initSortable() {
 
 function handleLotoChange(isRequired) {
     let container = document.getElementById('stepsContainer');
+    if(!container) return;
     let lotoCard = container.querySelector('.loto-step'); 
     
     if (!isRequired) { 
@@ -430,7 +494,8 @@ function generateLockedSteps() {
   html += getStepCardHTML(false, true, "การเตรียมเครื่องมืออุปกรณ์", "", "ไม่มีประเภท", false);
   html += getStepCardHTML(false, true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", "", "ความปลอดภัย", true);
   
-  document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
+  let container = document.getElementById('stepsContainer');
+  if(container) container.insertAdjacentHTML('beforeend', html);
   updateStepNumbers();
 }
 
@@ -452,7 +517,8 @@ function insertStepCard(btn) {
 
 function addStepCard(isFirstStep = false, isMandatory = false, defaultName = "", defaultTime = "", defaultType = "", isLoto = false) {
   let html = getStepCardHTML(isFirstStep, isMandatory, defaultName, defaultTime, defaultType, isLoto);
-  document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
+  let container = document.getElementById('stepsContainer');
+  if(container) container.insertAdjacentHTML('beforeend', html);
   updateStepNumbers();
 }
 
@@ -461,42 +527,63 @@ function requestEditSMP() {
     if(!currentDetailData) return;
     
     if(currentDetailData.main.status === 'Finished' || !currentDetailData.main.status) {
-        document.getElementById('confirmEditModal').style.display = 'flex';
+        let modal = document.getElementById('confirmEditModal');
+        if(modal) modal.style.display = 'flex';
     } else { 
         proceedToEdit(); 
     }
 }
 
 function proceedToEdit() {
-  document.getElementById('confirmEditModal').style.display = 'none';
+  let modal = document.getElementById('confirmEditModal');
+  if(modal) modal.style.display = 'none';
+  
   try {
       let m = currentDetailData.main;
       isEditingId = m.smpId;
 
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-      document.getElementById('formView').classList.add('active');
       
-      document.getElementById('appTitle').innerText = "แก้ไขเอกสาร";
-      document.getElementById('appSub').innerText = m.smpId || "กำลังแก้ไข";
-      document.getElementById('btnCloseView').style.display = 'flex';
-      document.getElementById('smpForm').reset();
+      let formView = document.getElementById('formView');
+      if(formView) formView.classList.add('active');
+      
+      let appTitle = document.getElementById('appTitle');
+      if(appTitle) appTitle.innerText = "แก้ไขเอกสาร";
+      
+      let appSub = document.getElementById('appSub');
+      if(appSub) appSub.innerText = m.smpId || "กำลังแก้ไข";
+      
+      let closeBtn = document.getElementById('btnCloseView');
+      if(closeBtn) closeBtn.style.display = 'flex';
+      
+      let formEl = document.getElementById('smpForm');
+      if(formEl) formEl.reset();
 
-      document.getElementById('smpIdContainer').style.display = 'block';
-      document.getElementById('presenterCheckboxGrid').classList.add('locked');
-      document.getElementById('lockWarning').style.display = 'block';
-      document.querySelector('.btn-draft').style.display = 'none';
-      document.getElementById('fabDraftBtn').style.display = 'none';
+      let smpIdCont = document.getElementById('smpIdContainer');
+      if(smpIdCont) smpIdCont.style.display = 'block';
+      
+      let presGrid = document.getElementById('presenterCheckboxGrid');
+      if(presGrid) presGrid.classList.add('locked');
+      
+      let lockWarn = document.getElementById('lockWarning');
+      if(lockWarn) lockWarn.style.display = 'block';
+      
+      let btnDraft = document.querySelector('.btn-draft');
+      if(btnDraft) btnDraft.style.display = 'none';
+      
+      let fabDraft = document.getElementById('fabDraftBtn');
+      if(fabDraft) fabDraft.style.display = 'none';
 
-      document.getElementById('f_smpId').value = m.smpId || '';
-      document.getElementById('f_title').value = m.title || '';
-      document.getElementById('f_approver').value = m.approver || '';
-      document.getElementById('f_machine').value = m.machine || '';
-      document.getElementById('f_techCount').value = m.techCount || '';
-      document.getElementById('f_techTime').value = m.techTime || '';
-      document.getElementById('f_workTime').value = m.workTime || '';
-      document.getElementById('f_downtime').value = m.downtime || '';
-      document.getElementById('f_maintType').value = m.maintType || '';
-      document.getElementById('f_status').value = m.status || 'Finished';
+      if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = m.smpId || '';
+      if(document.getElementById('f_title')) document.getElementById('f_title').value = m.title || '';
+      if(document.getElementById('f_approver')) document.getElementById('f_approver').value = m.approver || '';
+      if(document.getElementById('f_machine')) document.getElementById('f_machine').value = m.machine || '';
+      if(document.getElementById('f_techCount')) document.getElementById('f_techCount').value = m.techCount || '';
+      if(document.getElementById('f_techTime')) document.getElementById('f_techTime').value = m.techTime || '';
+      if(document.getElementById('f_workTime')) document.getElementById('f_workTime').value = m.workTime || '';
+      if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
+      if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
+      if(document.getElementById('f_status')) document.getElementById('f_status').value = m.status || 'Finished';
 
       let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
       let typeFound = false;
@@ -506,12 +593,14 @@ function proceedToEdit() {
               typeFound = true; 
           } 
       });
-      if (!typeFound && m.smpType) document.getElementById('t3').checked = true;
+      if (!typeFound && m.smpType && document.getElementById('t3')) document.getElementById('t3').checked = true;
 
       let presCbsElements = document.querySelectorAll('.pres-cb');
       presCbsElements.forEach(cb => cb.checked = false);
-      document.getElementById('cbPresOther').checked = false;
-      document.getElementById('f_presenter_other').style.display = 'none';
+      
+      if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = false;
+      if(document.getElementById('f_presenter_other')) document.getElementById('f_presenter_other').style.display = 'none';
+      
       if (m.presenter) {
           let presArr = String(m.presenter).split(',').map(p => p.trim());
           let others = [];
@@ -521,41 +610,47 @@ function proceedToEdit() {
               else if (p && p !== 'null') others.push(p);
           });
           if (others.length > 0) {
-              document.getElementById('cbPresOther').checked = true;
+              if(document.getElementById('cbPresOther')) document.getElementById('cbPresOther').checked = true;
               let pOtherInput = document.getElementById('f_presenter_other');
-              pOtherInput.style.display = 'block'; 
-              pOtherInput.value = others.join(', ');
+              if(pOtherInput) {
+                  pOtherInput.style.display = 'block'; 
+                  pOtherInput.value = others.join(', ');
+              }
           }
       }
 
       let lineSel = document.getElementById('f_line_sel'); 
       let lineOther = document.getElementById('f_line_other');
-      if (Array.from(lineSel.options).some(o => o.value === String(m.line||''))) { 
-          lineSel.value = m.line; 
-          lineOther.style.display = 'none'; 
-      } else if (m.line) { 
-          lineSel.value = 'other'; 
-          lineOther.style.display = 'block'; 
-          lineOther.value = m.line; 
+      if (lineSel && lineOther) {
+          if (Array.from(lineSel.options).some(o => o.value === String(m.line||''))) { 
+              lineSel.value = m.line; 
+              lineOther.style.display = 'none'; 
+          } else if (m.line) { 
+              lineSel.value = 'other'; 
+              lineOther.style.display = 'block'; 
+              lineOther.value = m.line; 
+          }
       }
 
       let freqSel = document.getElementById('f_frequency_sel'); 
       let freqOther = document.getElementById('f_frequency_other');
-      if (Array.from(freqSel.options).some(o => o.value === String(m.frequency||''))) { 
-          freqSel.value = m.frequency; 
-          freqOther.style.display = 'none'; 
-      } else if (m.frequency) { 
-          freqSel.value = 'other'; 
-          freqOther.style.display = 'block'; 
-          freqOther.value = m.frequency; 
+      if (freqSel && freqOther) {
+          if (Array.from(freqSel.options).some(o => o.value === String(m.frequency||''))) { 
+              freqSel.value = m.frequency; 
+              freqOther.style.display = 'none'; 
+          } else if (m.frequency) { 
+              freqSel.value = 'other'; 
+              freqOther.style.display = 'block'; 
+              freqOther.value = m.frequency; 
+          }
       }
 
-      if(m.loto === 'ต้องการ') document.getElementById('loto_req').checked = true; 
-      else if(m.loto === 'ไม่ต้องการ') document.getElementById('loto_not_req').checked = true;
+      if(m.loto === 'ต้องการ' && document.getElementById('loto_req')) document.getElementById('loto_req').checked = true; 
+      else if(m.loto === 'ไม่ต้องการ' && document.getElementById('loto_not_req')) document.getElementById('loto_not_req').checked = true;
 
-      if(m.riskAssessed === 'ใช่') document.getElementById('risk_yes').checked = true;
-      else if(m.riskAssessed === 'ไม่ใช่') document.getElementById('risk_no').checked = true;
-      else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') document.getElementById('risk_na').checked = true;
+      if(m.riskAssessed === 'ใช่' && document.getElementById('risk_yes')) document.getElementById('risk_yes').checked = true;
+      else if(m.riskAssessed === 'ไม่ใช่' && document.getElementById('risk_no')) document.getElementById('risk_no').checked = true;
+      else if(m.riskAssessed === 'ไม่เกี่ยวข้อง' && document.getElementById('risk_na')) document.getElementById('risk_na').checked = true;
 
       document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
           let p = (m.ppe||[]).find(x => x.name === el.dataset.val);
@@ -568,74 +663,98 @@ function proceedToEdit() {
 
       mainImagesArray = [];
       let previewBox = document.getElementById('mainImagePreview'); 
-      previewBox.innerHTML = '';
-      if(m.mainImage) {
-          try { 
-              let parsed = JSON.parse(m.mainImage); 
-              if(Array.isArray(parsed)) mainImagesArray = parsed; 
-              else mainImagesArray = [m.mainImage]; 
-          } catch(e) { mainImagesArray = [m.mainImage]; }
-          document.getElementById('f_mainImageOld').value = JSON.stringify(mainImagesArray);
-          renderMainImagePreview();
+      if(previewBox) {
+          previewBox.innerHTML = '';
+          if(m.mainImage) {
+              try { 
+                  let parsed = JSON.parse(m.mainImage); 
+                  if(Array.isArray(parsed)) mainImagesArray = parsed; 
+                  else mainImagesArray = [m.mainImage]; 
+              } catch(e) { mainImagesArray = [m.mainImage]; }
+              
+              let mainOld = document.getElementById('f_mainImageOld');
+              if(mainOld) mainOld.value = JSON.stringify(mainImagesArray);
+              
+              renderMainImagePreview();
+          }
       }
 
       let sContainer = document.getElementById('stepsContainer'); 
-      sContainer.innerHTML = '';
-      
-      (m.steps || currentDetailData.steps || []).forEach((s, idx) => {
-          let isFirst = (idx === 0);
-          let isMandatory = (idx < 2);
-          let isLoto = s.stepName.includes('LOTO'); 
-          if (isLoto) isMandatory = true; 
+      if(sContainer) {
+          sContainer.innerHTML = '';
           
-          addStepCard(isFirst, isMandatory, s.stepName, s.timeTaken, s.typeSymbol, isLoto);
-          
-          let cards = document.querySelectorAll('#stepsContainer .step-card');
-          let card = cards[cards.length - 1]; 
-          if(card) {
-              card.querySelector('.s-desc').value = s.description || '';
-              let fileInput = card.querySelector('.s-imgs');
-              let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' && s.images !== "" ? [s.images] : []);
-              if (imgArray.length > 0) {
-                  fileInput.oldImages = JSON.stringify(imgArray);
-                  renderStepImagePreview(fileInput); 
+          (m.steps || currentDetailData.steps || []).forEach((s, idx) => {
+              let isFirst = (idx === 0);
+              let isMandatory = (idx < 2);
+              let isLoto = s.stepName.includes('LOTO'); 
+              if (isLoto) isMandatory = true; 
+              
+              addStepCard(isFirst, isMandatory, s.stepName, s.timeTaken, s.typeSymbol, isLoto);
+              
+              let cards = document.querySelectorAll('#stepsContainer .step-card');
+              let card = cards[cards.length - 1]; 
+              if(card) {
+                  let desc = card.querySelector('.s-desc');
+                  if(desc) desc.value = s.description || '';
+                  
+                  let fileInput = card.querySelector('.s-imgs');
+                  let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' && s.images !== "" ? [s.images] : []);
+                  if (imgArray.length > 0 && fileInput) {
+                      fileInput.oldImages = JSON.stringify(imgArray);
+                      renderStepImagePreview(fileInput); 
+                  }
               }
-          }
-      });
+          });
+      }
       
       initSortable(); 
       window.scrollTo(0,0);
-  } catch(e) { alert("เกิดข้อผิดพลาด:\n" + e.message); }
+  } catch(e) { alert("เกิดข้อผิดพลาดในการรันหน้าแก้ไข:\n" + e.message); }
 }
 
 function duplicateCurrentSMP() {
     if(!currentDetailData) return;
     proceedToEdit(); 
     isEditingId = null; 
-    document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
-    document.getElementById('smpIdContainer').style.display = 'none';
-    document.getElementById('f_title').value = currentDetailData.main.title + " (สำเนา)";
-    document.getElementById('f_status').value = "Unfinished"; 
-    document.getElementById('appTitle').innerText = "คัดลอกเอกสารใหม่";
-    document.getElementById('appSub').innerText = "จากเอกสาร #" + currentDetailData.main.smpId;
     
-    document.getElementById('presenterCheckboxGrid').classList.remove('locked');
-    document.getElementById('lockWarning').style.display = 'none';
-    document.querySelector('.btn-draft').style.display = 'flex';
-    document.getElementById('fabDraftBtn').style.display = 'flex';
+    if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
+    if(document.getElementById('smpIdContainer')) document.getElementById('smpIdContainer').style.display = 'none';
+    if(document.getElementById('f_title')) document.getElementById('f_title').value = currentDetailData.main.title + " (สำเนา)";
+    if(document.getElementById('f_status')) document.getElementById('f_status').value = "Unfinished"; 
+    if(document.getElementById('appTitle')) document.getElementById('appTitle').innerText = "คัดลอกเอกสารใหม่";
+    if(document.getElementById('appSub')) document.getElementById('appSub').innerText = "จากเอกสาร #" + currentDetailData.main.smpId;
+    
+    let presGrid = document.getElementById('presenterCheckboxGrid');
+    if(presGrid) presGrid.classList.remove('locked');
+    
+    let lockWarn = document.getElementById('lockWarning');
+    if(lockWarn) lockWarn.style.display = 'none';
+    
+    let btnDraft = document.querySelector('.btn-draft');
+    if(btnDraft) btnDraft.style.display = 'flex';
+    
+    let fabDraft = document.getElementById('fabDraftBtn');
+    if(fabDraft) fabDraft.style.display = 'flex';
+    
     showModal("คัดลอกสำเร็จ", "ข้อมูลถูกดึงมาที่ฟอร์มแล้ว กรุณาแก้ไขข้อมูลและกดบันทึกเพื่อสร้างใบใหม่", "content_copy", "#D69E2E");
 }
 
 function deleteCurrentSMP() { 
   if(!currentDetailData) return;
-  document.getElementById('confirmMessage').innerText = `คุณต้องการลบเอกสารรหัส #${currentDetailData.main.smpId} ใช่หรือไม่?`;
-  document.getElementById('confirmModal').style.display = 'flex';
+  let msg = document.getElementById('confirmMessage');
+  if(msg) msg.innerText = `คุณต้องการลบเอกสารรหัส #${currentDetailData.main.smpId} ใช่หรือไม่?`;
+  
+  let modal = document.getElementById('confirmModal');
+  if(modal) modal.style.display = 'flex';
 }
 
 function executeDelete() {
   let smpId = currentDetailData.main.smpId;
-  document.getElementById('confirmModal').style.display = 'none'; 
-  document.getElementById('loadingScreen').style.display = 'flex';
+  let modal = document.getElementById('confirmModal');
+  if(modal) modal.style.display = 'none'; 
+  
+  let loading = document.getElementById('loadingScreen');
+  if(loading) loading.style.display = 'flex';
   
   fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', smpId: smpId }) })
     .then(res => res.json())
@@ -647,34 +766,57 @@ function executeDelete() {
           showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); 
       }
     })
-    .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
+    .finally(() => { 
+        if(loading) loading.style.display = 'none'; 
+    });
 }
 
 function showDetail(smpId) {
   document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
-  document.getElementById('detailView').classList.add('active');
-  document.getElementById('appTitle').innerText = "เอกสาร: " + smpId;
-  document.getElementById('appSub').innerText = "รายละเอียดและขั้นตอน";
-  document.getElementById('btnCloseView').style.display = 'flex'; 
-  document.getElementById('docContent').innerHTML = ``;
-  document.getElementById('loadingScreen').style.display = 'flex'; 
-  document.getElementById('editLockBanner').style.display = 'none'; 
+  
+  let detailView = document.getElementById('detailView');
+  if(detailView) detailView.classList.add('active');
+  
+  let appTitle = document.getElementById('appTitle');
+  if(appTitle) appTitle.innerText = "เอกสาร: " + smpId;
+  
+  let appSub = document.getElementById('appSub');
+  if(appSub) appSub.innerText = "รายละเอียดและขั้นตอน";
+  
+  let btnClose = document.getElementById('btnCloseView');
+  if(btnClose) btnClose.style.display = 'flex'; 
+  
+  let docContent = document.getElementById('docContent');
+  if(docContent) docContent.innerHTML = ``;
+  
+  let loading = document.getElementById('loadingScreen');
+  if(loading) loading.style.display = 'flex'; 
+  
+  let editLock = document.getElementById('editLockBanner');
+  if(editLock) editLock.style.display = 'none'; 
 
   fetch(API_URL + "?action=getDetails&smpId=" + smpId)
     .then(res => res.json())
     .then(data => {
-        if(Date.now() - parseDateSafely(data.main.date).getTime() < 300000) { 
-            document.getElementById('editLockBanner').style.display = 'flex'; 
+        if(editLock && Date.now() - parseDateSafely(data.main.date).getTime() < 300000) { 
+            editLock.style.display = 'flex'; 
         }
         renderDetail(data);
     })
-    .catch(err => console.error(err))
-    .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
+    .catch(err => {
+        console.error("Show Detail Error:", err);
+        showModal('เกิดข้อผิดพลาด', 'ดึงข้อมูลไม่สำเร็จ: ' + err.message, 'error', '#E53E3E');
+    })
+    .finally(() => { 
+        if(loading) loading.style.display = 'none'; 
+    });
 }
 
 // ======================== DASHBOARD & LISTING ========================
 function loadSMPList() {
-  document.getElementById('loadingScreen').style.display = 'flex';
+  let loading = document.getElementById('loadingScreen');
+  if(loading) loading.style.display = 'flex';
+  
   fetch(API_URL + "?action=getList")
     .then(res => res.json())
     .then(data => { 
@@ -684,11 +826,17 @@ function loadSMPList() {
     })
     .catch(err => { 
         console.error("Load Error:", err);
-        document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล: <br><small>${err.message}</small></p>`; 
+        let listCont = document.getElementById('smpListContainer');
+        if(listCont) {
+            listCont.innerHTML = `<p class="text-center text-danger">เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล:<br><small>${err.message}</small></p>`; 
+        }
     })
-    .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
+    .finally(() => { 
+        if(loading) loading.style.display = 'none'; 
+    });
 }
 
+// 🔴 แก้ปัญหาเรื่องหาปุ่มตัวกรองไม่เจอ (Null Check Shield)
 function populateFilterDropdowns(data) {
   let presenters = new Set(); let lines = new Set();
   data.forEach(item => {
@@ -697,47 +845,66 @@ function populateFilterDropdowns(data) {
   });
   
   let pSel = document.getElementById('filterPresenter'); 
-  pSel.innerHTML = '<option value="">-- ผู้จัดทำทั้งหมด --</option>';
-  [...presenters].sort().forEach(p => { if(p) pSel.innerHTML += `<option value="${p}">${p}</option>`; });
+  if(pSel) {
+      pSel.innerHTML = '<option value="">-- ผู้จัดทำทั้งหมด --</option>';
+      [...presenters].sort().forEach(p => { if(p) pSel.innerHTML += `<option value="${p}">${p}</option>`; });
+  }
   
   let lSel = document.getElementById('filterLine'); 
-  lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
-  [...lines].sort().forEach(l => { lSel.innerHTML += `<option value="${l}">${l}</option>`; });
+  if(lSel) {
+      lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
+      [...lines].sort().forEach(l => { lSel.innerHTML += `<option value="${l}">${l}</option>`; });
+  }
 }
 
-function setQuickFilter(type) {
+function setQuickFilter(type, event) {
   document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active')); 
-  event.target.classList.add('active');
+  if(event && event.target) event.target.classList.add('active');
   
   let today = new Date(); 
   let fs = document.getElementById('fStart'); 
   let fe = document.getElementById('fEnd');
   
-  if(type==='all'){ fs.value = ''; fe.value = ''; }
-  else if(type==='today'){ fs.value = today.toISOString().split('T')[0]; fe.value = today.toISOString().split('T')[0]; }
-  else if(type==='week'){ 
-      let firstDay = new Date(today.setDate(today.getDate() - today.getDay() + 1)); 
-      fs.value = firstDay.toISOString().split('T')[0]; 
-      fe.value = new Date().toISOString().split('T')[0]; 
-  }
-  else if(type==='month'){ 
-      let firstDay = new Date(today.getFullYear(), today.getMonth(), 1); 
-      fs.value = firstDay.toISOString().split('T')[0]; 
-      fe.value = new Date().toISOString().split('T')[0]; 
+  if(fs && fe) {
+      if(type==='all'){ fs.value = ''; fe.value = ''; }
+      else if(type==='today'){ fs.value = today.toISOString().split('T')[0]; fe.value = today.toISOString().split('T')[0]; }
+      else if(type==='week'){ 
+          let firstDay = new Date(today.setDate(today.getDate() - today.getDay() + 1)); 
+          fs.value = firstDay.toISOString().split('T')[0]; 
+          fe.value = new Date().toISOString().split('T')[0]; 
+      }
+      else if(type==='month'){ 
+          let firstDay = new Date(today.getFullYear(), today.getMonth(), 1); 
+          fs.value = firstDay.toISOString().split('T')[0]; 
+          fe.value = new Date().toISOString().split('T')[0]; 
+      }
   }
   applyFilters();
 }
 
+// 🔴 ป้องกันตัวกรองที่เป็น Null
 function applyFilters() {
-  let kw = document.getElementById('filterSearch').value.toLowerCase();
-  let presenter = document.getElementById('filterPresenter').value; 
-  let line = document.getElementById('filterLine').value; 
-  let type = document.getElementById('filterType').value;
-  let statusFilter = document.getElementById('filterStatus').value; 
-  let fsVal = document.getElementById('fStart').value ? parseDateSafely(document.getElementById('fStart').value).setHours(0,0,0,0) : null;
-  let feVal = document.getElementById('fEnd').value ? parseDateSafely(document.getElementById('fEnd').value).setHours(23,59,59,999) : null;
+  let filterSearchEl = document.getElementById('filterSearch');
+  let kw = filterSearchEl ? filterSearchEl.value.toLowerCase() : '';
   
-  // 🔴 ป้องกัน Error หากดึง Draft ไม่ได้ หรือมีแบบร่างเก่าๆ ที่ Data พัง
+  let filterPresenterEl = document.getElementById('filterPresenter');
+  let presenter = filterPresenterEl ? filterPresenterEl.value : ''; 
+  
+  let filterLineEl = document.getElementById('filterLine');
+  let line = filterLineEl ? filterLineEl.value : ''; 
+  
+  let filterTypeEl = document.getElementById('filterType');
+  let type = filterTypeEl ? filterTypeEl.value : '';
+  
+  let filterStatusEl = document.getElementById('filterStatus');
+  let statusFilter = filterStatusEl ? filterStatusEl.value : ''; 
+  
+  let fStartEl = document.getElementById('fStart');
+  let fsVal = (fStartEl && fStartEl.value) ? parseDateSafely(fStartEl.value).setHours(0,0,0,0) : null;
+  
+  let fEndEl = document.getElementById('fEnd');
+  let feVal = (fEndEl && fEndEl.value) ? parseDateSafely(fEndEl.value).setHours(23,59,59,999) : null;
+  
   let localDrafts = [];
   try {
       localDrafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
@@ -761,7 +928,6 @@ function applyFilters() {
   let combinedData = [...draftItems, ...allSmpDataList];
 
   filteredDataList = combinedData.filter(o => {
-    // 🔴 ป้องกัน TypeError จากข้อมูลว่าง (null) ด้วย String()
     let smpIdStr = String(o.smpId || '').toLowerCase();
     let titleStr = String(o.title || '').toLowerCase();
     let machineStr = String(o.machine || '').toLowerCase();
@@ -791,11 +957,13 @@ function applyFilters() {
 
 function renderPaginatedList() {
   let container = document.getElementById('smpListContainer'); 
+  if(!container) return;
+  
   let btnMore = document.getElementById('btnLoadMore');
   
   if(filteredDataList.length === 0) { 
       container.innerHTML = '<p class="text-center mt-4 text-muted">ไม่พบข้อมูล SMP</p>'; 
-      btnMore.style.display = 'none'; 
+      if(btnMore) btnMore.style.display = 'none'; 
       return; 
   }
 
@@ -821,8 +989,6 @@ function renderPaginatedList() {
     }
 
     let clickAction = item.isDraft ? `loadDraftIntoForm('${item.smpId}')` : `showDetail('${item.smpId}')`;
-    
-    // 🔴 ป้องกัน TypeError จาก item.date ที่หายไป
     let displayDate = item.date ? String(item.date).split(' ')[0] : '-';
 
     html += `
@@ -851,9 +1017,13 @@ function renderPaginatedList() {
   }
 
   let loadedCount = Math.min(endIndex, filteredDataList.length);
-  document.getElementById('countLoaded').innerText = loadedCount; 
-  document.getElementById('countTotal').innerText = filteredDataList.length;
-  btnMore.style.display = (loadedCount >= filteredDataList.length) ? 'none' : 'inline-block';
+  let countLoadedEl = document.getElementById('countLoaded');
+  if(countLoadedEl) countLoadedEl.innerText = loadedCount; 
+  
+  let countTotalEl = document.getElementById('countTotal');
+  if(countTotalEl) countTotalEl.innerText = filteredDataList.length;
+  
+  if(btnMore) btnMore.style.display = (loadedCount >= filteredDataList.length) ? 'none' : 'inline-block';
 }
 
 function loadMoreData() { currentPage++; renderPaginatedList(); }
@@ -861,7 +1031,9 @@ function loadMoreData() { currentPage++; renderPaginatedList(); }
 function changeChartMode(mode) { currentChartMode = mode; drawDashboardChart(filteredDataList); }
 
 function drawDashboardChart(dataList) {
-  document.getElementById('dashboardCard').style.display = 'block';
+  let dbCard = document.getElementById('dashboardCard');
+  if(dbCard) dbCard.style.display = 'block';
+  
   let counts = {};
   
   dataList.forEach(d => {
@@ -881,7 +1053,10 @@ function drawDashboardChart(dataList) {
   
   let sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
   let chartColor = currentChartMode === 'presenter' ? '#00A5D9' : '#38A169';
-  const ctx = document.getElementById('smpChart').getContext('2d');
+  let chartCanvas = document.getElementById('smpChart');
+  if(!chartCanvas) return;
+  
+  const ctx = chartCanvas.getContext('2d');
   
   if(myChart) myChart.destroy(); 
   
@@ -927,7 +1102,9 @@ async function compressMainImage(input) {
       if(mainImagesArray.length + input.files.length > 5) { 
           alert("เพิ่มรูปได้สูงสุด 5 รูปครับ"); return; 
       }
-      document.getElementById('mainImagePreview').innerHTML = '<span class="text-muted small">กำลังโหลด...</span>';
+      let preview = document.getElementById('mainImagePreview');
+      if(preview) preview.innerHTML = '<span class="text-muted small">กำลังโหลด...</span>';
+      
       let files = Array.from(input.files).slice(0, 5);
       for(let f of files) { 
           let b64 = await compressFile(f); 
@@ -939,6 +1116,8 @@ async function compressMainImage(input) {
 
 function renderMainImagePreview() {
     let preview = document.getElementById('mainImagePreview'); 
+    if(!preview) return;
+    
     preview.innerHTML = '';
     mainImagesArray.forEach((b64, idx) => {
         preview.innerHTML += `
@@ -949,7 +1128,9 @@ function renderMainImagePreview() {
             </button>
         </div>`;
     });
-    document.getElementById('f_mainImageBase64').value = JSON.stringify(mainImagesArray);
+    
+    let fMainBase = document.getElementById('f_mainImageBase64');
+    if(fMainBase) fMainBase.value = JSON.stringify(mainImagesArray);
 }
 
 function removeMainImage(index) { 
@@ -960,6 +1141,8 @@ function removeMainImage(index) {
 async function compressStepImages(fileInput) {
   const card = fileInput.closest('.step-card');
   const storageInput = card.querySelector('.s-imgs');
+  if(!storageInput) return;
+  
   if(!storageInput.compressedArray) storageInput.compressedArray = [];
   
   let files = Array.from(fileInput.files).slice(0, 5);
@@ -980,6 +1163,8 @@ async function compressStepImages(fileInput) {
 function renderStepImagePreview(storageInput) {
     const card = storageInput.closest('.step-card');
     const previewBox = card.querySelector('.gallery-preview');
+    if(!previewBox) return;
+    
     previewBox.innerHTML = '';
     
     let oldArr = storageInput.oldImages ? JSON.parse(storageInput.oldImages) : [];
@@ -1022,8 +1207,9 @@ function removeOldStepImage(btn, idx) {
 // ======================== SUBMISSION & DATA COLLECTION ========================
 function verifyBeforeSubmit() {
     let form = document.getElementById('smpForm');
-    if (!form.reportValidity()) return; 
-    document.getElementById('confirmSaveModal').style.display = 'flex';
+    if (form && !form.reportValidity()) return; 
+    let modal = document.getElementById('confirmSaveModal');
+    if(modal) modal.style.display = 'flex';
 }
 
 function collectFormData() {
@@ -1054,21 +1240,21 @@ function collectFormData() {
   let riskReq = document.querySelector('input[name="r_riskAssessed"]:checked');
 
   let formData = {
-    title: document.getElementById('f_title').value, 
-    smpId: document.getElementById('f_smpId').value, 
+    title: document.getElementById('f_title') ? document.getElementById('f_title').value : '', 
+    smpId: document.getElementById('f_smpId') ? document.getElementById('f_smpId').value : '', 
     presenter: presArray.join(', '), 
-    approver: document.getElementById('f_approver').value,
+    approver: document.getElementById('f_approver') ? document.getElementById('f_approver').value : '',
     line: line, 
-    machine: document.getElementById('f_machine').value, 
+    machine: document.getElementById('f_machine') ? document.getElementById('f_machine').value : '', 
     smpType: finalSmpType, 
-    status: document.getElementById('f_status').value, 
-    techCount: document.getElementById('f_techCount').value, 
-    techTime: document.getElementById('f_techTime').value, 
-    maintType: document.getElementById('f_maintType').value, 
-    workTime: document.getElementById('f_workTime').value, 
-    downtime: document.getElementById('f_downtime').value, 
+    status: document.getElementById('f_status') ? document.getElementById('f_status').value : '', 
+    techCount: document.getElementById('f_techCount') ? document.getElementById('f_techCount').value : '', 
+    techTime: document.getElementById('f_techTime') ? document.getElementById('f_techTime').value : '', 
+    maintType: document.getElementById('f_maintType') ? document.getElementById('f_maintType').value : '', 
+    workTime: document.getElementById('f_workTime') ? document.getElementById('f_workTime').value : '', 
+    downtime: document.getElementById('f_downtime') ? document.getElementById('f_downtime').value : '', 
     frequency: freq, 
-    mainImage: document.getElementById('f_mainImageBase64').value, 
+    mainImage: document.getElementById('f_mainImageBase64') ? document.getElementById('f_mainImageBase64').value : '', 
     oldMainImage: document.getElementById('f_mainImageOld') ? document.getElementById('f_mainImageOld').value : '', 
     ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
     risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
@@ -1081,16 +1267,20 @@ function collectFormData() {
     let fileInput = card.querySelector('.s-imgs'); 
     let sType = card.querySelector('.s-type'); 
     let badge = card.querySelector('.step-badge'); 
+    let sTask = card.querySelector('.s-task');
+    let sTime = card.querySelector('.s-time');
+    let sDesc = card.querySelector('.s-desc');
+    
     let stepIdxStr = badge ? badge.innerText.replace('ขั้นตอนที่ #', '') : '0';
     
     stepsData.push({ 
         stepNo: parseInt(stepIdxStr), 
-        stepName: card.querySelector('.s-task').value, 
-        timeTaken: card.querySelector('.s-time').value, 
+        stepName: sTask ? sTask.value : '', 
+        timeTaken: sTime ? sTime.value : '', 
         typeSymbol: sType ? sType.value : '', 
-        description: card.querySelector('.s-desc').value, 
-        images: fileInput.compressedArray || [], 
-        oldImages: fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] 
+        description: sDesc ? sDesc.value : '', 
+        images: fileInput && fileInput.compressedArray ? fileInput.compressedArray : [], 
+        oldImages: fileInput && fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] 
     });
   });
 
@@ -1098,7 +1288,9 @@ function collectFormData() {
 }
 
 function executeSubmitSMP() {
-  document.getElementById('confirmSaveModal').style.display = 'none';
+  let modal = document.getElementById('confirmSaveModal');
+  if(modal) modal.style.display = 'none';
+  
   let payload = collectFormData();
   
   if(!payload.formData.presenter) { 
@@ -1110,7 +1302,8 @@ function executeSubmitSMP() {
       payload.formData.smpId = generateId(payload.formData.smpType, false); 
   }
 
-  document.getElementById('loadingScreen').style.display = 'flex';
+  let loading = document.getElementById('loadingScreen');
+  if(loading) loading.style.display = 'flex';
   
   fetch(API_URL, { 
       method: 'POST', 
@@ -1120,10 +1313,10 @@ function executeSubmitSMP() {
   .then(async res => JSON.parse(await res.text()))
   .then(res => {
     if(res.status === 'success'){
-      let currentDraftId = document.getElementById('f_draftId').value;
-      if (currentDraftId) {
+      let draftIdEl = document.getElementById('f_draftId');
+      if (draftIdEl && draftIdEl.value) {
           let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
-          localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts.filter(d => d.id !== currentDraftId)));
+          localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts.filter(d => d.id !== draftIdEl.value)));
       }
       showModal('บันทึกสำเร็จ!', 'บันทึกข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
       showHome();
@@ -1135,7 +1328,7 @@ function executeSubmitSMP() {
       showModal('ข้อผิดพลาดเครือข่าย', err.message, 'cloud_off', '#E53E3E');
   })
   .finally(() => { 
-      document.getElementById('loadingScreen').style.display = 'none'; 
+      if(loading) loading.style.display = 'none'; 
   });
 }
 
@@ -1217,7 +1410,8 @@ function renderDetail(data) {
   });
   
   html += `</tbody></table></div></div>`; 
-  document.getElementById('docContent').innerHTML = html;
+  let docCont = document.getElementById('docContent');
+  if(docCont) docCont.innerHTML = html;
 }
 
 function getPPEIcon(n){ 
@@ -1266,6 +1460,7 @@ async function downloadExcel() {
   let m = currentDetailData.main;
   
   const btn = document.getElementById('btnDownloadExcel'); 
+  if(!btn) return;
   const originalText = btn.innerHTML;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> กำลังสร้าง Excel...'; 
   btn.disabled = true;
@@ -1284,7 +1479,7 @@ async function downloadExcel() {
     worksheet.getCell('R3').value = m.smpId; 
     worksheet.getCell('Y3').value = m.presenter; 
     worksheet.getCell('AJ3').value = m.approver || ''; 
-    worksheet.getCell('AN4').value = m.date.split(' ')[0];
+    worksheet.getCell('AN4').value = m.date ? m.date.split(' ')[0] : '';
     
     worksheet.getCell('S6').value = m.techCount || ''; 
     worksheet.getCell('W6').value = m.techTime || ''; 
