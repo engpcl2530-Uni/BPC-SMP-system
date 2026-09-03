@@ -188,7 +188,11 @@ function saveDataAsDraft() {
 }
 
 function checkDraftsOnLoad() {
-    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let drafts = [];
+    try {
+        drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    } catch(e) { drafts = []; }
+    
     let badge = document.getElementById('draftCountBadge');
     let toast = document.getElementById('draftToast');
     
@@ -201,7 +205,11 @@ function checkDraftsOnLoad() {
 }
 
 function openDraftListModal() {
-    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let drafts = [];
+    try {
+        drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    } catch(e) { drafts = []; }
+    
     let container = document.getElementById('draftListContainer');
     
     if(drafts.length === 0) { 
@@ -209,11 +217,13 @@ function openDraftListModal() {
     } else {
         let html = '';
         drafts.forEach(d => {
+            let title = d.title || 'ไม่มีชื่อเรื่อง';
+            let time = d.time || '-';
             html += `
             <div class="draft-item" onclick="loadDraftIntoForm('${d.id}')">
                 <div>
-                    <div class="draft-item-title">${d.title}</div>
-                    <div class="draft-item-time"><span class="material-symbols-rounded" style="font-size:12px;">schedule</span> ${d.time}</div>
+                    <div class="draft-item-title">${title}</div>
+                    <div class="draft-item-time"><span class="material-symbols-rounded" style="font-size:12px;">schedule</span> ${time}</div>
                 </div>
                 <button class="draft-del-btn" onclick="deleteDraft(event, '${d.id}')"><span class="material-symbols-rounded">delete</span></button>
             </div>`;
@@ -239,7 +249,7 @@ function loadDraftIntoForm(draftId) {
     let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
     let draft = drafts.find(d => d.id === draftId);
     
-    if(draft) {
+    if(draft && draft.data) {
         currentDetailData = { main: draft.data.formData, steps: draft.data.stepsData };
         document.getElementById('draftListModal').style.display = 'none';
         
@@ -255,6 +265,9 @@ function loadDraftIntoForm(draftId) {
         document.getElementById('fabDraftBtn').style.display = 'flex';
         
         showModal('กู้คืนแบบร่างสำเร็จ', `โหลดเอกสาร "${draft.title}" แล้ว`, 'restore', 'var(--secondary)');
+    } else {
+        alert("ข้อมูลแบบร่างไม่สมบูรณ์ หรือถูกลบไปแล้ว");
+        deleteDraft(event, draftId);
     }
 }
 
@@ -670,7 +683,8 @@ function loadSMPList() {
         applyFilters(); 
     })
     .catch(err => { 
-        document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger">เชื่อมต่อฐานข้อมูลไม่ได้</p>`; 
+        console.error("Load Error:", err);
+        document.getElementById('smpListContainer').innerHTML = `<p class="text-center text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูล: <br><small>${err.message}</small></p>`; 
     })
     .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
 }
@@ -723,26 +737,40 @@ function applyFilters() {
   let fsVal = document.getElementById('fStart').value ? parseDateSafely(document.getElementById('fStart').value).setHours(0,0,0,0) : null;
   let feVal = document.getElementById('fEnd').value ? parseDateSafely(document.getElementById('fEnd').value).setHours(23,59,59,999) : null;
   
-  let localDrafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
-  let draftItems = localDrafts.map(d => ({
-      smpId: d.id, 
-      title: d.data.formData.title, 
-      type: d.data.formData.smpType, 
-      presenter: d.data.formData.presenter,
-      line: d.data.formData.line, 
-      machine: d.data.formData.machine, 
-      date: d.time,
-      status: 'Draft', 
-      isDraft: true
-  }));
+  // 🔴 ป้องกัน Error หากดึง Draft ไม่ได้ หรือมีแบบร่างเก่าๆ ที่ Data พัง
+  let localDrafts = [];
+  try {
+      localDrafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+  } catch(e) { localDrafts = []; }
+
+  let draftItems = localDrafts.map(d => {
+      let fd = (d.data && d.data.formData) ? d.data.formData : {};
+      return {
+          smpId: d.id || '', 
+          title: fd.title || d.title || 'ไม่มีชื่อเรื่อง', 
+          type: fd.smpType || '', 
+          presenter: fd.presenter || '',
+          line: fd.line || '', 
+          machine: fd.machine || '', 
+          date: d.time || new Date().toLocaleString('th-TH'),
+          status: 'Draft', 
+          isDraft: true
+      };
+  });
 
   let combinedData = [...draftItems, ...allSmpDataList];
 
   filteredDataList = combinedData.filter(o => {
-    let matchKw = o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.machine && o.machine.toLowerCase().includes(kw));
+    // 🔴 ป้องกัน TypeError จากข้อมูลว่าง (null) ด้วย String()
+    let smpIdStr = String(o.smpId || '').toLowerCase();
+    let titleStr = String(o.title || '').toLowerCase();
+    let machineStr = String(o.machine || '').toLowerCase();
+    
+    let matchKw = smpIdStr.includes(kw) || titleStr.includes(kw) || machineStr.includes(kw);
     let matchP = presenter === "" || (o.presenter && String(o.presenter).includes(presenter));
     let matchL = line === "" || String(o.line) === line;
     let matchT = type === "" || (o.type && String(o.type).includes(type));
+    
     let jDate = parseDateSafely(o.date).getTime(); 
     let matchD = true;
     if(fsVal && jDate < fsVal) matchD = false; 
@@ -793,6 +821,9 @@ function renderPaginatedList() {
     }
 
     let clickAction = item.isDraft ? `loadDraftIntoForm('${item.smpId}')` : `showDetail('${item.smpId}')`;
+    
+    // 🔴 ป้องกัน TypeError จาก item.date ที่หายไป
+    let displayDate = item.date ? String(item.date).split(' ')[0] : '-';
 
     html += `
     <div class="col-md-6 col-lg-4">
@@ -805,7 +836,7 @@ function renderPaginatedList() {
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
            <span class="badge-chip"><span class="material-symbols-rounded" style="font-size:14px;">${tIcon}</span> ${item.type || '-'}</span>
            <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">person</span> ${item.presenter || '-'}</span>
-           <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">calendar_today</span> ${item.date.split(' ')[0]}</span>
+           <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">calendar_today</span> ${displayDate}</span>
         </div>
       </div>
     </div>`;
