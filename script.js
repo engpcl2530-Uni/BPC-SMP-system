@@ -1104,4 +1104,3 @@ async function downloadExcel() {
     btn.innerHTML = originalText; btn.disabled = false;
   }
 }
-</script>
