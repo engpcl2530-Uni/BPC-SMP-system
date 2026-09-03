@@ -30,15 +30,28 @@
     </div>
   </div>
 
-  <!-- 🔴 Modal ยืนยันการบันทึก (ใหม่) -->
+  <!-- Modal ยืนยันการบันทึกงานจริง -->
   <div class="custom-modal-overlay" id="confirmSaveModal" style="z-index: 9999;">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" style="color:#005EB8;">cloud_upload</span>
       <h3 class="custom-modal-title" style="color:#005EB8;">ยืนยันการบันทึก</h3>
-      <p class="custom-modal-msg">กรุณาตรวจสอบความถูกต้องก่อนกดบันทึกข้อมูลเข้าสู่ระบบหลัก ข้อมูลจะถูกจัดเก็บและสร้างรหัส SMP ID ทันที</p>
+      <p class="custom-modal-msg">ข้อมูลจะถูกบันทึกเป็นฉบับจริงและสร้างรหัส SMP ID ใหม่ทันที ต้องการดำเนินการต่อหรือไม่?</p>
       <div style="display:flex; gap:10px;">
-        <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="document.getElementById('confirmSaveModal').style.display='none'">ตรวจสอบอีกครั้ง</button>
+        <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="document.getElementById('confirmSaveModal').style.display='none'">กลับไปแก้ไข</button>
         <button class="custom-modal-btn" style="background:#005EB8;" onclick="executeSubmitSMP()">ยืนยันบันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔴 Modal ถามยืนยันก่อนเข้าโหมดแก้ไขงานที่เสร็จแล้ว -->
+  <div class="custom-modal-overlay" id="confirmEditModal" style="z-index: 9999;">
+    <div class="custom-modal-box">
+      <span class="material-symbols-rounded custom-modal-icon" style="color:#D69E2E;">edit_document</span>
+      <h3 class="custom-modal-title" style="color:#D69E2E;">ต้องการแก้ไขเอกสาร?</h3>
+      <p class="custom-modal-msg">เอกสารนี้บันทึกเสร็จสมบูรณ์แล้ว คุณต้องการเข้าไปแก้ไขและอัปเดตข้อมูลใช่หรือไม่?</p>
+      <div style="display:flex; gap:10px;">
+        <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="document.getElementById('confirmEditModal').style.display='none'">ยกเลิก</button>
+        <button class="custom-modal-btn" style="background:#D69E2E;" onclick="proceedToEdit()">ดำเนินการแก้ไข</button>
       </div>
     </div>
   </div>
@@ -53,20 +66,6 @@
         <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="closeConfirmModal()">ยกเลิก</button>
         <button class="custom-modal-btn" style="background:#E53E3E;" onclick="executeDelete()">ยืนยันลบ</button>
       </div>
-    </div>
-  </div>
-
-  <!-- 🔴 Modal สำหรับเลือกเปิดแบบร่าง (Multi-Drafts) -->
-  <div class="custom-modal-overlay" id="draftListModal">
-    <div class="custom-modal-box large">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-          <h3 class="custom-modal-title" style="margin:0; color:var(--primary); display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded">edit_document</span> แบบร่างของคุณ</h3>
-          <button class="btn-close-page" style="width:30px; height:30px; background:#E2E8F0; color:#4A5568;" onclick="document.getElementById('draftListModal').style.display='none'"><span class="material-symbols-rounded" style="font-size:16px;">close</span></button>
-      </div>
-      <div id="draftListContainer" class="draft-list-container">
-          <!-- รายการแบบร่างจะถูกโชว์ที่นี่ -->
-      </div>
-      <p class="text-muted-sm text-center mt-3">แบบร่างจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</p>
     </div>
   </div>
 
@@ -131,12 +130,6 @@
             </select>
           </div>
           <div class="form-group">
-            <label>สายการผลิต (Line)</label>
-            <select id="filterLine" onchange="applyFilters()">
-              <option value="">-- ทั้งหมด --</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>ประเภท SMP</label>
             <select id="filterType" onchange="applyFilters()">
               <option value="">-- ทั้งหมด --</option>
@@ -145,6 +138,18 @@
               <option value="อื่นๆ">อื่นๆ</option>
             </select>
           </div>
+          
+          <!-- 🔴 ตัวกรองสถานะงาน + แบบร่าง -->
+          <div class="form-group">
+            <label>สถานะงาน</label>
+            <select id="filterStatus" onchange="applyFilters()">
+              <option value="">-- ทุกสถานะ --</option>
+              <option value="Finished">✅ เสร็จสมบูรณ์</option>
+              <option value="Unfinished">⚠️ ยังไม่เสร็จ</option>
+              <option value="Draft">📝 แบบร่าง (Draft)</option>
+            </select>
+          </div>
+          
           <div class="form-group" style="flex: 2;">
             <label>ค้นหาข้อความ</label>
             <input type="text" id="filterSearch" placeholder="รหัสเอกสาร, ชื่อเรื่อง, เครื่องจักร..." oninput="applyFilters()">
@@ -165,8 +170,13 @@
 
     <!-- ================= VIEW 2: Form ================= -->
     <div id="formView" class="section-view">
-      <form id="smpForm">
+      
+      <!-- 🔴 ปุ่ม FAB สำหรับกดเซฟแบบร่างระหว่างทำ -->
+      <button class="fab-draft" id="fabDraftBtn" title="บันทึกแบบร่าง" onclick="saveDataAsDraft()">
+          <span class="material-symbols-rounded" style="font-size: 24px;">save_as</span>
+      </button>
         
+      <form id="smpForm">
         <input type="hidden" id="f_mainImageOld">
         <input type="hidden" id="f_draftId"> <!-- ซ่อน Draft ID -->
 
@@ -182,19 +192,13 @@
                 <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ"> อื่นๆ </label>
               </div>
             </div>
-
+            
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
-            <div class="form-group"><label>รหัสเอกสาร (SMP ID)</label><input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly value="สร้างอัตโนมัติเมื่อบันทึกจริง" placeholder="Auto Generate"></div>
-          </div>
-
-          <!-- 🔴 เพิ่มช่องสถานะงาน -->
-          <div class="form-row">
-            <div class="form-group" style="flex: 100%;">
-                <label>สถานะของงานนี้ (Status) <span class="required-star">*</span></label>
-                <select id="f_status" required style="border-color:var(--accent);">
-                    <option value="Finished" selected>✅ เสร็จสมบูรณ์พร้อมใช้งาน (Finished)</option>
-                    <option value="Unfinished">⚠️ รอแก้ไข / ยังไม่เสร็จ (Unfinished)</option>
-                </select>
+            
+            <!-- 🔴 ซ่อนช่อง ID แบบปกติ จะโชว์เฉพาะตอนแก้เท่านั้น -->
+            <div class="form-group" id="smpIdContainer" style="display:none;">
+                <label>รหัสเอกสาร (SMP ID)</label>
+                <input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly>
             </div>
           </div>
 
@@ -250,14 +254,14 @@
           </div>
 
           <div class="form-row">
-            <div class="form-group"><label>จำนวนผู้ปฏิบัติงาน (Manpower) <span class="text-muted-sm">ระบุจำนวนคน</span></label><input type="number" id="f_techCount"></div>
-            <div class="form-group"><label>เวลาปฏิบัติงานรวม (Total Mins) <span class="text-muted-sm">เวลาช่างรวม (นาที)</span></label><input type="number" id="f_techTime"></div>
+            <div class="form-group"><label>จำนวนผู้ปฏิบัติงาน (Manpower)</label><input type="number" id="f_techCount"></div>
+            <div class="form-group"><label>เวลาปฏิบัติงานรวม (Total Mins)</label><input type="number" id="f_techTime"></div>
             <div class="form-group"><label>ประเภทบำรุงรักษา (Type)</label><select id="f_maintType"><option value="">-- เลือก --</option><option value="TBM">TBM</option><option value="CBM">CBM</option><option value="BDM">BDM</option></select></div>
           </div>
           
           <div class="form-row">
-            <div class="form-group"><label>เวลาที่ใช้ซ่อมจริง (Duration) <span class="text-muted-sm">เวลาที่ใช้ (นาที)</span></label><input type="number" id="f_workTime"></div>
-            <div class="form-group"><label>เวลาหยุดเครื่องจักร (Downtime) <span class="text-muted-sm">Machine Stop (นาที)</span></label><input type="number" id="f_downtime"></div>
+            <div class="form-group"><label>เวลาที่ใช้ซ่อมจริง (Duration)</label><input type="number" id="f_workTime"></div>
+            <div class="form-group"><label>เวลาหยุดเครื่องจักร (Downtime)</label><input type="number" id="f_downtime"></div>
             <div class="form-group">
               <label>ความถี่ (Frequency)</label>
               <select id="f_frequency_sel" onchange="toggleOtherInput(this, 'f_frequency_other')">
@@ -282,7 +286,6 @@
                 </label>
             </div>
 
-            <!-- เปลี่ยนจาก Hidden Input ธรรมดา เป็นตัวเก็บรูปหลายใบได้ -->
             <input type="hidden" id="f_mainImageBase64">
             <div id="mainImagePreview" class="gallery-preview"></div>
           </div>
@@ -306,7 +309,7 @@
           <div style="background:#F8FAFC; padding:15px; border-radius:12px; border:1px solid var(--border); margin-bottom:20px; display:flex; gap:15px; align-items:center;">
             <img src="images/icon_loto.png" style="width:50px; height:50px; object-fit:contain;" onerror="this.style.display='none'">
             <div>
-              <label style="margin-bottom:5px;">ต้องการอุปกรณ์ LOTO หรือไม่? (LOTO Required) <span class="required-star">*</span></label>
+              <label style="margin-bottom:5px;">ต้องการอุปกรณ์ LOTO หรือไม่? <span class="required-star">*</span></label>
               <div class="d-flex-wrap">
                 <label class="custom-radio"><input type="radio" name="r_loto" id="loto_req" value="ต้องการ" required onchange="handleLotoChange(true)"> ต้องการ</label>
                 <label class="custom-radio"><input type="radio" name="r_loto" id="loto_not_req" value="ไม่ต้องการ" onchange="handleLotoChange(false)"> ไม่ต้องการ</label>
@@ -314,7 +317,7 @@
             </div>
           </div>
 
-          <label>การประเมินความเสี่ยง (Risk Assessment) <span class="text-muted-sm">(คลิกเพื่อกากบาท ❌ หากไม่มีความเสี่ยงนี้)</span></label>
+          <label>การประเมินความเสี่ยง (Risk Assessment)</label>
           <div id="riskBox" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; justify-content:center;">
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="จุดหนีบ"><img src="images/risk_gear.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">จุดหนีบ</span></div>
             <div class="icon-checkbox" onclick="this.classList.toggle('not-used')" data-val="อุปกรณ์เครื่องมือ"><img src="images/risk_wrech.png" class="custom-icon-img" onerror="this.style.display='none'"><span class="label">อุปกรณ์/เครื่องมือ</span></div>
@@ -355,9 +358,20 @@
           </div>
         </div>
 
-        <!-- 🔴 แยกระบบปุ่ม บันทึกแบบร่าง กับ ส่งข้อมูลจริง -->
+        <!-- 🔴 ย้ายสถานะงานและปุ่มบันทึกมาไว้ล่างสุด -->
+        <div class="card" style="border: 2px solid var(--accent); background:#F0F7FF;">
+          <div class="card-title" style="margin-bottom:10px; border:none; padding:0;"><span class="material-symbols-rounded">rule</span> การจัดการสถานะงาน</div>
+          <div class="form-group" style="margin-bottom:0;">
+              <label>สถานะของงานนี้ (Status) <span class="required-star">*</span></label>
+              <select id="f_status" required style="border-color:var(--accent);">
+                  <option value="Finished" selected>✅ เสร็จสมบูรณ์พร้อมใช้งาน (Finished)</option>
+                  <option value="Unfinished">⚠️ รอแก้ไข / ยังไม่เสร็จ (Unfinished)</option>
+              </select>
+          </div>
+        </div>
+
         <div style="display:flex; gap:10px; margin-top:25px;">
-            <button type="button" class="btn-draft" onclick="saveMultiDraft()"><span class="material-symbols-rounded">save_as</span> บันทึกแบบร่างชั่วคราว</button>
+            <button type="button" class="btn-draft" onclick="saveDataAsDraft()"><span class="material-symbols-rounded">save_as</span> บันทึกแบบร่างชั่วคราว</button>
             <button type="button" class="btn-primary" onclick="verifyBeforeSubmit()"><span class="material-symbols-rounded">cloud_upload</span> บันทึกเสร็จสมบูรณ์</button>
         </div>
       </form>
@@ -366,7 +380,6 @@
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
       
-      <!-- 🔴 Active Edit Lock Banner -->
       <div id="editLockBanner" class="edit-lock-banner">
          <span class="material-symbols-rounded" style="font-size:24px;">gpp_maybe</span> 
          <div>กำลังมีผู้ใช้งานท่านอื่นเปิดแก้ไขเอกสารฉบับนี้อยู่ เพื่อป้องกันข้อมูลทับซ้อน กรุณารอสักครู่...</div>
@@ -376,11 +389,10 @@
         <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร</button>
         
         <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: flex-end;">
-          <!-- 🔴 เพิ่มปุ่ม คัดลอก (Duplicate) -->
           <button type="button" class="btn-duplicate" onclick="duplicateCurrentSMP()">
             <span class="material-symbols-rounded" style="font-size:18px;">content_copy</span> คัดลอกงานนี้
           </button>
-          <button type="button" id="btnEditDoc" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="editCurrentSMP()">
+          <button type="button" id="btnEditDoc" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="requestEditSMP()">
             <span class="material-symbols-rounded" style="font-size:18px;">edit</span> แก้ไข
           </button>
           <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()">
@@ -393,18 +405,12 @@
     </div>
 
   </div>
-  
-  <!-- Floating Toast เมื่อเปิดเข้ามาแล้วเจอ Draft อัตโนมัติ (ตอนนี้กดแล้วจะเด้งเข้า Modal รายชื่อ) -->
-  <div id="draftToast" class="floating-toast" onclick="openDraftListModal()">
-    <span class="material-symbols-rounded">format_list_bulleted</span> 
-    <span>คุณมีแบบร่างที่ยังไม่ส่ง <b id="draftCountBadge">0</b> รายการ<br><small style="opacity:0.8;">แตะเพื่อดูแบบร่างทั้งหมด</small></span>
-  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-  <script src="script.js?v=1.1"></script>
+  <script src="script.js?v=1.2"></script>
 </body>
 </html>
