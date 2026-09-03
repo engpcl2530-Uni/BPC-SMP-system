@@ -6,26 +6,21 @@
   <meta name="robots" content="noindex, nofollow">
   <title>SMP Management System</title>
   
-  <!-- ไอคอนและฟอนต์ -->
   <link rel="icon" type="image/png" href="images/logo.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
-  
-  <!-- 🔴 เชื่อมต่อไฟล์ CSS -->
   <link rel="stylesheet" href="style.css?v=1.0">
-
 </head>
 <body>
   
-  <!-- Loading Screen Animation -->
   <div id="loadingScreen" style="display:none;">
     <div class="modern-spinner"></div>
     <h3 class="loading-pulse" style="margin-top:25px; color:var(--primary); font-weight:700;">กำลังประมวลผล...</h3>
     <p style="color:var(--text-muted); font-size:14px;">กรุณารอสักครู่</p>
   </div>
 
-  <!-- Custom Modal UI -->
+  <!-- Modal แจ้งเตือนทั่วไป -->
   <div class="custom-modal-overlay" id="customModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
@@ -35,7 +30,20 @@
     </div>
   </div>
 
-  <!-- Confirm Delete Modal -->
+  <!-- 🔴 Modal ยืนยันการบันทึก (ใหม่) -->
+  <div class="custom-modal-overlay" id="confirmSaveModal" style="z-index: 9999;">
+    <div class="custom-modal-box">
+      <span class="material-symbols-rounded custom-modal-icon" style="color:#005EB8;">cloud_upload</span>
+      <h3 class="custom-modal-title" style="color:#005EB8;">ยืนยันการบันทึก</h3>
+      <p class="custom-modal-msg">กรุณาตรวจสอบความถูกต้องก่อนกดบันทึกข้อมูลเข้าสู่ระบบหลัก ข้อมูลจะถูกจัดเก็บและสร้างรหัส SMP ID ทันที</p>
+      <div style="display:flex; gap:10px;">
+        <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="document.getElementById('confirmSaveModal').style.display='none'">ตรวจสอบอีกครั้ง</button>
+        <button class="custom-modal-btn" style="background:#005EB8;" onclick="executeSubmitSMP()">ยืนยันบันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ยืนยันการลบ -->
   <div class="custom-modal-overlay" id="confirmModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" style="color:#E53E3E;">warning</span>
@@ -48,7 +56,20 @@
     </div>
   </div>
 
-  <!-- Header -->
+  <!-- 🔴 Modal สำหรับเลือกเปิดแบบร่าง (Multi-Drafts) -->
+  <div class="custom-modal-overlay" id="draftListModal">
+    <div class="custom-modal-box large">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+          <h3 class="custom-modal-title" style="margin:0; color:var(--primary); display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded">edit_document</span> แบบร่างของคุณ</h3>
+          <button class="btn-close-page" style="width:30px; height:30px; background:#E2E8F0; color:#4A5568;" onclick="document.getElementById('draftListModal').style.display='none'"><span class="material-symbols-rounded" style="font-size:16px;">close</span></button>
+      </div>
+      <div id="draftListContainer" class="draft-list-container">
+          <!-- รายการแบบร่างจะถูกโชว์ที่นี่ -->
+      </div>
+      <p class="text-muted-sm text-center mt-3">แบบร่างจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</p>
+    </div>
+  </div>
+
   <div class="header" id="mainHeader">
     <div class="header-left">
       <div class="header-icon"><span class="material-symbols-rounded">engineering</span></div>
@@ -69,7 +90,6 @@
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
-      <!-- Dashboard -->
       <div class="card" id="dashboardCard" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <div class="card-title" style="margin: 0; border: none; padding: 0;"><span class="material-symbols-rounded">bar_chart</span> แดชบอร์ดสรุปผลงาน</div>
@@ -90,7 +110,6 @@
         </div>
       </div>
 
-      <!-- Advanced Filter System -->
       <div class="filter-section">
         <div class="card-title" style="margin-bottom: 15px; border:none; padding:0;"><span class="material-symbols-rounded">tune</span> ค้นหาและคัดกรองเอกสาร</div>
         
@@ -148,8 +167,8 @@
     <div id="formView" class="section-view">
       <form id="smpForm">
         
-        <!-- ซ่อน input เพื่อเก็บรูปเก่าสำหรับการ Edit -->
         <input type="hidden" id="f_mainImageOld">
+        <input type="hidden" id="f_draftId"> <!-- ซ่อน Draft ID -->
 
         <div class="card">
           <div class="card-title"><span class="material-symbols-rounded">assignment</span> ส่วนที่ 1: ข้อมูลทั่วไป (General Info)</div>
@@ -158,20 +177,31 @@
             <div class="form-group" style="flex:100%;">
               <label>ประเภท SMP <span class="required-star">*</span></label>
               <div class="d-flex-wrap mt-1">
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required onchange="updateSmpIdPrefix('ME')"> เครื่องกล </label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม" onchange="updateSmpIdPrefix('EE')"> ไฟฟ้าและการควบคุม </label>
-                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ" onchange="updateSmpIdPrefix('GE')"> อื่นๆ </label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t1" value="เครื่องกล" required> เครื่องกล </label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t2" value="ไฟฟ้าและการควบคุม"> ไฟฟ้าและการควบคุม </label>
+                <label class="custom-radio"><input type="radio" name="smpTypeGrp" id="t3" value="อื่นๆ"> อื่นๆ </label>
               </div>
             </div>
 
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
-            <div class="form-group"><label>รหัสเอกสาร (SMP ID) <span class="required-star">*</span></label><input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly required></div>
+            <div class="form-group"><label>รหัสเอกสาร (SMP ID)</label><input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly value="สร้างอัตโนมัติเมื่อบันทึกจริง" placeholder="Auto Generate"></div>
+          </div>
+
+          <!-- 🔴 เพิ่มช่องสถานะงาน -->
+          <div class="form-row">
+            <div class="form-group" style="flex: 100%;">
+                <label>สถานะของงานนี้ (Status) <span class="required-star">*</span></label>
+                <select id="f_status" required style="border-color:var(--accent);">
+                    <option value="Finished" selected>✅ เสร็จสมบูรณ์พร้อมใช้งาน (Finished)</option>
+                    <option value="Unfinished">⚠️ รอแก้ไข / ยังไม่เสร็จ (Unfinished)</option>
+                </select>
+            </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label>ผู้จัดทำ / นำเสนอ (Prepared By) <span class="required-star">*</span></label>
-              <div class="checkbox-grid" style="margin-bottom:10px;">
+              <div id="presenterCheckboxGrid" class="checkbox-grid" style="margin-bottom:10px;">
                 <label><input type="checkbox" class="pres-cb" value="ภูวรินทร์"> ภูวรินทร์</label>
                 <label><input type="checkbox" class="pres-cb" value="วิเชียร"> วิเชียร</label>
                 <label><input type="checkbox" class="pres-cb" value="ณรงฤทธิ์"> ณรงฤทธิ์</label>
@@ -192,7 +222,8 @@
                 <label><input type="checkbox" class="pres-cb" value="เศรษฐศักดิ์"> เศรษฐศักดิ์</label>
                 <label style="grid-column: span 2;"><input type="checkbox" id="cbPresOther" onchange="toggleOtherCheckbox('cbPresOther', 'f_presenter_other')"> ระบุชื่ออื่น</label>
               </div>
-              <input type="text" id="f_presenter_other" placeholder="พิมพ์ชื่อผู้นำเสนอ..." style="display:none;">
+              <span id="lockWarning" class="locked-warning"><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">lock</span> ไม่อนุญาตให้แก้ไขชื่อผู้จัดทำเมื่ออยู่ในโหมดอัปเดต</span>
+              <input type="text" id="f_presenter_other" placeholder="พิมพ์ชื่อผู้นำเสนอ..." style="display:none; margin-top:8px;">
             </div>
           </div>
           
@@ -247,10 +278,11 @@
                 </label>
                 <label style="background:#FFF; border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; cursor:pointer; color:var(--secondary); font-size:13px; font-weight:600; box-shadow:var(--shadow-sm);">
                     <span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">photo_library</span> เลือกจากอัลบั้ม
-                    <input type="file" accept="image/*" onchange="compressMainImage(this)" style="display:none;">
+                    <input type="file" accept="image/*" multiple onchange="compressMainImage(this)" style="display:none;">
                 </label>
             </div>
 
+            <!-- เปลี่ยนจาก Hidden Input ธรรมดา เป็นตัวเก็บรูปหลายใบได้ -->
             <input type="hidden" id="f_mainImageBase64">
             <div id="mainImagePreview" class="gallery-preview"></div>
           </div>
@@ -276,8 +308,8 @@
             <div>
               <label style="margin-bottom:5px;">ต้องการอุปกรณ์ LOTO หรือไม่? (LOTO Required) <span class="required-star">*</span></label>
               <div class="d-flex-wrap">
-                <label class="custom-radio"><input type="radio" name="r_loto" id="loto_req" value="ต้องการ" required> ต้องการ</label>
-                <label class="custom-radio"><input type="radio" name="r_loto" id="loto_not_req" value="ไม่ต้องการ"> ไม่ต้องการ</label>
+                <label class="custom-radio"><input type="radio" name="r_loto" id="loto_req" value="ต้องการ" required onchange="handleLotoChange(true)"> ต้องการ</label>
+                <label class="custom-radio"><input type="radio" name="r_loto" id="loto_not_req" value="ไม่ต้องการ" onchange="handleLotoChange(false)"> ไม่ต้องการ</label>
               </div>
             </div>
           </div>
@@ -307,30 +339,48 @@
         </div>
 
         <div class="card">
-          <div class="card-title" style="color:#38A169; border-bottom-color:#C6F6D5;"><span class="material-symbols-rounded" style="color:#38A169;">format_list_numbered</span> ส่วนที่ 3: ขั้นตอนการปฏิบัติงาน (SOP)</div>
+          <div class="card-title" style="color:#38A169; border-bottom-color:#C6F6D5;">
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span><span class="material-symbols-rounded" style="color:#38A169;">format_list_numbered</span> ส่วนที่ 3: ขั้นตอนการปฏิบัติงาน (SOP)</span>
+                <span style="font-size:11px; background:#E2E8F0; padding:4px 10px; border-radius:20px; color:var(--text-muted);">แตะจุดสามจุด <span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">drag_indicator</span> เพื่อลากสลับ</span>
+            </div>
+          </div>
           
           <div id="stepsContainer">
             <!-- ขั้นตอนจะถูก Generate อัตโนมัติที่นี่ -->
           </div>
           
-          <!-- ปุ่มเพิ่มขั้นตอนอยู่ด้านล่าง -->
           <div class="text-center mt-3 pt-3">
             <button type="button" style="background:transparent; border:1.5px dashed var(--secondary); color:var(--secondary); padding:10px 20px; border-radius:12px; font-family:'Prompt'; font-weight:600; cursor:pointer; width:100%; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='transparent'" onclick="addStepCard()"><span class="material-symbols-rounded" style="vertical-align:bottom;">add_circle</span> เพิ่มขั้นตอนเพิ่มเติม (Add Step)</button>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary" id="btnSubmit"><span class="material-symbols-rounded">cloud_upload</span> บันทึกเข้าระบบ (Submit)</button>
+        <!-- 🔴 แยกระบบปุ่ม บันทึกแบบร่าง กับ ส่งข้อมูลจริง -->
+        <div style="display:flex; gap:10px; margin-top:25px;">
+            <button type="button" class="btn-draft" onclick="saveMultiDraft()"><span class="material-symbols-rounded">save_as</span> บันทึกแบบร่างชั่วคราว</button>
+            <button type="button" class="btn-primary" onclick="verifyBeforeSubmit()"><span class="material-symbols-rounded">cloud_upload</span> บันทึกเสร็จสมบูรณ์</button>
+        </div>
       </form>
     </div>
 
     <!-- ================= VIEW 3: Detail ================= -->
     <div id="detailView" class="section-view">
       
+      <!-- 🔴 Active Edit Lock Banner -->
+      <div id="editLockBanner" class="edit-lock-banner">
+         <span class="material-symbols-rounded" style="font-size:24px;">gpp_maybe</span> 
+         <div>กำลังมีผู้ใช้งานท่านอื่นเปิดแก้ไขเอกสารฉบับนี้อยู่ เพื่อป้องกันข้อมูลทับซ้อน กรุณารอสักครู่...</div>
+      </div>
+
       <div class="d-flex justify-content-between align-items-center mb-4">
         <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร</button>
         
-        <div style="display:flex; gap:10px;">
-          <button type="button" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="editCurrentSMP()">
+        <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: flex-end;">
+          <!-- 🔴 เพิ่มปุ่ม คัดลอก (Duplicate) -->
+          <button type="button" class="btn-duplicate" onclick="duplicateCurrentSMP()">
+            <span class="material-symbols-rounded" style="font-size:18px;">content_copy</span> คัดลอกงานนี้
+          </button>
+          <button type="button" id="btnEditDoc" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="editCurrentSMP()">
             <span class="material-symbols-rounded" style="font-size:18px;">edit</span> แก้ไข
           </button>
           <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()">
@@ -344,20 +394,17 @@
 
   </div>
   
-  <!-- Floating Toast สำหรับแจ้งเตือนแบบร่าง -->
-  <div id="draftToast" class="floating-toast" onclick="loadDraft()">
-    <span class="material-symbols-rounded">restore_page</span> 
-    <span>มีแบบร่างบันทึกไว้เมื่อ <b id="draftTime"></b><br><small style="opacity:0.8;">แตะเพื่อกู้คืนข้อมูล</small></span>
+  <!-- Floating Toast เมื่อเปิดเข้ามาแล้วเจอ Draft อัตโนมัติ (ตอนนี้กดแล้วจะเด้งเข้า Modal รายชื่อ) -->
+  <div id="draftToast" class="floating-toast" onclick="openDraftListModal()">
+    <span class="material-symbols-rounded">format_list_bulleted</span> 
+    <span>คุณมีแบบร่างที่ยังไม่ส่ง <b id="draftCountBadge">0</b> รายการ<br><small style="opacity:0.8;">แตะเพื่อดูแบบร่างทั้งหมด</small></span>
   </div>
 
-  <!-- โยงไลบรารีภายนอก -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-  <!-- 🔴 เชื่อมต่อไฟล์ Javascript -->
-  <script src="script.js?v=1.0"></script>
+  <script src="script.js?v=1.1"></script>
 </body>
-
-  
 </html>
