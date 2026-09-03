@@ -20,7 +20,6 @@
     <p style="color:var(--text-muted); font-size:14px;">กรุณารอสักครู่</p>
   </div>
 
-  <!-- Modal แจ้งเตือนทั่วไป -->
   <div class="custom-modal-overlay" id="customModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
@@ -30,7 +29,6 @@
     </div>
   </div>
 
-  <!-- Modal ยืนยันการบันทึกงานจริง -->
   <div class="custom-modal-overlay" id="confirmSaveModal" style="z-index: 9999;">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" style="color:#005EB8;">cloud_upload</span>
@@ -43,7 +41,6 @@
     </div>
   </div>
 
-  <!-- 🔴 Modal ถามยืนยันก่อนเข้าโหมดแก้ไขงานที่เสร็จแล้ว -->
   <div class="custom-modal-overlay" id="confirmEditModal" style="z-index: 9999;">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" style="color:#D69E2E;">edit_document</span>
@@ -56,7 +53,6 @@
     </div>
   </div>
 
-  <!-- Modal ยืนยันการลบ -->
   <div class="custom-modal-overlay" id="confirmModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" style="color:#E53E3E;">warning</span>
@@ -66,6 +62,17 @@
         <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="closeConfirmModal()">ยกเลิก</button>
         <button class="custom-modal-btn" style="background:#E53E3E;" onclick="executeDelete()">ยืนยันลบ</button>
       </div>
+    </div>
+  </div>
+
+  <div class="custom-modal-overlay" id="draftListModal">
+    <div class="custom-modal-box large">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+          <h3 class="custom-modal-title" style="margin:0; color:var(--primary); display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded">edit_document</span> แบบร่างของคุณ</h3>
+          <button class="btn-close-page" style="width:30px; height:30px; background:#E2E8F0; color:#4A5568;" onclick="document.getElementById('draftListModal').style.display='none'"><span class="material-symbols-rounded" style="font-size:16px;">close</span></button>
+      </div>
+      <div id="draftListContainer" class="draft-list-container"></div>
+      <p class="text-muted-sm text-center mt-3">แบบร่างจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</p>
     </div>
   </div>
 
@@ -85,7 +92,6 @@
 
   <div class="container mt-4">
 
-    <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
@@ -139,7 +145,6 @@
             </select>
           </div>
           
-          <!-- 🔴 ตัวกรองสถานะงาน + แบบร่าง -->
           <div class="form-group">
             <label>สถานะงาน</label>
             <select id="filterStatus" onchange="applyFilters()">
@@ -168,17 +173,15 @@
       <button class="fab-main" onclick="showForm()"><span class="material-symbols-rounded" style="font-size: 32px;">add</span></button>
     </div>
 
-    <!-- ================= VIEW 2: Form ================= -->
     <div id="formView" class="section-view">
       
-      <!-- 🔴 ปุ่ม FAB สำหรับกดเซฟแบบร่างระหว่างทำ -->
       <button class="fab-draft" id="fabDraftBtn" title="บันทึกแบบร่าง" onclick="saveDataAsDraft()">
           <span class="material-symbols-rounded" style="font-size: 24px;">save_as</span>
       </button>
         
       <form id="smpForm">
         <input type="hidden" id="f_mainImageOld">
-        <input type="hidden" id="f_draftId"> <!-- ซ่อน Draft ID -->
+        <input type="hidden" id="f_draftId"> 
 
         <div class="card">
           <div class="card-title"><span class="material-symbols-rounded">assignment</span> ส่วนที่ 1: ข้อมูลทั่วไป (General Info)</div>
@@ -195,7 +198,6 @@
             
             <div class="form-group" style="flex: 2;"><label>ชื่อเรื่อง (Document Title) <span class="required-star">*</span></label><input type="text" id="f_title" required></div>
             
-            <!-- 🔴 ซ่อนช่อง ID แบบปกติ จะโชว์เฉพาะตอนแก้เท่านั้น -->
             <div class="form-group" id="smpIdContainer" style="display:none;">
                 <label>รหัสเอกสาร (SMP ID)</label>
                 <input type="text" id="f_smpId" style="color:var(--secondary); font-weight:700; background:#EBF8FF; letter-spacing:0.5px;" readonly>
@@ -349,16 +351,13 @@
             </div>
           </div>
           
-          <div id="stepsContainer">
-            <!-- ขั้นตอนจะถูก Generate อัตโนมัติที่นี่ -->
-          </div>
+          <div id="stepsContainer"></div>
           
           <div class="text-center mt-3 pt-3">
             <button type="button" style="background:transparent; border:1.5px dashed var(--secondary); color:var(--secondary); padding:10px 20px; border-radius:12px; font-family:'Prompt'; font-weight:600; cursor:pointer; width:100%; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='transparent'" onclick="addStepCard()"><span class="material-symbols-rounded" style="vertical-align:bottom;">add_circle</span> เพิ่มขั้นตอนเพิ่มเติม (Add Step)</button>
           </div>
         </div>
 
-        <!-- 🔴 ย้ายสถานะงานและปุ่มบันทึกมาไว้ล่างสุด -->
         <div class="card" style="border: 2px solid var(--accent); background:#F0F7FF;">
           <div class="card-title" style="margin-bottom:10px; border:none; padding:0;"><span class="material-symbols-rounded">rule</span> การจัดการสถานะงาน</div>
           <div class="form-group" style="margin-bottom:0;">
@@ -406,11 +405,16 @@
 
   </div>
 
+  <div id="draftToast" class="floating-toast" onclick="openDraftListModal()">
+    <span class="material-symbols-rounded">format_list_bulleted</span> 
+    <span>คุณมีแบบร่างค้างอยู่ <b id="draftCountBadge">0</b> รายการ<br><small style="opacity:0.8;">แตะเพื่อเปิดดูแบบร่าง</small></span>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-  <script src="script.js?v=1.2"></script>
+  <script src="script.js?v=1.3"></script>
 </body>
 </html>
