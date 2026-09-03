@@ -53,7 +53,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 .upload-box:hover { border-color: var(--secondary); background: #F0F7FF; }
 .gallery-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; justify-content: center;}
 .gallery-preview img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
-/* 🔴 ปุ่มลบรูปภาพ (ในกรณีเพิ่มหลายรูป) */
 .btn-remove-img { background: rgba(229, 62, 62, 0.1); color: #E53E3E; border: 1px solid #E53E3E; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; display: block; width: 100%; margin-top: 5px; text-align: center; font-family: 'Prompt'; }
 
 /* PPE & Risk Icons */
@@ -68,13 +67,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 /* Checkbox Grid (Presenter Lock State) */
 .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #F8FAFC; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
 .checkbox-grid label { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; cursor: pointer; color: var(--text-main);}
-/* 🔴 ล็อกชื่อคนแก้ไม่ให้คลิกได้ */
 .checkbox-grid.locked { opacity: 0.7; pointer-events: none; background: #EDF2F7; border-color: #CBD5E0; }
 .locked-warning { color: #E53E3E; font-size: 12px; font-weight: 600; display: none; margin-top: 5px; }
 
 /* Buttons & FAB */
 .fab-main { position: fixed; bottom: 30px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--secondary); color: white; border: none; box-shadow: var(--shadow-md); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; z-index: 100;}
 .fab-main:hover { transform: scale(1.05); }
+
+/* 🔴 ปุ่ม FAB สำหรับเซฟร่างโดยเฉพาะ */
+.fab-draft { position: fixed; bottom: 100px; right: 25px; width: 50px; height: 50px; border-radius: 50%; background: #EDF2F7; color: var(--primary); border: 2px solid var(--border); box-shadow: var(--shadow-md); display: none; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; z-index: 100;}
+.fab-draft:hover { transform: scale(1.05); background: #E2E8F0; }
 
 .btn-primary { background: var(--secondary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Prompt'; transition: 0.2s; box-shadow: var(--shadow-md);}
 .btn-primary:active { transform: scale(0.98); }
@@ -101,15 +103,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 .custom-modal-btn { background: var(--secondary); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); width: 100%;}
 .custom-modal-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
-/* 🔴 Multi-Draft List Items */
-.draft-list-container { max-height: 300px; overflow-y: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid var(--border); }
-.draft-item { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: 0.2s; background: #FFF; cursor: pointer; }
-.draft-item:hover { background: #F8FAFC; border-left: 4px solid var(--secondary); }
-.draft-item-title { font-weight: 600; color: var(--primary); font-size: 14px; margin-bottom: 2px; }
-.draft-item-time { font-size: 12px; color: var(--text-muted); }
-.draft-del-btn { background: none; border: none; color: #E53E3E; padding: 5px; cursor: pointer; border-radius: 5px; }
-.draft-del-btn:hover { background: #FFF5F5; }
-
 /* Dashboard & Report Cards */
 .dashboard-gear { background: #EDF2F7; border: none; width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
 .dashboard-gear:hover { background: #E2E8F0; color: var(--primary); }
@@ -120,23 +113,27 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 .btn-quick { background: #EDF2F7; border: none; padding: 8px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; font-family: 'Prompt'; transition: 0.2s;}
 .btn-quick.active { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(0, 94, 184, 0.2);}
 
-/* 🔴 Report Cards (มีแถบสีแยกประเภท) */
+/* Report Cards */
 .report-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-left: 5px solid var(--accent); transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;}
 .report-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--secondary); }
 .card-type-me { border-left-color: #005EB8 !important; }
 .card-type-ee { border-left-color: #D69E2E !important; }
 .card-type-ge { border-left-color: #38A169 !important; }
 
+/* 🔴 Draft Card Styling (สีเทา) */
+.card-type-draft { border-left-color: #A0AEC0 !important; background-color: #F8FAFC !important; border: 1px dashed #CBD5E0; }
+.card-type-draft .report-card-title { color: #718096 !important; font-style: italic; }
+
 .report-card-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #F1F5F9; padding-bottom: 10px; align-items: center;}
 .report-card-title { font-weight: 700; color: var(--primary); font-size: 16px; }
 .report-detail { font-size: 14px; color: #4A5568; line-height: 1.5; margin: 4px 0;}
 .badge-chip { background: #F0F7FF; color: var(--secondary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(0, 94, 184, 0.1);}
 
-/* 🔴 Status Badges */
+/* Status Badges */
 .badge-status-finish { background: #F0FFF4; color: #38A169; border: 1px solid #9AE6B4; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;}
 .badge-status-unfinish { background: #FFF5F5; color: #E53E3E; border: 1px solid #FEB2B2; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;}
 
-/* 🔴 Active Edit Lock Banner */
+/* Active Edit Lock Banner */
 .edit-lock-banner { background: #FEFCBF; border: 1px solid #F6E05E; color: #975A16; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 13.5px; font-weight: 600; display: none; align-items: center; gap: 10px; animation: pulseLock 2s infinite; }
 @keyframes pulseLock { 0% { box-shadow: 0 0 0 0 rgba(236, 201, 75, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(236, 201, 75, 0); } 100% { box-shadow: 0 0 0 0 rgba(236, 201, 75, 0); } }
 
@@ -146,6 +143,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 .drag-handle { cursor: grab; padding: 4px; border-radius: 6px; transition: 0.2s; background: rgba(0,0,0,0.03); }
 .drag-handle:hover { background: rgba(0, 94, 184, 0.1); color: var(--secondary) !important; }
 .drag-handle:active { cursor: grabbing; }
+
+/* 🔴 ปิดการลาก (Drag Lock) สำหรับขั้นตอนแรก */
+.drag-handle.disabled { cursor: not-allowed; opacity: 0.3; }
+.drag-handle.disabled:hover { background: transparent; color: inherit !important; }
 .sortable-ghost { opacity: 0.5; background-color: #F0F7FF; border: 2px dashed var(--secondary); transform: scale(0.98); }
 
 /* Loading Screen */
