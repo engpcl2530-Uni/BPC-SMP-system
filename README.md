@@ -114,7 +114,7 @@ This project was developed to revolutionize industrial maintenance documentation
 
 ### 👨‍💻 Author
 
-**Natthapon Kongthong (Junior / 최준재)**
+**Natthapon Kongthong (Junior )**
 *Undergraduate Student, Manufacturing System Engineering*
 *School of Integrated Innovation and Technology, King Mongkut's Institute of Technology Ladkrabang (KMITL)*
 
