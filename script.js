@@ -16,6 +16,7 @@ window.onload = () => {
   document.getElementById('loadingScreen').style.display = 'flex';
   loadSMPList(); 
   checkOfflineStatus(); 
+  checkDraftsOnLoad(); 
 };
 
 // ======================== MODALS & TOASTS ========================
@@ -85,7 +86,7 @@ function generateId(type, isDraft) {
     if(type.includes('เครื่องกล')) prefix = 'ME';
     else if(type.includes('ไฟฟ้า')) prefix = 'EE';
     
-    if(isDraft) prefix = 'D' + prefix; // เติม D นำหน้าถ้าเป็นแบบร่าง
+    if(isDraft) prefix = 'D' + prefix; 
     let prefixStr = `BPC-${prefix}-`;
     let maxId = 0;
     
@@ -186,27 +187,74 @@ function saveDataAsDraft() {
     showHome();
 }
 
+function checkDraftsOnLoad() {
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let badge = document.getElementById('draftCountBadge');
+    let toast = document.getElementById('draftToast');
+    
+    if(drafts.length > 0 && badge && toast) {
+        badge.innerText = drafts.length;
+        toast.style.display = 'flex';
+    } else if(toast) {
+        toast.style.display = 'none';
+    }
+}
+
+function openDraftListModal() {
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let container = document.getElementById('draftListContainer');
+    
+    if(drafts.length === 0) { 
+        container.innerHTML = '<p class="text-center text-muted">ไม่มีแบบร่างที่บันทึกไว้</p>'; 
+    } else {
+        let html = '';
+        drafts.forEach(d => {
+            html += `
+            <div class="draft-item" onclick="loadDraftIntoForm('${d.id}')">
+                <div>
+                    <div class="draft-item-title">${d.title}</div>
+                    <div class="draft-item-time"><span class="material-symbols-rounded" style="font-size:12px;">schedule</span> ${d.time}</div>
+                </div>
+                <button class="draft-del-btn" onclick="deleteDraft(event, '${d.id}')"><span class="material-symbols-rounded">delete</span></button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+    document.getElementById('draftListModal').style.display = 'flex';
+    document.getElementById('draftToast').style.display = 'none';
+}
+
+function deleteDraft(event, draftId) {
+    event.stopPropagation(); 
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    drafts = drafts.filter(d => d.id !== draftId);
+    localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts));
+    
+    openDraftListModal(); 
+    checkDraftsOnLoad();
+    applyFilters(); 
+}
+
 function loadDraftIntoForm(draftId) {
     let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
     let draft = drafts.find(d => d.id === draftId);
     
     if(draft) {
         currentDetailData = { main: draft.data.formData, steps: draft.data.stepsData };
+        document.getElementById('draftListModal').style.display = 'none';
         
         proceedToEdit(); 
         
-        isEditingId = null; // ปลดล็อกว่าไม่ใช่การ Edit งานจริง
+        isEditingId = null; 
         document.getElementById('f_draftId').value = draft.id;
         document.getElementById('smpIdContainer').style.display = 'none'; 
         
-        // ปลดล็อกชื่อและปุ่มร่าง
         document.getElementById('presenterCheckboxGrid').classList.remove('locked');
         document.getElementById('lockWarning').style.display = 'none';
         document.querySelector('.btn-draft').style.display = 'flex';
         document.getElementById('fabDraftBtn').style.display = 'flex';
         
-        // ไม่ต้องมีป๊อปอัพกวนใจ ให้เข้าฟอร์มไปเลย
-        window.scrollTo(0,0);
+        showModal('กู้คืนแบบร่างสำเร็จ', `โหลดเอกสาร "${draft.title}" แล้ว`, 'restore', 'var(--secondary)');
     }
 }
 
@@ -218,7 +266,6 @@ function showHome() {
   document.getElementById('appSub').innerText = "ระบบจัดการเอกสารมาตรฐาน";
   document.getElementById('btnCloseView').style.display = 'none';
   
-  // ซ่อน Toast แจ้งเตือนของเก่าทิ้ง
   let toast = document.getElementById('draftToast');
   if(toast) toast.style.display = 'none';
 
@@ -226,6 +273,7 @@ function showHome() {
       loadSMPList(); 
   } else {
       applyFilters(); 
+      checkDraftsOnLoad();
   }
 }
 
@@ -336,7 +384,7 @@ function initSortable() {
     let el = document.getElementById('stepsContainer');
     if (stepSortable) stepSortable.destroy(); 
     stepSortable = Sortable.create(el, { 
-        handle: '.drag-handle:not(.disabled)', // ป้องกันการลากขั้นตอนแรก
+        handle: '.drag-handle:not(.disabled)', 
         animation: 150, 
         ghostClass: 'sortable-ghost', 
         onEnd: function () { updateStepNumbers(); } 
@@ -420,7 +468,6 @@ function proceedToEdit() {
       document.getElementById('btnCloseView').style.display = 'flex';
       document.getElementById('smpForm').reset();
 
-      // โชว์ ID ตอนโหมดแก้ไข และซ่อนปุ่ม Draft
       document.getElementById('smpIdContainer').style.display = 'block';
       document.getElementById('presenterCheckboxGrid').classList.add('locked');
       document.getElementById('lockWarning').style.display = 'block';
@@ -555,7 +602,7 @@ function duplicateCurrentSMP() {
     document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
     document.getElementById('smpIdContainer').style.display = 'none';
     document.getElementById('f_title').value = currentDetailData.main.title + " (สำเนา)";
-    document.getElementById('f_status').value = "Unfinished";
+    document.getElementById('f_status').value = "Unfinished"; 
     document.getElementById('appTitle').innerText = "คัดลอกเอกสารใหม่";
     document.getElementById('appSub').innerText = "จากเอกสาร #" + currentDetailData.main.smpId;
     
