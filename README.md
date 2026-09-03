@@ -33,19 +33,17 @@ This project was developed to revolutionize industrial maintenance documentation
 
 ## 🛠️ Tech Stack & Architecture | โครงสร้างสถาปัตยกรรม
 
-*   **Frontend:** Vanilla JavaScript, HTML5, CSS3
-*   **UI Framework:** Bootstrap 5, Google Material Symbols
-*   **Backend / API:** Google Apps Script (GAS) 
-*   **Database:** Google Sheets
-*   **Libraries:** 
-    *   `Chart.js` (Data Visualization)
-    *   `ExcelJS` (XLSX Document Generation)
+*   **Frontend (หน้าบ้าน):** Vanilla JavaScript, HTML5, CSS3, Bootstrap 5
+*   **Backend / API (หลังบ้าน):** Google Apps Script (GAS) 
+*   **Database (ฐานข้อมูล):** Google Sheets
 *   **Hosting:** GitHub Pages
 
 ### 📂 Project Structure (Separation of Concerns)
+ระบบใช้โครงสร้างแบบแยกไฟล์ เพื่อความง่ายในการดูแลรักษา (Maintainability):
 ```text
-├── index.html     # Main application structure (UI Layout)
-├── style.css      # Styling, animations, and responsive rules
-├── script.js      # Core logic, state management, and API fetching
-├── README.md      # Project documentation
-└── /images        # Directory for static assets, icons, and logos
+├── index.html     # โครงสร้างหน้าเว็บ (UI Layout) เปรียบเสมือน "เสาและคานบ้าน"
+├── style.css      # ไฟล์ตกแต่งความสวยงามและการจัดหน้า (CSS) เปรียบเสมือน "สีทาบ้าน"
+├── script.js      # ลอจิกการทำงานและเชื่อมต่อ API (JavaScript) เปรียบเสมือน "ระบบไฟฟ้าและสมองกล"
+├── README.md      # คู่มือและรายละเอียดโครงการสำหรับนักพัฒนา
+├── Readme.txt     # คู่มือแนะนำโครงสร้างแบบเร่งด่วน สำหรับทีมงานที่มีพื้นฐาน GAS
+└── /images        # โฟลเดอร์สำหรับเก็บไฟล์รูปภาพ Icon และ Logo คงที่
