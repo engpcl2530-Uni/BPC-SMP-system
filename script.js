@@ -3,19 +3,24 @@ const API_URL = "https://script.google.com/macros/s/AKfycbw6rd64-pGhm0m6F9_cOf4n
 let allSmpDataList = [];
 let filteredDataList = [];
 let currentDetailData = null;
-let stepCounter = -1;
 let isEditingId = null; 
 let myChart = null; 
 let currentChartMode = 'presenter'; 
 const ITEMS_PER_PAGE = 100;
 let currentPage = 1;
+let stepSortable = null; 
+
+// 🔴 ตัวแปรเก็บรูปภาพหลักหลายรูป
+let mainImagesArray = []; 
 
 window.onload = () => { 
   document.getElementById('loadingScreen').style.display = 'flex';
   loadSMPList(); 
   checkOfflineStatus(); 
+  checkDraftsOnLoad(); // เช็คแบบร่างตอนเปิดเว็บ
 };
 
+// ======================== MODALS & TOASTS ========================
 function showModal(title, message, iconName, color) {
   document.getElementById('modalTitle').innerText = title;
   document.getElementById('modalTitle').style.color = color;
@@ -24,10 +29,10 @@ function showModal(title, message, iconName, color) {
   document.getElementById('modalIcon').style.color = color;
   document.getElementById('customModal').style.display = 'flex';
 }
-
 function closeModal() { document.getElementById('customModal').style.display = 'none'; }
 function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
 
+// ======================== UTILITIES ========================
 function parseDateSafely(dateStr) {
     if (!dateStr) return new Date(0); 
     let str = dateStr.toString().trim();
@@ -48,28 +53,38 @@ function toggleOtherInput(selElement, inputId) {
   if(selElement.value === 'other') { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
   else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
 }
+
 function toggleOtherCheckbox(cbId, inputId) {
   let cb = document.getElementById(cbId); let inputEl = document.getElementById(inputId);
   if(cb.checked) { inputEl.style.display = 'block'; inputEl.required = true; inputEl.focus(); } 
   else { inputEl.style.display = 'none'; inputEl.required = false; inputEl.value = ''; }
 }
 
-function updateSmpIdPrefix(prefix) {
-  if(isEditingId) return; 
-
-  let maxId = 0;
-  let prefixStr = `BPC-${prefix}-`;
-  for (let item of allSmpDataList) {
-      if (item.smpId && item.smpId.startsWith(prefixStr)) {
-          let numPart = item.smpId.replace(prefixStr, '');
-          let num = parseInt(numPart, 10);
-          if (!isNaN(num) && num > maxId) { maxId = num; }
-      }
-  }
-  let nextNum = maxId + 1;
-  document.getElementById('f_smpId').value = `${prefixStr}${String(nextNum).padStart(4, '0')}`;
+// ======================== ID GENERATION ========================
+// 🔴 ฟังก์ชันสร้างรหัสจริงตอนกดบันทึกเท่านั้น ป้องกัน ID ชนกัน
+function generateActualId() {
+    let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
+    if(!smpTypeSelected) return "";
+    let type = smpTypeSelected.value;
+    let prefix = 'GE';
+    if(type.includes('เครื่องกล')) prefix = 'ME';
+    else if(type.includes('ไฟฟ้า')) prefix = 'EE';
+    
+    let prefixStr = `BPC-${prefix}-`;
+    let maxId = 0;
+    
+    for (let item of allSmpDataList) {
+        if (item.smpId && item.smpId.startsWith(prefixStr)) {
+            let numPart = item.smpId.replace(prefixStr, '');
+            let num = parseInt(numPart, 10);
+            if (!isNaN(num) && num > maxId) { maxId = num; }
+        }
+    }
+    let nextNum = maxId + 1;
+    return `${prefixStr}${String(nextNum).padStart(4, '0')}`;
 }
 
+// ======================== OFFLINE & SYNC ========================
 window.addEventListener('online', checkOfflineStatus);
 window.addEventListener('offline', checkOfflineStatus);
 
@@ -91,26 +106,98 @@ function syncOfflineData() {
         showModal("สำเร็จ!", "ซิงค์ข้อมูลออฟไลน์สำเร็จ", "check_circle", "#38A169"); 
         localStorage.removeItem('smp_offline_queue'); checkOfflineStatus(); loadSMPList(); 
     })
-    .catch(err => { showModal("ผิดพลาด", "บางรายการซิงค์ไม่สำเร็จ กรุณาลองใหม่ภายหลัง", "error", "#E53E3E"); })
+    .catch(err => { showModal("ผิดพลาด", "บางรายการซิงค์ไม่สำเร็จ กรุณาลองใหม่", "error", "#E53E3E"); })
     .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
 }
 
-document.getElementById('smpForm').addEventListener('input', () => { if(!isEditingId) saveDraft(); });
-document.getElementById('smpForm').addEventListener('change', () => { if(!isEditingId) saveDraft(); });
-
-function saveDraft() {
-  let draft = { title: document.getElementById('f_title').value, time: new Date().toLocaleTimeString('th-TH') };
-  localStorage.setItem('smp_draft', JSON.stringify(draft));
-  let t = document.getElementById('draftToast');
-  document.getElementById('draftTime').innerText = draft.time;
-  t.style.display = 'flex';
+// ======================== MULTI-DRAFT SYSTEM ========================
+// 🔴 ฟังก์ชันบันทึกแบบร่างได้หลายอัน
+function saveMultiDraft() {
+    let draftId = document.getElementById('f_draftId').value;
+    if (!draftId) { draftId = 'DRAFT-' + Date.now(); document.getElementById('f_draftId').value = draftId; }
+    
+    let draftData = collectFormData(); // รวบรวมข้อมูลฟอร์มทั้งหมด
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    
+    let existingIndex = drafts.findIndex(d => d.id === draftId);
+    let draftObj = { id: draftId, title: draftData.formData.title || 'แบบร่างไม่มีชื่อ', time: new Date().toLocaleString('th-TH'), data: draftData };
+    
+    if (existingIndex >= 0) drafts[existingIndex] = draftObj;
+    else drafts.push(draftObj);
+    
+    localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts));
+    
+    let toast = document.getElementById('draftToast');
+    document.getElementById('draftTime').innerText = draftObj.time;
+    document.getElementById('draftCountBadge').innerText = drafts.length;
+    toast.style.display = 'flex';
 }
 
-function loadDraft() {
-  showModal('กู้คืนข้อมูลสำเร็จ', 'ระบบได้โหลดข้อมูลร่างของคุณกลับมาแล้ว', 'restore', 'var(--secondary)');
-  document.getElementById('draftToast').style.display = 'none';
+function checkDraftsOnLoad() {
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    if(drafts.length > 0) {
+        document.getElementById('draftCountBadge').innerText = drafts.length;
+        document.getElementById('draftToast').style.display = 'flex';
+    } else {
+        document.getElementById('draftToast').style.display = 'none';
+    }
 }
 
+function openDraftListModal() {
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let container = document.getElementById('draftListContainer');
+    if(drafts.length === 0) { container.innerHTML = '<p class="text-center text-muted">ไม่มีแบบร่างที่บันทึกไว้</p>'; } 
+    else {
+        let html = '';
+        drafts.forEach(d => {
+            html += `
+            <div class="draft-item" onclick="loadDraftIntoForm('${d.id}')">
+                <div>
+                    <div class="draft-item-title">${d.title}</div>
+                    <div class="draft-item-time"><span class="material-symbols-rounded" style="font-size:12px;">schedule</span> ${d.time}</div>
+                </div>
+                <button class="draft-del-btn" onclick="deleteDraft(event, '${d.id}')"><span class="material-symbols-rounded">delete</span></button>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+    document.getElementById('draftListModal').style.display = 'flex';
+    document.getElementById('draftToast').style.display = 'none';
+}
+
+function deleteDraft(event, draftId) {
+    event.stopPropagation(); // ไม่ให้คลิกทะลุไปโหลดฟอร์ม
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    drafts = drafts.filter(d => d.id !== draftId);
+    localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts));
+    openDraftListModal(); // รีเฟรชลิสต์
+    checkDraftsOnLoad();
+}
+
+function loadDraftIntoForm(draftId) {
+    let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+    let draft = drafts.find(d => d.id === draftId);
+    if(draft) {
+        document.getElementById('draftListModal').style.display = 'none';
+        // จำลองโครงสร้างเพื่อให้ฟังก์ชัน editCurrentSMP สามารถทำงานได้
+        currentDetailData = { main: draft.data.formData, steps: draft.data.stepsData };
+        // แฮ็กเพื่อหลอกให้มันกรอกฟอร์มเหมือนโหมด Edit แต่ไม่ใช่ Edit
+        let tempIsEdit = isEditingId;
+        editCurrentSMP(); 
+        
+        isEditingId = null; // ปลดล็อกว่าไม่ใช่การ Edit งานจริง
+        document.getElementById('f_draftId').value = draft.id;
+        document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
+        
+        // ปลดล็อกชื่อ
+        document.getElementById('presenterCheckboxGrid').classList.remove('locked');
+        document.getElementById('lockWarning').style.display = 'none';
+        
+        showModal('กู้คืนข้อมูลสำเร็จ', `โหลดแบบร่าง "${draft.title}" แล้ว`, 'restore', 'var(--secondary)');
+    }
+}
+
+// ======================== VIEW NAVIGATION ========================
 function showHome() {
   document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
   document.getElementById('homeView').classList.add('active');
@@ -128,9 +215,18 @@ function showForm() {
   let lOther = document.getElementById('f_line_other'); if(lOther) lOther.style.display = 'none';
   let fOther = document.getElementById('f_frequency_other'); if(fOther) fOther.style.display = 'none';
   
+  // 🔴 ปลดล็อกชื่อช่าง (Anti-fraud reset)
+  document.getElementById('presenterCheckboxGrid').classList.remove('locked');
+  document.getElementById('lockWarning').style.display = 'none';
+  
+  // 🔴 จัดการภาพหลายภาพ
+  mainImagesArray = [];
   document.getElementById('mainImagePreview').innerHTML = ''; 
+  document.getElementById('f_mainImageBase64').value = '';
   document.getElementById('f_mainImageOld').value = ''; 
+  
   document.getElementById('stepsContainer').innerHTML = '';
+  document.getElementById('f_draftId').value = ''; // เคลียร์ Draft ID
   
   document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
   document.getElementById('formView').classList.add('active');
@@ -141,153 +237,39 @@ function showForm() {
   document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
   document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => el.classList.remove('not-used'));
 
-  if(allSmpDataList.length > 0) {
-    document.getElementById('f_smpId').value = "กรุณาเลือกประเภท SMP...";
-  } else {
-    document.getElementById('f_smpId').value = "กรุณารอโหลดข้อมูลสักครู่...";
-  }
+  document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
+  document.getElementById('f_status').value = "Finished";
 
-  stepCounter = -1; 
   generateLockedSteps(); 
-  
-  let saved = localStorage.getItem('smp_draft');
-  if(saved) {
-     let d = JSON.parse(saved);
-     let t = document.getElementById('draftToast');
-     if(t) { t.style.display = 'flex'; document.getElementById('draftTime').innerText = d.time; }
-  }
+  initSortable(); // เปิดใช้งานระบบลากวาง
   window.scrollTo(0,0);
 }
 
-function generateLockedSteps() {
-  addStepCard(true, "อธิบายชิ้นส่วนประกอบย่อย แนบรูปว่าอะไร", 0, "คุณภาพ");
-  addStepCard(true, "การเตรียมเครื่องมืออุปกรณ์", 0, "คุณภาพ");
-  addStepCard(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", 0, "ความปลอดภัย");
-}
-
-function updateStepNumbers() {
-  let cards = document.querySelectorAll('#stepsContainer .step-card');
-  cards.forEach((card, index) => {
-    let badge = card.querySelector('.step-badge');
-    if (badge) {
-      badge.innerText = `ขั้นตอนที่ #${index}`;
-    }
-    card.id = `step_row_${index}`;
-  });
-  stepCounter = cards.length - 1;
-}
-
-function insertStepCard(btn) {
-  let currentCard = btn.closest('.step-card');
+// ======================== SOP STEPS (DRAG & DROP / LOTO) ========================
+function getStepCardHTML(isMandatory = false, defaultName = "", defaultTime = "", defaultType = "", isLoto = false) {
+  let deleteBtn = isMandatory ? '' : `<button type="button" style="background:#FFF5F5; color:#E53E3E; border:1px solid #FC8181; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='#E53E3E'; this.style.color='#FFF';" onmouseout="this.style.background='#FFF5F5'; this.style.color='#E53E3E';" onclick="this.closest('.step-card').remove(); updateStepNumbers();"><span class="material-symbols-rounded" style="font-size:16px;">delete</span> ลบ</button>`;
+  let lotoClass = isLoto ? 'loto-step' : '';
   
-  const html = `
-    <div class="step-card">
+  return `
+    <div class="step-card ${lotoClass}">
       <span class="step-badge">ขั้นตอนที่ #</span>
       <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
-        <h6 class="m-0 fw-bold" style="color:var(--primary);">รายละเอียดขั้นตอน</h6>
+        <h6 class="m-0 fw-bold" style="color:var(--primary); display:flex; align-items:center; gap:8px;">
+          <span class="material-symbols-rounded drag-handle" title="กดค้างเพื่อลากเลื่อน">drag_indicator</span>
+          รายละเอียดขั้นตอน
+        </h6>
         <div style="display:flex; gap:8px;">
           <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
-            <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
+            <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรก
           </button>
-          <button type="button" style="background:#FFF5F5; color:#E53E3E; border:1px solid #FC8181; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='#E53E3E'; this.style.color='#FFF';" onmouseout="this.style.background='#FFF5F5'; this.style.color='#E53E3E';" onclick="this.closest('.step-card').remove(); updateStepNumbers();">
-            <span class="material-symbols-rounded" style="font-size:16px;">delete</span> ลบ
-          </button>
+          ${deleteBtn}
         </div>
       </div>
-      
-      <div class="mb-3">
-        <label>รายละเอียดการทำงาน <span class="required-star">*</span></label>
-        <input type="text" class="s-task" value="" required>
-      </div>
-      
+      <div class="mb-3"><label>รายละเอียดการทำงาน <span class="required-star">*</span></label><input type="text" class="s-task" value="${defaultName}" required></div>
       <div class="form-row">
-        <div class="form-group">
-          <label>เวลา (นาที)</label>
-          <input type="number" class="s-time" value="" required>
-        </div>
-        <div class="form-group">
-          <label>ประเภท <span class="required-star">*</span></label>
+        <div class="form-group"><label>เวลา (นาที)</label><input type="number" class="s-time" value="${defaultTime}" required></div>
+        <div class="form-group"><label>ประเภท <span class="required-star">*</span></label>
           <select class="s-type" required>
-            <option value="">-- เลือก --</option>
-            <option value="ความปลอดภัย">ความปลอดภัย</option>
-            <option value="คุณภาพ">คุณภาพ</option>
-            <option value="สิ่งแวดล้อม">สิ่งแวดล้อม</option>
-            <option value="การผลิต">การผลิต</option>
-          </select>
-        </div>
-      </div>
-      <div class="mb-3"><label>คำอธิบายเพิ่มเติม</label><textarea class="s-desc" rows="2"></textarea></div>
-      <div>
-        <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
-        <div style="display:flex; gap:10px; margin-bottom:5px;">
-            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
-                <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่
-                <input type="file" accept="image/*" capture="environment" onchange="compressStepImages(this)" style="display:none;">
-            </label>
-            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
-                <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_library</span> จากอัลบั้ม
-                <input type="file" accept="image/*" multiple onchange="compressStepImages(this)" style="display:none;">
-            </label>
-        </div>
-        <input type="hidden" class="s-imgs">
-        <div class="gallery-preview"></div>
-      </div>
-    </div>`;
-    
-  currentCard.insertAdjacentHTML('afterend', html);
-  updateStepNumbers();
-}
-
-function addStepCard(isLocked = false, defaultName = "", defaultTime = "", defaultType = "") {
-  stepCounter++;
-  let stepIndex = stepCounter; 
-  
-  let lockAttr = isLocked ? 'readonly style="background:#F1F5F9;"' : 'required';
-  let lockSelAttr = isLocked ? 'disabled style="background:#F1F5F9;"' : 'required';
-  let hiddenInputs = isLocked ? `<input type="hidden" class="s-type-hidden" value="${defaultType}">` : '';
-
-  let buttonsHtml = '';
-  if (!isLocked) {
-     buttonsHtml = `
-        <div style="display:flex; gap:8px;">
-          <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
-            <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
-          </button>
-          <button type="button" style="background:#FFF5F5; color:#E53E3E; border:1px solid #FC8181; padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='#E53E3E'; this.style.color='#FFF';" onmouseout="this.style.background='#FFF5F5'; this.style.color='#E53E3E';" onclick="this.closest('.step-card').remove(); updateStepNumbers();">
-            <span class="material-symbols-rounded" style="font-size:16px;">delete</span> ลบ
-          </button>
-        </div>
-     `;
-  } else if (stepIndex === 2) {
-     buttonsHtml = `
-        <button type="button" style="background:#F0F7FF; color:var(--secondary); border:1px solid var(--secondary); padding:4px 12px; border-radius:20px; cursor:pointer; font-weight:600; font-family:'Prompt'; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s ease;" onmouseover="this.style.background='var(--secondary)'; this.style.color='#FFF';" onmouseout="this.style.background='#F0F7FF'; this.style.color='var(--secondary)';" onclick="insertStepCard(this)">
-          <span class="material-symbols-rounded" style="font-size:16px;">add_to_photos</span> แทรกด้านล่าง
-        </button>
-     `;
-  }
-
-  const html = `
-    <div class="step-card" id="step_row_${stepIndex}">
-      <span class="step-badge">ขั้นตอนที่ #${stepIndex}</span>
-      <div class="d-flex justify-content-between mb-3 align-items-center mt-2">
-        <h6 class="m-0 fw-bold" style="color:var(--primary);">รายละเอียดขั้นตอน</h6>
-        <div>${buttonsHtml}</div>
-      </div>
-      
-      <div class="mb-3">
-        <label>รายละเอียดการทำงาน <span class="required-star">*</span></label>
-        <input type="text" class="s-task" value="${defaultName}" ${lockAttr}>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label>เวลา (นาที)</label>
-          <input type="number" class="s-time" value="${defaultTime}" ${lockAttr} style="${isLocked?'text-align:center; font-weight:bold;':''}">
-        </div>
-        <div class="form-group">
-          <label>ประเภท <span class="required-star">*</span></label>
-          ${hiddenInputs}
-          <select class="s-type" ${lockSelAttr}>
             <option value="">-- เลือก --</option>
             <option value="ความปลอดภัย" ${defaultType==='ความปลอดภัย'?'selected':''}>ความปลอดภัย</option>
             <option value="คุณภาพ" ${defaultType==='คุณภาพ'?'selected':''}>คุณภาพ</option>
@@ -300,188 +282,209 @@ function addStepCard(isLocked = false, defaultName = "", defaultTime = "", defau
       <div>
         <label><span class="material-symbols-rounded" style="font-size:18px; vertical-align:text-bottom;">image</span> ภาพถ่าย / สเก็ตช์</label>
         <div style="display:flex; gap:10px; margin-bottom:5px;">
-            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
-                <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่
-                <input type="file" accept="image/*" capture="environment" onchange="compressStepImages(this)" style="display:none;">
-            </label>
-            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);">
-                <span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_library</span> จากอัลบั้ม
-                <input type="file" accept="image/*" multiple onchange="compressStepImages(this)" style="display:none;">
-            </label>
+            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);"><span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_camera</span> ถ่ายรูปใหม่<input type="file" accept="image/*" capture="environment" onchange="compressStepImages(this)" style="display:none;"></label>
+            <label style="flex:1; background:#FFF; border:1px dashed var(--secondary); padding:8px; border-radius:8px; text-align:center; cursor:pointer; font-size:12px; font-weight:600; color:var(--secondary);"><span class="material-symbols-rounded" style="font-size:16px; vertical-align:text-bottom;">photo_library</span> จากอัลบั้ม<input type="file" accept="image/*" multiple onchange="compressStepImages(this)" style="display:none;"></label>
         </div>
         <input type="hidden" class="s-imgs">
         <div class="gallery-preview"></div>
       </div>
     </div>`;
-  document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
 }
 
+function initSortable() {
+    let el = document.getElementById('stepsContainer');
+    if (stepSortable) stepSortable.destroy(); 
+    stepSortable = Sortable.create(el, { handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost', onEnd: function () { updateStepNumbers(); } });
+}
+
+function handleLotoChange(isRequired) {
+    let container = document.getElementById('stepsContainer');
+    let lotoCard = container.querySelector('.loto-step'); 
+    if (!isRequired) { if (lotoCard) lotoCard.remove(); } 
+    else {
+        if (!lotoCard) {
+            let html = getStepCardHTML(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", "", "ความปลอดภัย", true);
+            let cards = container.querySelectorAll('.step-card');
+            if (cards.length >= 2) cards[1].insertAdjacentHTML('afterend', html);
+            else container.insertAdjacentHTML('beforeend', html);
+        }
+    }
+    updateStepNumbers(); 
+}
+
+function generateLockedSteps() {
+  let html = "";
+  html += getStepCardHTML(true, "อธิบายชิ้นส่วนประกอบย่อย แนบรูปว่าอะไร", "", "คุณภาพ", false);
+  html += getStepCardHTML(true, "การเตรียมเครื่องมืออุปกรณ์", "", "คุณภาพ", false);
+  html += getStepCardHTML(true, "ทำการ shutdown m/c & Lockout/Tagout (LOTO)", "", "ความปลอดภัย", true);
+  document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
+  updateStepNumbers();
+}
+
+function updateStepNumbers() {
+  let cards = document.querySelectorAll('#stepsContainer .step-card');
+  cards.forEach((card, index) => {
+    let badge = card.querySelector('.step-badge');
+    if (badge) badge.innerText = `ขั้นตอนที่ #${index + 1}`;
+    card.id = `step_row_${index}`;
+  });
+}
+
+function insertStepCard(btn) {
+  let currentCard = btn.closest('.step-card');
+  let html = getStepCardHTML(false, "", "", "", false);
+  currentCard.insertAdjacentHTML('afterend', html);
+  updateStepNumbers();
+}
+
+function addStepCard(isMandatory = false, defaultName = "", defaultTime = "", defaultType = "", isLoto = false) {
+  let html = getStepCardHTML(isMandatory, defaultName, defaultTime, defaultType, isLoto);
+  document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', html);
+  updateStepNumbers();
+}
+
+// ======================== EDIT & DUPLICATE ========================
 function editCurrentSMP() { 
   try {
-      if(!currentDetailData || !currentDetailData.main) {
-          alert("ไม่พบข้อมูลสำหรับการแก้ไข กรุณาลองโหลดหน้าเว็บใหม่อีกครั้ง");
-          return;
-      }
+      if(!currentDetailData || !currentDetailData.main) return;
       let m = currentDetailData.main;
       isEditingId = m.smpId;
 
       document.querySelectorAll('.section-view').forEach(e => e.classList.remove('active'));
       document.getElementById('formView').classList.add('active');
       
-      let titleEl = document.getElementById('appTitle');
-      if(titleEl) titleEl.innerText = "แก้ไขเอกสาร";
-      let subEl = document.getElementById('appSub');
-      if(subEl) subEl.innerText = m.smpId || "กำลังแก้ไข";
-      let closeBtn = document.getElementById('btnCloseView');
-      if(closeBtn) closeBtn.style.display = 'flex';
+      document.getElementById('appTitle').innerText = "แก้ไขเอกสาร";
+      document.getElementById('appSub').innerText = m.smpId || "กำลังแก้ไข";
+      document.getElementById('btnCloseView').style.display = 'flex';
+      document.getElementById('smpForm').reset();
 
-      let formEl = document.getElementById('smpForm');
-      if(formEl) formEl.reset();
+      // 🔴 ล็อกช่องชื่อผู้จัดทำ (Anti-Fraud)
+      document.getElementById('presenterCheckboxGrid').classList.add('locked');
+      document.getElementById('lockWarning').style.display = 'block';
 
-      if(document.getElementById('f_smpId')) document.getElementById('f_smpId').value = m.smpId || '';
-      if(document.getElementById('f_title')) document.getElementById('f_title').value = m.title || '';
-      if(document.getElementById('f_approver')) document.getElementById('f_approver').value = m.approver || '';
-      if(document.getElementById('f_machine')) document.getElementById('f_machine').value = m.machine || '';
-      if(document.getElementById('f_techCount')) document.getElementById('f_techCount').value = m.techCount || '';
-      if(document.getElementById('f_techTime')) document.getElementById('f_techTime').value = m.techTime || '';
-      if(document.getElementById('f_workTime')) document.getElementById('f_workTime').value = m.workTime || '';
-      if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
-      if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
+      document.getElementById('f_smpId').value = m.smpId || '';
+      document.getElementById('f_title').value = m.title || '';
+      document.getElementById('f_approver').value = m.approver || '';
+      document.getElementById('f_machine').value = m.machine || '';
+      document.getElementById('f_techCount').value = m.techCount || '';
+      document.getElementById('f_techTime').value = m.techTime || '';
+      document.getElementById('f_workTime').value = m.workTime || '';
+      document.getElementById('f_downtime').value = m.downtime || '';
+      document.getElementById('f_maintType').value = m.maintType || '';
+      document.getElementById('f_status').value = m.status || 'Finished'; // 🔴 Load Status
 
       let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
       let typeFound = false;
       let currentSmpType = String(m.smpType || ''); 
-      typeRadios.forEach(r => { 
-          if (currentSmpType.includes(r.value)) { 
-              r.checked = true; 
-              typeFound = true; 
-          } 
-      });
-      let t3 = document.getElementById('t3');
-      if (!typeFound && currentSmpType && t3) {
-          t3.checked = true;
-      }
+      typeRadios.forEach(r => { if (currentSmpType.includes(r.value)) { r.checked = true; typeFound = true; } });
+      if (!typeFound && currentSmpType) document.getElementById('t3').checked = true;
 
+      // จัดการ Checkbox Presenter
       let presCbsElements = document.querySelectorAll('.pres-cb');
       presCbsElements.forEach(cb => cb.checked = false);
-      let cbOther = document.getElementById('cbPresOther'); 
-      if(cbOther) cbOther.checked = false;
-      let pOtherInput = document.getElementById('f_presenter_other'); 
-      if(pOtherInput) pOtherInput.style.display = 'none';
-      
+      document.getElementById('cbPresOther').checked = false;
+      document.getElementById('f_presenter_other').style.display = 'none';
       if (m.presenter) {
           let presArr = String(m.presenter).split(',').map(p => p.trim());
-          let presCbs = Array.from(presCbsElements);
           let others = [];
           presArr.forEach(p => {
-              let matched = presCbs.find(cb => cb.value === p);
+              let matched = Array.from(presCbsElements).find(cb => cb.value === p);
               if (matched) matched.checked = true;
               else if (p && p !== 'null' && p !== 'undefined') others.push(p);
           });
           if (others.length > 0) {
-              if(cbOther) cbOther.checked = true;
-              if(pOtherInput) { pOtherInput.style.display = 'block'; pOtherInput.value = others.join(', '); }
+              document.getElementById('cbPresOther').checked = true;
+              let pOtherInput = document.getElementById('f_presenter_other');
+              pOtherInput.style.display = 'block'; pOtherInput.value = others.join(', ');
           }
       }
 
-      let lineSel = document.getElementById('f_line_sel');
-      let lineOtherInput = document.getElementById('f_line_other');
-      if (lineSel) {
-          let currentLine = String(m.line || '');
-          let lineFound = Array.from(lineSel.options).some(o => o.value === currentLine);
-          if (lineFound && currentLine) { 
-              lineSel.value = currentLine; 
-              if (lineOtherInput) lineOtherInput.style.display = 'none'; 
-          } else if (currentLine) { 
-              lineSel.value = 'other'; 
-              if (lineOtherInput) { lineOtherInput.style.display = 'block'; lineOtherInput.value = currentLine; }
-          }
-      }
+      // Line & Freq
+      let lineSel = document.getElementById('f_line_sel'); let lineOther = document.getElementById('f_line_other');
+      let currentLine = String(m.line || '');
+      if (Array.from(lineSel.options).some(o => o.value === currentLine)) { lineSel.value = currentLine; lineOther.style.display = 'none'; } 
+      else if (currentLine) { lineSel.value = 'other'; lineOther.style.display = 'block'; lineOther.value = currentLine; }
 
-      let freqSel = document.getElementById('f_frequency_sel');
-      let freqOtherInput = document.getElementById('f_frequency_other');
-      if (freqSel) {
-          let currentFreq = String(m.frequency || '');
-          let freqFound = Array.from(freqSel.options).some(o => o.value === currentFreq);
-          if (freqFound && currentFreq) { 
-              freqSel.value = currentFreq; 
-              if (freqOtherInput) freqOtherInput.style.display = 'none'; 
-          } else if (currentFreq) { 
-              freqSel.value = 'other'; 
-              if (freqOtherInput) { freqOtherInput.style.display = 'block'; freqOtherInput.value = currentFreq; }
-          }
-      }
+      let freqSel = document.getElementById('f_frequency_sel'); let freqOther = document.getElementById('f_frequency_other');
+      let currentFreq = String(m.frequency || '');
+      if (Array.from(freqSel.options).some(o => o.value === currentFreq)) { freqSel.value = currentFreq; freqOther.style.display = 'none'; } 
+      else if (currentFreq) { freqSel.value = 'other'; freqOther.style.display = 'block'; freqOther.value = currentFreq; }
 
-      if(m.loto === 'ต้องการ') { let l = document.getElementById('loto_req'); if(l) l.checked = true; }
-      else if(m.loto === 'ไม่ต้องการ') { let l = document.getElementById('loto_not_req'); if(l) l.checked = true; }
+      if(m.loto === 'ต้องการ') document.getElementById('loto_req').checked = true; 
+      else if(m.loto === 'ไม่ต้องการ') document.getElementById('loto_not_req').checked = true;
 
-      if(m.riskAssessed === 'ใช่') { let r = document.getElementById('risk_yes'); if(r) r.checked = true; }
-      else if(m.riskAssessed === 'ไม่ใช่') { let r = document.getElementById('risk_no'); if(r) r.checked = true; }
-      else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') { let r = document.getElementById('risk_na'); if(r) r.checked = true; }
+      if(m.riskAssessed === 'ใช่') document.getElementById('risk_yes').checked = true;
+      else if(m.riskAssessed === 'ไม่ใช่') document.getElementById('risk_no').checked = true;
+      else if(m.riskAssessed === 'ไม่เกี่ยวข้อง') document.getElementById('risk_na').checked = true;
 
-      let ppeArray = Array.isArray(m.ppe) ? m.ppe : [];
       document.querySelectorAll('#ppeBox .icon-checkbox').forEach(el => {
-          if (ppeArray.length === 0) { el.classList.add('not-used'); return; }
-          let ppeData = ppeArray.find(p => p.name === el.dataset.val);
-          if (ppeData && ppeData.used) el.classList.remove('not-used');
-          else el.classList.add('not-used');
+          let p = (m.ppe||[]).find(x => x.name === el.dataset.val);
+          if (p && p.used) el.classList.remove('not-used'); else el.classList.add('not-used');
       });
-
-      let riskArray = Array.isArray(m.risks) ? m.risks : [];
       document.querySelectorAll('#riskBox .icon-checkbox').forEach(el => {
-          if (riskArray.length === 0) { el.classList.add('not-used'); return; }
-          let riskData = riskArray.find(r => r.name === el.dataset.val);
-          if (riskData && riskData.risk) el.classList.remove('not-used');
-          else el.classList.add('not-used');
+          let r = (m.risks||[]).find(x => x.name === el.dataset.val);
+          if (r && r.risk) el.classList.remove('not-used'); else el.classList.add('not-used');
       });
 
-      let mainBase64Input = document.getElementById('f_mainImageBase64');
-      if(mainBase64Input) mainBase64Input.value = ''; 
-      let mainOldInput = document.getElementById('f_mainImageOld');
-      if(mainOldInput) mainOldInput.value = m.mainImage || ''; 
-      
+      // 🔴 โหลด Main Image(s)
+      mainImagesArray = [];
       let previewBox = document.getElementById('mainImagePreview');
-      if(previewBox) {
-          if(m.mainImage) previewBox.innerHTML = `<img src="${m.mainImage}">`;
-          else previewBox.innerHTML = '';
+      previewBox.innerHTML = '';
+      if(m.mainImage) {
+          // รองรับระบบเก่าที่เก็บเป็น String และระบบใหม่ที่เป็น Array
+          try {
+              let parsed = JSON.parse(m.mainImage);
+              if(Array.isArray(parsed)) mainImagesArray = parsed;
+              else mainImagesArray = [m.mainImage];
+          } catch(e) { mainImagesArray = [m.mainImage]; }
+          
+          document.getElementById('f_mainImageOld').value = JSON.stringify(mainImagesArray);
+          renderMainImagePreview();
       }
 
+      // โหลด Steps
       let sContainer = document.getElementById('stepsContainer');
-      if(sContainer) {
-          sContainer.innerHTML = '';
-          stepCounter = -1;
-          let stepsList = Array.isArray(currentDetailData.steps) ? currentDetailData.steps : [];
+      sContainer.innerHTML = '';
+      (m.steps || currentDetailData.steps || []).forEach((s, idx) => {
+          let isMandatory = (idx < 2);
+          let isLoto = s.stepName.includes('LOTO'); 
+          if (isLoto) isMandatory = true; 
           
-          stepsList.forEach((s) => {
-              let isLocked = (s.stepNo <= 2);
-              addStepCard(isLocked, s.stepName, s.timeTaken, s.typeSymbol);
-              
-              let card = document.getElementById('step_row_' + stepCounter); 
-              if(card) {
-                  let descInput = card.querySelector('.s-desc');
-                  if(descInput) descInput.value = s.description || '';
-                  
-                  let fileInput = card.querySelector('.s-imgs');
-                  let gal = card.querySelector('.gallery-preview');
-                  
-                  if(s.images && fileInput && gal) {
-                      let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' ? [s.images] : []);
-                      if (imgArray.length > 0) {
-                          fileInput.oldImages = JSON.stringify(imgArray);
-                          let imgHtml = imgArray.map(url => `<img src="${url}">`).join('');
-                          gal.innerHTML = imgHtml;
-                      }
-                  }
+          addStepCard(isMandatory, s.stepName, s.timeTaken, s.typeSymbol, isLoto);
+          
+          let cards = document.querySelectorAll('#stepsContainer .step-card');
+          let card = cards[cards.length - 1]; 
+          if(card) {
+              card.querySelector('.s-desc').value = s.description || '';
+              let fileInput = card.querySelector('.s-imgs');
+              let gal = card.querySelector('.gallery-preview');
+              let imgArray = Array.isArray(s.images) ? s.images : (typeof s.images === 'string' && s.images !== "" ? [s.images] : []);
+              if (imgArray.length > 0) {
+                  fileInput.oldImages = JSON.stringify(imgArray);
+                  gal.innerHTML = imgArray.map(url => `<img src="${url}">`).join('');
               }
-          });
-      }
+          }
+      });
       
+      initSortable(); 
       window.scrollTo(0,0);
-      
-  } catch(e) {
-      console.error("Error populating edit form:", e);
-      alert("เกิดข้อผิดพลาดในการเปิดหน้าแก้ไข กรุณาแจ้งผู้ดูแลระบบ:\n" + e.message);
-  }
+  } catch(e) { alert("เกิดข้อผิดพลาดในการเปิดหน้าแก้ไข:\n" + e.message); }
+}
+
+// 🔴 5. ฟีเจอร์คัดลอกสร้างใหม่ (Duplicate Job)
+function duplicateCurrentSMP() {
+    if(!currentDetailData) return;
+    editCurrentSMP(); // โหลดเข้าฟอร์มเหมือนตอนแก้ไข
+    isEditingId = null; // ปลดสถานะ Editing (ถือว่าสร้างใหม่)
+    document.getElementById('f_smpId').value = "สร้างอัตโนมัติเมื่อบันทึกจริง";
+    document.getElementById('f_title').value = currentDetailData.main.title + " (สำเนา)";
+    document.getElementById('appTitle').innerText = "คัดลอกเอกสารใหม่";
+    document.getElementById('appSub').innerText = "จากเอกสาร #" + currentDetailData.main.smpId;
+    
+    // ปลดล็อกชื่อให้แก้ได้อิสระ
+    document.getElementById('presenterCheckboxGrid').classList.remove('locked');
+    document.getElementById('lockWarning').style.display = 'none';
+    showModal("คัดลอกสำเร็จ", "ข้อมูลถูกคัดลอกมาที่ฟอร์มแล้ว กรุณาแก้ไขข้อมูลและกดบันทึกเพื่อสร้างเอกสารใบใหม่", "content_copy", "#D69E2E");
 }
 
 function deleteCurrentSMP() { 
@@ -494,19 +497,12 @@ function executeDelete() {
   let smpId = currentDetailData.main.smpId;
   document.getElementById('confirmModal').style.display = 'none';
   document.getElementById('loadingScreen').style.display = 'flex';
-  
   fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', smpId: smpId }) })
     .then(res => res.json())
     .then(res => {
-      if(res.status === 'success'){
-        showModal('ลบสำเร็จ', 'เอกสาร ' + smpId + ' ถูกลบเรียบร้อยแล้ว', 'check_circle', '#38A169');
-        showHome();
-      } else {
-        showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E');
-      }
-    })
-    .catch(err => showModal('ข้อผิดพลาดเครือข่าย', 'ระบบไม่สามารถเชื่อมต่อได้: ' + err, 'cloud_off', '#E53E3E'))
-    .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
+      if(res.status === 'success'){ showModal('ลบสำเร็จ', 'เอกสาร ' + smpId + ' ถูกลบเรียบร้อยแล้ว', 'check_circle', '#38A169'); showHome(); } 
+      else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
+    }).finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
 }
 
 function showDetail(smpId) {
@@ -514,109 +510,80 @@ function showDetail(smpId) {
   document.getElementById('detailView').classList.add('active');
   document.getElementById('appTitle').innerText = "เอกสาร: " + smpId;
   document.getElementById('appSub').innerText = "รายละเอียดและขั้นตอน";
-  if(document.getElementById('btnCloseView')) document.getElementById('btnCloseView').style.display = 'flex'; 
-  
+  document.getElementById('btnCloseView').style.display = 'flex'; 
   document.getElementById('docContent').innerHTML = ``;
   document.getElementById('loadingScreen').style.display = 'flex';
   
+  // 🔴 จำลองระบบ Active Edit Lock (แสดงเตือนถ้ามีการแก้ไขเมื่อเร็วๆนี้ - ตัวอย่าง UI)
+  document.getElementById('editLockBanner').style.display = 'none'; 
+
   fetch(API_URL + "?action=getDetails&smpId=" + smpId)
     .then(res => res.json())
-    .then(data => renderDetail(data))
+    .then(data => {
+        // เช็คคร่าวๆ ว่าเพิ่งมีการแก้ไขภายใน 5 นาทีหรือไม่ (จำลอง)
+        let docDate = parseDateSafely(data.main.date).getTime();
+        if(Date.now() - docDate < 300000) { document.getElementById('editLockBanner').style.display = 'flex'; }
+        renderDetail(data);
+    })
     .catch(err => console.error(err))
     .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
 }
 
+// ======================== DASHBOARD & LISTING ========================
 function loadSMPList() {
   document.getElementById('loadingScreen').style.display = 'flex';
   fetch(API_URL + "?action=getList")
     .then(res => res.json())
-    .then(data => { 
-      allSmpDataList = data; 
-      populateFilterDropdowns(data);
-      applyFilters(); 
-    })
+    .then(data => { allSmpDataList = data; populateFilterDropdowns(data); applyFilters(); })
     .catch(err => { document.getElementById('smpListContainer').innerHTML = `<p class="text-center" style="color:#E53E3E;">เชื่อมต่อฐานข้อมูลไม่ได้</p>`; })
     .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
 }
 
 function populateFilterDropdowns(data) {
-  let presenters = new Set();
-  let lines = new Set();
+  let presenters = new Set(); let lines = new Set();
   data.forEach(item => {
     if(item.presenter) { String(item.presenter).split(',').forEach(p => presenters.add(p.trim())); }
     if(item.line) lines.add(String(item.line));
   });
-
-  let pSel = document.getElementById('filterPresenter');
-  pSel.innerHTML = '<option value="">-- ผู้จัดทำทั้งหมด --</option>';
+  let pSel = document.getElementById('filterPresenter'); pSel.innerHTML = '<option value="">-- ผู้จัดทำทั้งหมด --</option>';
   [...presenters].sort().forEach(p => { if(p) pSel.innerHTML += `<option value="${p}">${p}</option>`; });
-
-  let lSel = document.getElementById('filterLine');
-  lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
+  let lSel = document.getElementById('filterLine'); lSel.innerHTML = '<option value="">-- ไลน์ทั้งหมด --</option>';
   [...lines].sort().forEach(l => { lSel.innerHTML += `<option value="${l}">${l}</option>`; });
 }
 
 function setQuickFilter(type) {
   document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
-  let today = new Date();
-  let fs = document.getElementById('fStart'); let fe = document.getElementById('fEnd');
-  
+  let today = new Date(); let fs = document.getElementById('fStart'); let fe = document.getElementById('fEnd');
   if(type==='all'){ fs.value = ''; fe.value = ''; }
   else if(type==='today'){ fs.value = today.toISOString().split('T')[0]; fe.value = today.toISOString().split('T')[0]; }
-  else if(type==='week'){ 
-    let first = today.getDate() - today.getDay() + 1; 
-    let firstDay = new Date(today.setDate(first)); 
-    fs.value = firstDay.toISOString().split('T')[0]; 
-    fe.value = new Date().toISOString().split('T')[0]; 
-  }
-  else if(type==='month'){ 
-    let firstDay = new Date(today.getFullYear(), today.getMonth(), 1); 
-    fs.value = firstDay.toISOString().split('T')[0]; 
-    fe.value = new Date().toISOString().split('T')[0]; 
-  }
+  else if(type==='week'){ let firstDay = new Date(today.setDate(today.getDate() - today.getDay() + 1)); fs.value = firstDay.toISOString().split('T')[0]; fe.value = new Date().toISOString().split('T')[0]; }
+  else if(type==='month'){ let firstDay = new Date(today.getFullYear(), today.getMonth(), 1); fs.value = firstDay.toISOString().split('T')[0]; fe.value = new Date().toISOString().split('T')[0]; }
   applyFilters();
 }
 
 function applyFilters() {
   let kw = document.getElementById('filterSearch').value.toLowerCase();
-  let presenter = document.getElementById('filterPresenter').value;
-  let line = document.getElementById('filterLine').value;
-  let type = document.getElementById('filterType').value;
+  let presenter = document.getElementById('filterPresenter').value; let line = document.getElementById('filterLine').value; let type = document.getElementById('filterType').value;
   let fsVal = document.getElementById('fStart').value ? parseDateSafely(document.getElementById('fStart').value).setHours(0,0,0,0) : null;
   let feVal = document.getElementById('fEnd').value ? parseDateSafely(document.getElementById('fEnd').value).setHours(23,59,59,999) : null;
   
   filteredDataList = allSmpDataList.filter(o => {
     let matchKw = o.smpId.toLowerCase().includes(kw) || o.title.toLowerCase().includes(kw) || (o.machine && o.machine.toLowerCase().includes(kw));
-    
     let matchP = presenter === "" || (o.presenter && String(o.presenter).includes(presenter));
     let matchL = line === "" || String(o.line) === line;
     let matchT = type === "" || (o.type && String(o.type).includes(type));
-    
-    let jDate = parseDateSafely(o.date).getTime();
-    let matchD = true;
-    if(fsVal && jDate < fsVal) matchD = false;
-    if(feVal && jDate > feVal) matchD = false;
-
+    let jDate = parseDateSafely(o.date).getTime(); let matchD = true;
+    if(fsVal && jDate < fsVal) matchD = false; if(feVal && jDate > feVal) matchD = false;
     return matchKw && matchP && matchL && matchT && matchD;
   });
-
-  currentPage = 1;
-  renderPaginatedList();
-  drawDashboardChart(filteredDataList);
+  currentPage = 1; renderPaginatedList(); drawDashboardChart(filteredDataList);
 }
 
 function renderPaginatedList() {
-  let container = document.getElementById('smpListContainer');
-  let btnMore = document.getElementById('btnLoadMore');
-  
-  if(filteredDataList.length === 0) { 
-    container.innerHTML = '<p class="text-center mt-4 text-muted">ไม่พบข้อมูล SMP</p>'; 
-    btnMore.style.display = 'none';
-    return; 
-  }
+  let container = document.getElementById('smpListContainer'); let btnMore = document.getElementById('btnLoadMore');
+  if(filteredDataList.length === 0) { container.innerHTML = '<p class="text-center mt-4 text-muted">ไม่พบข้อมูล SMP</p>'; btnMore.style.display = 'none'; return; }
 
-  let startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  let endIndex = startIndex + ITEMS_PER_PAGE;
+  let startIndex = (currentPage - 1) * ITEMS_PER_PAGE; let endIndex = startIndex + ITEMS_PER_PAGE;
   let itemsToShow = filteredDataList.slice(startIndex, endIndex);
 
   let html = '';
@@ -624,17 +591,25 @@ function renderPaginatedList() {
 
   itemsToShow.forEach(item => {
     let tIcon = item.type.includes('EE') || item.type.includes('ไฟฟ้า') ? 'bolt' : (item.type.includes('ME') || item.type.includes('เครื่องกล') ? 'settings' : 'build');
+    
+    // 🔴 10. แยกสีการ์ดงาน
+    let cardClass = 'card-type-ge';
+    if(item.type.includes('เครื่องกล')) cardClass = 'card-type-me';
+    else if(item.type.includes('ไฟฟ้า')) cardClass = 'card-type-ee';
+    
+    let statusBadge = (!item.status || item.status === 'Finished') ? `<span class="badge-status-finish">Finished</span>` : `<span class="badge-status-unfinish">Unfinished</span>`;
+
     html += `
     <div class="col-md-6 col-lg-4">
-      <div class="report-card" onclick="showDetail('${item.smpId}')">
+      <div class="report-card ${cardClass}" onclick="showDetail('${item.smpId}')">
         <div class="report-card-head">
            <div class="report-card-title">#${item.smpId}</div>
-           <div class="badge-chip"><span class="material-symbols-rounded" style="font-size:16px;">${tIcon}</span> ${item.type}</div>
+           <div>${statusBadge}</div>
         </div>
         <p class="report-detail" style="font-weight:600; color:var(--primary);">เรื่อง: ${item.title}</p>
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+           <span class="badge-chip"><span class="material-symbols-rounded" style="font-size:14px;">${tIcon}</span> ${item.type}</span>
            <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">person</span> ${item.presenter || '-'}</span>
-           <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">precision_manufacturing</span> ${item.line || '-'}</span>
            <span class="badge-chip" style="background:#EDF2F7; color:#4A5568;"><span class="material-symbols-rounded" style="font-size:14px;">calendar_today</span> ${item.date.split(' ')[0]}</span>
         </div>
       </div>
@@ -645,63 +620,30 @@ function renderPaginatedList() {
   else { let rowDiv = container.querySelector('.row'); if(rowDiv) rowDiv.insertAdjacentHTML('beforeend', html); }
 
   let loadedCount = Math.min(endIndex, filteredDataList.length);
-  document.getElementById('countLoaded').innerText = loadedCount;
-  document.getElementById('countTotal').innerText = filteredDataList.length;
-
-  if(loadedCount >= filteredDataList.length) { btnMore.style.display = 'none'; } 
-  else { btnMore.style.display = 'inline-block'; }
+  document.getElementById('countLoaded').innerText = loadedCount; document.getElementById('countTotal').innerText = filteredDataList.length;
+  btnMore.style.display = (loadedCount >= filteredDataList.length) ? 'none' : 'inline-block';
 }
 
 function loadMoreData() { currentPage++; renderPaginatedList(); }
 
-function changeChartMode(mode) {
-  currentChartMode = mode;
-  let descText = "";
-  if(mode === 'presenter') descText = "จำนวนเอกสาร SMP ที่จัดทำแยกตามรายบุคคล (Top 10)";
-  if(mode === 'machine') descText = "จำนวนเอกสาร SMP แยกตามเครื่องจักร (Top 10)";
-  if(mode === 'line') descText = "จำนวนเอกสาร SMP แยกตามแผนก/ไลน์ (Top 10)";
-  document.getElementById('chartDescText').innerText = descText;
-  drawDashboardChart(filteredDataList);
-}
+function changeChartMode(mode) { currentChartMode = mode; drawDashboardChart(filteredDataList); }
 
 function drawDashboardChart(dataList) {
   document.getElementById('dashboardCard').style.display = 'block';
   let counts = {};
-  
   dataList.forEach(d => {
     if(currentChartMode === 'presenter') {
-      if(d.presenter) {
-        let ps = String(d.presenter).split(',').map(p => p.trim());
-        ps.forEach(p => { if(p) counts[p] = (counts[p] || 0) + 1; });
-      } else { counts['ไม่ระบุ'] = (counts['ไม่ระบุ'] || 0) + 1; }
-    } 
-    else if (currentChartMode === 'line') {
-      let l = d.line || 'ไม่ระบุ';
-      counts[l] = (counts[l] || 0) + 1;
-    }
-    else if (currentChartMode === 'machine') {
-      let m = d.machine || 'ไม่ระบุ';
-      if(String(m).trim() === '') m = 'ไม่ระบุ';
-      counts[m] = (counts[m] || 0) + 1;
-    }
+      if(d.presenter) { String(d.presenter).split(',').map(p => p.trim()).forEach(p => { if(p) counts[p] = (counts[p] || 0) + 1; }); } else { counts['ไม่ระบุ'] = (counts['ไม่ระบุ'] || 0) + 1; }
+    } else if (currentChartMode === 'line') { counts[d.line || 'ไม่ระบุ'] = (counts[d.line || 'ไม่ระบุ'] || 0) + 1; }
   });
-
   let sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
-  let labels = sorted.map(x => x[0]);
-  let values = sorted.map(x => x[1]);
-
-  let chartColor = currentChartMode === 'presenter' ? '#00A5D9' : (currentChartMode === 'line' ? '#38A169' : '#D69E2E');
-
+  let chartColor = currentChartMode === 'presenter' ? '#00A5D9' : '#38A169';
   const ctx = document.getElementById('smpChart').getContext('2d');
-  if(myChart) { myChart.destroy(); } 
-  
-  myChart = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: labels, datasets: [{ label: 'จำนวนเอกสาร', data: values, backgroundColor: chartColor, borderRadius: 6 }] },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-  });
+  if(myChart) myChart.destroy(); 
+  myChart = new Chart(ctx, { type: 'bar', data: { labels: sorted.map(x=>x[0]), datasets: [{ label: 'จำนวนเอกสาร', data: sorted.map(x=>x[1]), backgroundColor: chartColor, borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
 }
 
+// ======================== IMAGE COMPRESSION ========================
 async function compressFile(file) {
   return new Promise((resolve) => {
     let reader = new FileReader();
@@ -709,7 +651,7 @@ async function compressFile(file) {
       let img = new Image();
       img.onload = () => {
         let canvas = document.createElement('canvas');
-        let MAX_W = 800; let scale = img.width > MAX_W ? MAX_W / img.width : 1;
+        let MAX_W = 1000; let scale = img.width > MAX_W ? MAX_W / img.width : 1;
         canvas.width = img.width * scale; canvas.height = img.height * scale;
         let ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL('image/jpeg', 0.6)); 
@@ -720,178 +662,158 @@ async function compressFile(file) {
   });
 }
 
+// 🔴 อัปเดตให้อัปโหลดภาพหลักได้หลายภาพ
 async function compressMainImage(input) {
   if(input.files.length > 0) {
-    const b64 = await compressFile(input.files[0]);
-    let base64Input = document.getElementById('f_mainImageBase64');
-    if(base64Input) base64Input.value = b64;
-    let preview = document.getElementById('mainImagePreview');
-    if(preview) preview.innerHTML = `<img src="${b64}">`;
+      if(mainImagesArray.length + input.files.length > 5) { alert("เพิ่มรูปได้สูงสุด 5 รูปครับ"); return; }
+      let preview = document.getElementById('mainImagePreview');
+      preview.innerHTML = '<span class="text-muted small">กำลังโหลด...</span>';
+      
+      let files = Array.from(input.files).slice(0, 5);
+      for(let f of files) { 
+          let b64 = await compressFile(f); 
+          mainImagesArray.push(b64); 
+      }
+      renderMainImagePreview();
   }
+}
+
+function renderMainImagePreview() {
+    let preview = document.getElementById('mainImagePreview');
+    preview.innerHTML = '';
+    mainImagesArray.forEach((b64, idx) => {
+        preview.innerHTML += `
+        <div style="position:relative; display:inline-block; margin:5px;">
+            <img src="${b64}">
+            <button type="button" class="btn-remove-img" onclick="removeMainImage(${idx})"><span class="material-symbols-rounded" style="font-size:14px; vertical-align:middle;">delete</span> ลบ</button>
+        </div>`;
+    });
+    document.getElementById('f_mainImageBase64').value = JSON.stringify(mainImagesArray);
+}
+
+function removeMainImage(index) {
+    mainImagesArray.splice(index, 1);
+    renderMainImagePreview();
 }
 
 async function compressStepImages(fileInput) {
   const card = fileInput.closest('.step-card');
   const storageInput = card.querySelector('.s-imgs');
   const previewBox = card.querySelector('.gallery-preview');
-
   if(previewBox) previewBox.innerHTML = '<span class="text-muted small">กำลังบีบอัด...</span>';
-  
   storageInput.compressedArray = [];
-  let files = Array.from(fileInput.files).slice(0, 10);
-  for(let f of files) { 
-      let b64 = await compressFile(f); 
-      storageInput.compressedArray.push(b64); 
-  }
-  
-  if(previewBox) {
-      previewBox.innerHTML = '';
-      storageInput.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; });
-  }
+  let files = Array.from(fileInput.files).slice(0, 5);
+  for(let f of files) { let b64 = await compressFile(f); storageInput.compressedArray.push(b64); }
+  if(previewBox) { previewBox.innerHTML = ''; storageInput.compressedArray.forEach(b64 => { previewBox.innerHTML += `<img src="${b64}">`; }); }
 }
 
-document.getElementById('smpForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  
+// ======================== SUBMISSION & DATA COLLECTION ========================
+// 🔴 11. Modal ยืนยันก่อนเซฟ (ดัก Data Validation)
+function verifyBeforeSubmit() {
+    let form = document.getElementById('smpForm');
+    if (!form.reportValidity()) return; // เช็คว่ากรอกช่องที่มีดาวแดงครบไหม
+    document.getElementById('confirmSaveModal').style.display = 'flex';
+}
+
+function collectFormData() {
   let smpTypeSelected = document.querySelector('input[name="smpTypeGrp"]:checked');
-  if(!smpTypeSelected) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกประเภท SMP ด้วยครับ", "warning", "#D69E2E"); return; }
-  let finalSmpType = smpTypeSelected.value;
-  if(finalSmpType === 'อื่นๆ') { 
-    let otherVal = document.getElementById('f_smpTypeOther'); 
-    if(otherVal && otherVal.value.trim() !== '') finalSmpType = otherVal.value.trim(); 
-  }
+  let finalSmpType = smpTypeSelected ? smpTypeSelected.value : '';
+  if(finalSmpType === 'อื่นๆ') { let otherVal = document.getElementById('f_smpTypeOther'); if(otherVal && otherVal.value.trim() !== '') finalSmpType = otherVal.value.trim(); }
 
   let presArray = []; 
   document.querySelectorAll('.pres-cb:checked').forEach(cb => presArray.push(cb.value));
-  let cbOther = document.getElementById('cbPresOther');
-  let presOther = document.getElementById('f_presenter_other');
-  if(cbOther && cbOther.checked && presOther) {
-      if(presOther.value.trim() !== "") presArray.push(presOther.value.trim());
-  }
-  if(presArray.length === 0) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกหรือระบุผู้จัดทำอย่างน้อย 1 คน", "warning", "#D69E2E"); return; }
+  let cbOther = document.getElementById('cbPresOther'); let presOther = document.getElementById('f_presenter_other');
+  if(cbOther && cbOther.checked && presOther && presOther.value.trim() !== "") presArray.push(presOther.value.trim());
   let presenter = presArray.join(', ');
 
-  let lineSel = document.getElementById('f_line_sel');
-  let lineOther = document.getElementById('f_line_other');
+  let lineSel = document.getElementById('f_line_sel'); let lineOther = document.getElementById('f_line_other');
   let line = (lineSel && lineSel.value === 'other') ? (lineOther ? lineOther.value : '') : (lineSel ? lineSel.value : '');
-  
-  let freqSel = document.getElementById('f_frequency_sel');
-  let freqOther = document.getElementById('f_frequency_other');
+  let freqSel = document.getElementById('f_frequency_sel'); let freqOther = document.getElementById('f_frequency_other');
   let freq = (freqSel && freqSel.value === 'other') ? (freqOther ? freqOther.value : '') : (freqSel ? freqSel.value : '');
 
-  document.getElementById('loadingScreen').style.display = 'flex';
-  
-  let payloadAction = isEditingId ? 'update' : 'insert';
   let lotoReq = document.querySelector('input[name="r_loto"]:checked');
   let riskReq = document.querySelector('input[name="r_riskAssessed"]:checked');
 
   let formData = {
     title: document.getElementById('f_title').value, 
-    smpId: document.getElementById('f_smpId').value,
-    presenter: presenter, 
-    approver: document.getElementById('f_approver').value,
-    line: line, 
-    machine: document.getElementById('f_machine').value,
-    smpType: finalSmpType, 
-    techCount: document.getElementById('f_techCount').value,
-    techTime: document.getElementById('f_techTime').value, 
-    maintType: document.getElementById('f_maintType').value,
-    workTime: document.getElementById('f_workTime').value, 
-    downtime: document.getElementById('f_downtime').value,
-    frequency: freq, 
-    mainImage: document.getElementById('f_mainImageBase64').value,
+    smpId: document.getElementById('f_smpId').value, // อาจจะเป็น Auto Gen
+    presenter: presenter, approver: document.getElementById('f_approver').value,
+    line: line, machine: document.getElementById('f_machine').value, smpType: finalSmpType, 
+    status: document.getElementById('f_status').value, // 🔴 เก็บ Status 
+    techCount: document.getElementById('f_techCount').value, techTime: document.getElementById('f_techTime').value, 
+    maintType: document.getElementById('f_maintType').value, workTime: document.getElementById('f_workTime').value, 
+    downtime: document.getElementById('f_downtime').value, frequency: freq, 
+    mainImage: document.getElementById('f_mainImageBase64').value, // อันนี้เป็น stringified array แล้ว
     oldMainImage: document.getElementById('f_mainImageOld') ? document.getElementById('f_mainImageOld').value : '', 
     ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
     risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
-    loto: lotoReq ? lotoReq.value : '', 
-    riskAssessed: riskReq ? riskReq.value : ''
+    loto: lotoReq ? lotoReq.value : '', riskAssessed: riskReq ? riskReq.value : ''
   };
 
   let stepsData = [];
   document.querySelectorAll('.step-card').forEach((card) => {
-    let fileInput = card.querySelector('.s-imgs');
-    let sType = card.querySelector('.s-type');
-    let sTypeHidden = card.querySelector('.s-type-hidden');
-    let typeSymbol = (sType && sType.disabled && sTypeHidden) ? sTypeHidden.value : (sType ? sType.value : '');
-    let badge = card.querySelector('.step-badge');
-    let stepIdxStr = badge ? badge.innerText.replace('ขั้นตอนที่ #', '') : '0';
-    
+    let fileInput = card.querySelector('.s-imgs'); let sType = card.querySelector('.s-type'); 
+    let badge = card.querySelector('.step-badge'); let stepIdxStr = badge ? badge.innerText.replace('ขั้นตอนที่ #', '') : '0';
     stepsData.push({
-      stepNo: parseInt(stepIdxStr),
-      stepName: card.querySelector('.s-task').value, 
-      timeTaken: card.querySelector('.s-time').value,
-      typeSymbol: typeSymbol, 
-      description: card.querySelector('.s-desc').value, 
-      images: fileInput.compressedArray || [],
-      oldImages: fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] 
+      stepNo: parseInt(stepIdxStr), stepName: card.querySelector('.s-task').value, timeTaken: card.querySelector('.s-time').value,
+      typeSymbol: sType ? sType.value : '', description: card.querySelector('.s-desc').value, 
+      images: fileInput.compressedArray || [], oldImages: fileInput.oldImages ? JSON.parse(fileInput.oldImages) : [] 
     });
   });
 
-  let finalPayload = { action: payloadAction, formData: formData, stepsData: stepsData };
+  return { action: isEditingId ? 'update' : 'insert', formData: formData, stepsData: stepsData };
+}
 
-  fetch(API_URL, { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(finalPayload) 
-  })
-  .then(async res => {
-      const text = await res.text();
-      try {
-          return JSON.parse(text);
-      } catch(e) {
-          console.error("เซิร์ฟเวอร์ตอบกลับมาเป็น:", text); 
-          throw new Error("เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง (โปรดตรวจสอบการ Deploy หรือสิทธิ์บน Google Apps Script)");
-      }
-  })
+function executeSubmitSMP() {
+  document.getElementById('confirmSaveModal').style.display = 'none';
+  let payload = collectFormData();
+  
+  if(!payload.formData.presenter) { showModal("ข้อมูลไม่ครบ", "กรุณาเลือกผู้จัดทำอย่างน้อย 1 คน", "warning", "#D69E2E"); return; }
+  
+  // 🔴 1. ถ้าสร้างใหม่ (ไม่ใช่ Edit) ให้เจ็นรหัส ID จริงๆ ณ วินาทีนี้เลย
+  if(!isEditingId) {
+      payload.formData.smpId = generateActualId();
+  }
+
+  document.getElementById('loadingScreen').style.display = 'flex';
+  
+  fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+  .then(async res => JSON.parse(await res.text()))
   .then(res => {
     if(res.status === 'success'){
+      // ลบออกจาก Multi-Drafts ด้วยถ้ามาจากหน้าแบบร่าง
+      let currentDraftId = document.getElementById('f_draftId').value;
+      if (currentDraftId) {
+          let drafts = JSON.parse(localStorage.getItem('smp_multi_drafts') || '[]');
+          drafts = drafts.filter(d => d.id !== currentDraftId);
+          localStorage.setItem('smp_multi_drafts', JSON.stringify(drafts));
+      }
       showModal('บันทึกสำเร็จ!', 'บันทึกข้อมูลรหัส: ' + res.smpId + ' เรียบร้อยแล้ว', 'check_circle', '#38A169');
-      localStorage.removeItem('smp_draft');
-      let t = document.getElementById('draftToast'); if(t) t.style.display = 'none';
       showHome();
     } else { showModal('เกิดข้อผิดพลาด', res.message, 'error', '#E53E3E'); }
   })
   .catch(err => showModal('ข้อผิดพลาดเครือข่าย', err.message || 'การเชื่อมต่อล้มเหลว', 'cloud_off', '#E53E3E'))
   .finally(() => { document.getElementById('loadingScreen').style.display = 'none'; });
-});
-
-function getPPEIcon(name) {
-  switch(name) {
-    case 'ถุงมือ': return 'images/ppe_gloves.png'; case 'หมวกนิรภัย': return 'images/ppe_helmet.png'; 
-    case 'หน้ากาก': return 'images/ppe_mask.png'; case 'กันตกจากที่สูง': return 'images/ppe_harness.png'; 
-    case 'แว่นตา': return 'images/ppe_glasses.png'; case 'ที่อุดหู': return 'images/ppe_headphone.png';
-    case 'รองเท้าเซฟตี้': return 'images/ppe_foot.png'; case 'เสื้อสะท้อนแสง': return 'images/ppe_vis_cloth.png';
-    default: return '';                   
-  }
 }
 
-function getRiskIcon(name) {
-  switch(name) {
-    case 'จุดหนีบ': return 'images/risk_gear.png'; case 'อุปกรณ์เครื่องมือ': return 'images/risk_wrech.png'; 
-    case 'ยกด้วยมือ': return 'images/risk_heavyobject.png'; case 'ทำงานที่สูง': return 'images/risk_highground.png'; 
-    case 'สารเคมี': return 'images/risk_chmisrty.png'; case 'เสียงดัง': return 'images/risk_loudnoise.png';  
-    case 'รถโฟล์คลิฟต์': return 'images/risk_car.png';           
-    default: return '';                    
-  }
-}
-
+// ======================== RENDER DETAILS ========================
 function renderDetail(data) {
-  currentDetailData = data;
-  let m = data.main;
-  
-  let ppeHtml = m.ppe.filter(p => p.used).map(p => `
-    <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
-      <img src="${getPPEIcon(p.name)}" style="width:50px; height:50px; object-fit:contain;">
-      <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${p.name}</span>
-    </div>
-  `).join('') || '<span class="text-muted small">ไม่มีการระบุ PPE</span>';
+  currentDetailData = data; let m = data.main;
+  let ppeHtml = m.ppe.filter(p => p.used).map(p => `<div style="display:flex; flex-direction:column; align-items:center; width:65px;"><img src="${getPPEIcon(p.name)}" style="width:50px; height:50px; object-fit:contain;"><span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${p.name}</span></div>`).join('') || '<span class="text-muted small">ไม่มีการระบุ PPE</span>';
+  let riskHtml = m.risks.filter(r => r.risk).map(r => `<div style="display:flex; flex-direction:column; align-items:center; width:65px;"><img src="${getRiskIcon(r.name)}" style="width:50px; height:50px; object-fit:contain;"><span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${r.name}</span></div>`).join('') || '<span class="text-muted small">ไม่มีความเสี่ยง</span>';
 
-  let riskHtml = m.risks.filter(r => r.risk).map(r => `
-    <div style="display:flex; flex-direction:column; align-items:center; width:65px;">
-      <img src="${getRiskIcon(r.name)}" style="width:50px; height:50px; object-fit:contain;">
-      <span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${r.name}</span>
-    </div>
-  `).join('') || '<span class="text-muted small">ไม่มีความเสี่ยง</span>';
+  let statusBadge = (!m.status || m.status === 'Finished') ? `<span class="badge-status-finish">Finished (พร้อมใช้งาน)</span>` : `<span class="badge-status-unfinish">Unfinished (ยังไม่สมบูรณ์)</span>`;
+
+  // จัดการเรนเดอร์รูปภาพหลักหลายรูป
+  let mainImgHtml = '';
+  if (m.mainImage) {
+      try {
+          let parsed = JSON.parse(m.mainImage);
+          if (Array.isArray(parsed)) {
+              mainImgHtml = parsed.map(url => `<img src="${url}" style="max-height:200px; border-radius:10px; border:1px solid var(--border); box-shadow:var(--shadow-sm); margin:5px;">`).join('');
+          } else { mainImgHtml = `<img src="${m.mainImage}" style="max-height:250px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--border);">`; }
+      } catch(e) { mainImgHtml = `<img src="${m.mainImage}" style="max-height:250px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--border);">`; }
+  }
 
   let html = `
     <div style="padding:25px; border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
@@ -899,6 +821,7 @@ function renderDetail(data) {
         <div>
           <h3 style="margin:0 0 5px 0; color:var(--primary); font-weight:700;">#${m.smpId}</h3>
           <p style="margin:0; font-size:15px; font-weight:600;">${m.title}</p>
+          <div style="margin-top:8px;">${statusBadge}</div>
         </div>
         <img src="images/logo.png" style="height:40px; object-fit:contain;" onerror="this.style.display='none'">
       </div>
@@ -922,22 +845,17 @@ function renderDetail(data) {
         <div style="display:flex; flex-wrap:wrap; gap:15px;">${riskHtml}</div>
       </div>
 
-      ${m.mainImage ? `<div style="text-align:center; margin-bottom:25px;"><img src="${m.mainImage}" style="max-height:250px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid var(--border);"></div>` : ''}
+      <div style="text-align:center; margin-bottom:25px;">${mainImgHtml}</div>
 
       <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
           <thead><tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
-            <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
-            <th style="padding:10px;">ขั้นตอน</th>
-            <th style="padding:10px;">ประเภท</th>
-            <th style="padding:10px; min-width:200px;">รายละเอียด</th>
-            <th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
-          </tr></thead>
-          <tbody>
+            <th style="padding:10px; border-radius:8px 0 0 8px;">#</th><th style="padding:10px;">ขั้นตอน</th><th style="padding:10px;">ประเภท</th><th style="padding:10px; min-width:200px;">รายละเอียด</th><th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
+          </tr></thead><tbody>
   `;
 
-  data.steps.forEach((s, idx) => {
+  data.steps.forEach(s => {
     let bCol = "#4A5568"; let bBg = "#EDF2F7";
     if(s.typeSymbol.includes('ความปลอดภัย')) { bCol = "#E53E3E"; bBg = "#FFF5F5"; }
     else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
@@ -958,101 +876,55 @@ function renderDetail(data) {
   document.getElementById('docContent').innerHTML = html;
 }
 
+function getPPEIcon(n){ switch(n){ case 'ถุงมือ':return 'images/ppe_gloves.png';case 'หมวกนิรภัย':return 'images/ppe_helmet.png';case 'หน้ากาก':return 'images/ppe_mask.png';case 'กันตกจากที่สูง':return 'images/ppe_harness.png';case 'แว่นตา':return 'images/ppe_glasses.png';case 'ที่อุดหู':return 'images/ppe_headphone.png';case 'รองเท้าเซฟตี้':return 'images/ppe_foot.png';case 'เสื้อสะท้อนแสง':return 'images/ppe_vis_cloth.png';default:return '';} }
+function getRiskIcon(n){ switch(n){ case 'จุดหนีบ':return 'images/risk_gear.png';case 'อุปกรณ์เครื่องมือ':return 'images/risk_wrech.png';case 'ยกด้วยมือ':return 'images/risk_heavyobject.png';case 'ทำงานที่สูง':return 'images/risk_highground.png';case 'สารเคมี':return 'images/risk_chmisrty.png';case 'เสียงดัง':return 'images/risk_loudnoise.png';case 'รถโฟล์คลิฟต์':return 'images/risk_car.png';default:return '';} }
+
 async function fetchImageAsBase64(url) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  } catch (e) {
-    return null;
-  }
+  try { const res = await fetch(url); const blob = await res.blob(); return new Promise(resolve => { const reader = new FileReader(); reader.onloadend = () => resolve(reader.result); reader.readAsDataURL(blob); }); } catch(e) { return null; }
 }
 
 async function downloadExcel() {
-  if(!currentDetailData) return;
-  let m = currentDetailData.main;
-
-  const btn = document.getElementById('btnDownloadExcel');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> กำลังสร้าง Excel...';
-  btn.disabled = true;
+  if(!currentDetailData) return; let m = currentDetailData.main;
+  const btn = document.getElementById('btnDownloadExcel'); const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> กำลังสร้าง Excel...'; btn.disabled = true;
 
   try {
     const response = await fetch('SMP-Template.xlsx');
-    if (!response.ok) throw new Error("ไม่พบไฟล์ Template 'SMP-Template.xlsx'");
+    if (!response.ok) throw new Error("ไม่พบไฟล์ Template");
     const arrayBuffer = await response.arrayBuffer();
+    const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(arrayBuffer);
+    const worksheet = workbook.getWorksheet(workbook.worksheets[0].name);
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(arrayBuffer);
-    const firstSheetName = workbook.worksheets[0].name; 
-    const worksheet = workbook.getWorksheet(firstSheetName);
-
-    worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title;
-    worksheet.getCell('E3').value = m.line; 
-    worksheet.getCell('E4').value = m.machine; 
-    worksheet.getCell('R3').value = m.smpId;
-    worksheet.getCell('Y3').value = m.presenter;
-    worksheet.getCell('AJ3').value = m.approver || ''; 
-    worksheet.getCell('AN4').value = m.date.split(' ')[0];
-
-    worksheet.getCell('S6').value = m.techCount || '';
-    worksheet.getCell('W6').value = m.techTime || '';
-    worksheet.getCell('Z6').value = m.maintType;
-    worksheet.getCell('AD6').value = m.workTime || '';
-    worksheet.getCell('AI6').value = m.downtime || ''; 
-    worksheet.getCell('AO6').value = m.frequency || ''; 
+    worksheet.getCell('N2').value = "ชื่อเรื่อง: " + m.title; worksheet.getCell('E3').value = m.line; worksheet.getCell('E4').value = m.machine; worksheet.getCell('R3').value = m.smpId; worksheet.getCell('Y3').value = m.presenter; worksheet.getCell('AJ3').value = m.approver || ''; worksheet.getCell('AN4').value = m.date.split(' ')[0];
+    worksheet.getCell('S6').value = m.techCount || ''; worksheet.getCell('W6').value = m.techTime || ''; worksheet.getCell('Z6').value = m.maintType; worksheet.getCell('AD6').value = m.workTime || ''; worksheet.getCell('AI6').value = m.downtime || ''; worksheet.getCell('AO6').value = m.frequency || ''; 
 
     let checkBase64 = await fetchImageAsBase64('images/check.png');
-    let checkId = null;
-    if(checkBase64) { checkId = workbook.addImage({ base64: checkBase64, extension: 'png' }); }
-    function placeCheck(col, row) { if(checkId) worksheet.addImage(checkId, { tl: { col: col, row: row }, ext: { width: 30, height: 30 } }); }
+    let checkId = checkBase64 ? workbook.addImage({ base64: checkBase64, extension: 'png' }) : null;
+    function placeCheck(c, r) { if(checkId) worksheet.addImage(checkId, { tl: { col: c, row: r }, ext: { width: 30, height: 30 } }); }
 
-    if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.5, 5.5); 
-    if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.5); 
-
-    if (m.loto === 'ต้องการ') placeCheck(22.2, 11.2); 
-    else placeCheck(22.2, 13.5); 
-
-    if (m.riskAssessed === 'ใช่') placeCheck(41, 10.2); 
-    else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41, 12.2); 
-    else placeCheck(41, 14.2); 
+    if ((m.smpType||'').includes('เครื่องกล')) placeCheck(8.5, 5.5); if ((m.smpType||'').includes('ไฟฟ้า')) placeCheck(14.2, 5.5); 
+    if (m.loto === 'ต้องการ') placeCheck(22.2, 11.2); else placeCheck(22.2, 13.5); 
+    if (m.riskAssessed === 'ใช่') placeCheck(41, 10.2); else if (m.riskAssessed === 'ไม่ใช่') placeCheck(41, 12.2); else placeCheck(41, 14.2); 
 
     let crossBase64 = await fetchImageAsBase64('images/cross.png');
     if (crossBase64) {
       let crossId = workbook.addImage({ base64: crossBase64, extension: 'png' });
-      
-      const ppeCrossCoords = {
-        'ถุงมือ': { col: 5.15, row: 10.5 }, 'หมวกนิรภัย': { col: 7.0, row: 10.5 },
-        'หน้ากาก': { col: 8.91, row: 10.5 }, 'กันตกจากที่สูง': { col: 10, row: 10.5 },
-        'แว่นตา': { col: 11.55, row: 10.5 }, 'ที่อุดหู': { col: 13.9, row: 10.5 },
-        'รองเท้าเซฟตี้': { col: 15.1, row: 10.5 }, 'เสื้อสะท้อนแสง': { col: 16.5, row: 10.5 }
-      };
-
-      const riskCrossCoords = {
-        'รถโฟล์คลิฟต์': { col: 23.5, row: 10.2 }, 'จุดหนีบ': { col: 25.2, row: 10.2 },       
-        'อุปกรณ์เครื่องมือ': { col: 27.3, row: 10.2 }, 'ยกด้วยมือ': { col: 29.5, row: 10.2 },
-        'ทำงานที่สูง': { col: 31.5, row: 10.2 }, 'สารเคมี': { col: 34.2, row: 10.2 },        
-        'เสียงดัง': { col: 35.82, row: 10.2 }        
-      };
-
-      m.ppe.forEach(p => { 
-        if (!p.used && ppeCrossCoords[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeCrossCoords[p.name].col, row: ppeCrossCoords[p.name].row }, ext: { width: 56, height: 75 } }); } 
-      });
-
-      m.risks.forEach(r => { 
-        if (!r.risk && riskCrossCoords[r.name]) { worksheet.addImage(crossId, { tl: { col: riskCrossCoords[r.name].col, row: riskCrossCoords[r.name].row }, ext: { width: 45, height: 45 } }); } 
-      });
+      const ppeC = {'ถุงมือ':{col:5.15,row:10.5},'หมวกนิรภัย':{col:7.0,row:10.5},'หน้ากาก':{col:8.91,row:10.5},'กันตกจากที่สูง':{col:10,row:10.5},'แว่นตา':{col:11.55,row:10.5},'ที่อุดหู':{col:13.9,row:10.5},'รองเท้าเซฟตี้':{col:15.1,row:10.5},'เสื้อสะท้อนแสง':{col:16.5,row:10.5}};
+      const riskC = {'รถโฟล์คลิฟต์':{col:23.5,row:10.2},'จุดหนีบ':{col:25.2,row:10.2},'อุปกรณ์เครื่องมือ':{col:27.3,row:10.2},'ยกด้วยมือ':{col:29.5,row:10.2},'ทำงานที่สูง':{col:31.5,row:10.2},'สารเคมี':{col:34.2,row:10.2},'เสียงดัง':{col:35.82,row:10.2}};
+      m.ppe.forEach(p => { if (!p.used && ppeC[p.name]) { worksheet.addImage(crossId, { tl: { col: ppeC[p.name].col, row: ppeC[p.name].row }, ext: { width: 56, height: 75 } }); } });
+      m.risks.forEach(r => { if (!r.risk && riskC[r.name]) { worksheet.addImage(crossId, { tl: { col: riskC[r.name].col, row: riskC[r.name].row }, ext: { width: 45, height: 45 } }); } });
     }
 
     if (m.mainImage) {
-      const mainBase64 = await fetchImageAsBase64(m.mainImage);
-      if (mainBase64) {
-        const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
-        worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 650, height: 350 } });
+      let firstImgStr = "";
+      try { let parsed = JSON.parse(m.mainImage); if(Array.isArray(parsed) && parsed.length>0) firstImgStr = parsed[0]; else firstImgStr = m.mainImage; } 
+      catch(e) { firstImgStr = m.mainImage; }
+      if(firstImgStr) {
+          const mainBase64 = await fetchImageAsBase64(firstImgStr);
+          if (mainBase64) {
+            const mainImgId = workbook.addImage({ base64: mainBase64, extension: 'png' });
+            worksheet.addImage(mainImgId, { tl: { col: 14, row: 7.5 }, ext: { width: 650, height: 350 } });
+          }
       }
     }
 
@@ -1061,33 +933,16 @@ async function downloadExcel() {
     const stepRows = [17, 23, 29, 35, 41, 47, 53, 59, 65, 71]; 
     
     for (let i = 0; i < currentDetailData.steps.length; i++) {
-      let s = currentDetailData.steps[i];
-      if (i >= stepRows.length) break; 
-      let r = stepRows[i]; 
-      
-      worksheet.getCell('B' + r).value = s.stepNo; 
-      worksheet.getCell('C' + r).value = s.stepName;
-      worksheet.getCell('J' + r).value = s.timeTaken || ''; 
-      worksheet.getCell('M' + r).value = s.description;
-
-      let targetSym = symSafe;
-      if((s.typeSymbol||'').includes('ความปลอดภัย')) { targetSym = symSafe; }
-      else if((s.typeSymbol||'').includes('คุณภาพ')) { targetSym = symQual; }
-      else if((s.typeSymbol||'').includes('สิ่งแวดล้อม')) { targetSym = symEnv; }
-      else if((s.typeSymbol||'').includes('การผลิต')) { targetSym = symProd; }
-      
-      const cellK = worksheet.getCell('K' + r);
-      cellK.value = targetSym.val; cellK.font = targetSym.font;
-      if(targetSym.fill) { cellK.fill = targetSym.fill; }
-      cellK.alignment = { horizontal: 'center', vertical: 'middle' };
-      
+      let s = currentDetailData.steps[i]; if (i >= stepRows.length) break; let r = stepRows[i]; 
+      worksheet.getCell('B' + r).value = s.stepNo; worksheet.getCell('C' + r).value = s.stepName; worksheet.getCell('J' + r).value = s.timeTaken || ''; worksheet.getCell('M' + r).value = s.description;
+      let targetSym = symSafe; if((s.typeSymbol||'').includes('ความปลอดภัย')) targetSym = symSafe; else if((s.typeSymbol||'').includes('คุณภาพ')) targetSym = symQual; else if((s.typeSymbol||'').includes('สิ่งแวดล้อม')) targetSym = symEnv; else if((s.typeSymbol||'').includes('การผลิต')) targetSym = symProd;
+      const cellK = worksheet.getCell('K' + r); cellK.value = targetSym.val; cellK.font = targetSym.font; if(targetSym.fill) cellK.fill = targetSym.fill; cellK.alignment = { horizontal: 'center', vertical: 'middle' };
       if (s.images && s.images.length > 0) {
-        for(let imgIndex = 0; imgIndex < s.images.length; imgIndex++) {
+        for(let imgIndex = 0; imgIndex < Math.min(s.images.length, 4); imgIndex++) {
           const stepImgBase64 = await fetchImageAsBase64(s.images[imgIndex]); 
           if (stepImgBase64) {
             const stepImgId = workbook.addImage({ base64: stepImgBase64, extension: 'png' });
-            let colsPerRow = 4; let cIndex = imgIndex % colsPerRow; let rIndex = Math.floor(imgIndex / colsPerRow); 
-            worksheet.addImage(stepImgId, { tl: { col: 27.5 + (cIndex * 3.5), row: (r - 1) + 0.5 + (rIndex * 3.0) }, ext: { width: 120, height: 80 } });
+            worksheet.addImage(stepImgId, { tl: { col: 27.5 + (imgIndex * 3.5), row: (r - 1) + 0.5 }, ext: { width: 120, height: 80 } });
           }
         }
       }
@@ -1098,9 +953,6 @@ async function downloadExcel() {
     const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `SMP_${m.smpId}.xlsx`; 
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
 
-  } catch (error) {
-    console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E");
-  } finally {
-    btn.innerHTML = originalText; btn.disabled = false;
-  }
+  } catch (error) { console.error(error); showModal("ระบบแจ้ง Error", error.message, "error", "#E53E3E"); } 
+  finally { btn.innerHTML = originalText; btn.disabled = false; }
 }
