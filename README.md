@@ -31,25 +31,6 @@ This project was developed to revolutionize industrial maintenance documentation
 
 ---
 
-## 🛠️ Tech Stack & Architecture | โครงสร้างสถาปัตยกรรม
-
-*   **Frontend (หน้าบ้าน):** Vanilla JavaScript, HTML5, CSS3, Bootstrap 5
-*   **Backend / API (หลังบ้าน):** Google Apps Script (GAS) 
-*   **Database (ฐานข้อมูล):** Google Sheets
-*   **Hosting:** GitHub Pages
-
-### 📂 Project Structure (Separation of Concerns)
-ระบบใช้โครงสร้างแบบแยกไฟล์ เพื่อความง่ายในการดูแลรักษา (Maintainability):
-```text
-├── index.html     # โครงสร้างหน้าเว็บ (UI Layout) เปรียบเสมือน "เสาและคานบ้าน"
-├── style.css      # ไฟล์ตกแต่งความสวยงามและการจัดหน้า (CSS) เปรียบเสมือน "สีทาบ้าน"
-├── script.js      # ลอจิกการทำงานและเชื่อมต่อ API (JavaScript) เปรียบเสมือน "ระบบไฟฟ้าและสมองกล"
-├── README.md      # คู่มือและรายละเอียดโครงการสำหรับนักพัฒนา
-├── Readme.txt     # คู่มือแนะนำโครงสร้างแบบเร่งด่วน สำหรับทีมงานที่มีพื้นฐาน GAS
-└── /images        # โฟลเดอร์สำหรับเก็บไฟล์รูปภาพ Icon และ Logo คงที่
-
----
-
 ## 🧠 Core Functions Guide | คู่มือฟังก์ชันการทำงานเชิงลึก
 The logic in script.js is modularized into the following key domains:
 (โค้ดในไฟล์ script.js ถูกแบ่งการทำงานออกเป็นหมวดหมู่ดังนี้)
@@ -133,3 +114,24 @@ School of Integrated Innovation and Technology, King Mongkut's Institute of Tech
 Developed during a Cooperative Education Engineering Internship at Unilever (Ladkrabang) - 2026.
 Tel. : 095-009-8008 
 Gmail : natthapon.kth@gmail.com
+
+---
+
+## 🛠️ Tech Stack & Architecture | โครงสร้างสถาปัตยกรรม
+
+*   **Frontend (หน้าบ้าน):** Vanilla JavaScript, HTML5, CSS3, Bootstrap 5
+*   **Backend / API (หลังบ้าน):** Google Apps Script (GAS) 
+*   **Database (ฐานข้อมูล):** Google Sheets
+*   **Hosting:** GitHub Pages
+
+### 📂 Project Structure (Separation of Concerns)
+ระบบใช้โครงสร้างแบบแยกไฟล์ เพื่อความง่ายในการดูแลรักษา (Maintainability):
+```text
+├── index.html     # โครงสร้างหน้าเว็บ (UI Layout) เปรียบเสมือน "เสาและคานบ้าน"
+├── style.css      # ไฟล์ตกแต่งความสวยงามและการจัดหน้า (CSS) เปรียบเสมือน "สีทาบ้าน"
+├── script.js      # ลอจิกการทำงานและเชื่อมต่อ API (JavaScript) เปรียบเสมือน "ระบบไฟฟ้าและสมองกล"
+├── README.md      # คู่มือและรายละเอียดโครงการสำหรับนักพัฒนา
+├── Readme.txt     # คู่มือแนะนำโครงสร้างแบบเร่งด่วน สำหรับทีมงานที่มีพื้นฐาน GAS
+└── /images        # โฟลเดอร์สำหรับเก็บไฟล์รูปภาพ Icon และ Logo คงที่
+
+
