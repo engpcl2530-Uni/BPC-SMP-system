@@ -384,26 +384,30 @@
          <div>กำลังมีผู้ใช้งานท่านอื่นเปิดแก้ไขเอกสารฉบับนี้อยู่ เพื่อป้องกันข้อมูลทับซ้อน กรุณารอสักครู่...</div>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <button class="btn-danger-outline" onclick="deleteCurrentSMP()"><span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร</button>
-        
-        <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: flex-end;">
-          <button type="button" class="btn-duplicate" onclick="duplicateCurrentSMP()">
-            <span class="material-symbols-rounded" style="font-size:18px;">content_copy</span> คัดลอกงานนี้
+  <div class="d-flex justify-content-between align-items-center mb-4">
+          <button class="btn-danger-outline" onclick="deleteCurrentSMP()">
+            <span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร
           </button>
-          <button type="button" id="btnEditDoc" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="requestEditSMP()">
-            <span class="material-symbols-rounded" style="font-size:18px;">edit</span> แก้ไข
-          </button>
-          <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()">
-            <span class="material-symbols-rounded" style="font-size:20px;">download</span> โหลด Excel
-          </button>
+          
+          <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: flex-end;">
+            <button type="button" class="btn-duplicate" onclick="duplicateCurrentSMP()">
+              <span class="material-symbols-rounded" style="font-size:18px;">content_copy</span> คัดลอกงานนี้
+            </button>
+            
+            <button type="button" id="btnEditDoc" style="background:white; color:var(--secondary); border:1px solid var(--secondary); padding:8px 15px; border-radius:8px; font-family:'Prompt'; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;" onmouseover="this.style.background='#F0F7FF'" onmouseout="this.style.background='white'" onclick="requestEditSMP()">
+              <span class="material-symbols-rounded" style="font-size:18px;">edit</span> แก้ไข
+            </button>
+            
+            <button class="btn-success" id="btnDownloadExcel" onclick="downloadExcel()" style="display:flex; align-items:center; gap:5px; padding:8px 15px; border-radius:8px;">
+              <span class="material-symbols-rounded" style="font-size:20px;">download</span> โหลด Excel
+            </button>
+            
+            <!-- ปุ่ม Export PDF ปรับสไตล์ให้เข้าชุดกับเพื่อนๆ แต่ใช้สีแดงเด่นๆ -->
+            <button type="button" onclick="window.print()" class="no-print" style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(239, 68, 68, 0.3)'">
+              <span class="material-symbols-rounded" style="font-size:20px;">picture_as_pdf</span> Export PDF
+            </button>
+          </div>
         </div>
-      </div>
-      
-      <div id="docContent" class="card" style="padding:0; overflow:hidden;"></div>
-    </div>
-
-  </div>
 
   <div id="draftToast" class="floating-toast" onclick="openDraftListModal()">
     <span class="material-symbols-rounded">format_list_bulleted</span> 
