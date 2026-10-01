@@ -251,6 +251,22 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
   /* 4. ป้องกันรูปภาพ กราฟ หรือตาราง โดนตัดขาดครึ่งเมื่อขึ้นหน้าใหม่ */
   img, table, .p-4, .rounded-2xl, .card, tr {
     page-break-inside: avoid !important;
+
+    /* บังคับขึ้นหน้าใหม่สำหรับส่วนตาราง SOP */
+  .print-new-page {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+  
+  /* ล้างขอบและเงาที่ก่อให้เกิดหน้าขาวแผ่นแรก */
+  #docContent, .container, .card, .section-view {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    
+  }
+    
   }
   
   /* 5. จัดขนาดกระดาษให้เป็น A4 แนวตั้ง */
