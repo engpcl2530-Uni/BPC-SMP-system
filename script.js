@@ -1388,8 +1388,12 @@ function renderDetail(data) {
 
         <div class="print-new-page" style="margin-top: 20px;">
         <div style="color:var(--primary); font-weight:700; font-size:15px; border-bottom:2px solid var(--secondary); padding-bottom:4px; margin-bottom:0; page-break-after: avoid; break-after: avoid;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
-        <div class="print-table-wrapper" style="overflow: visible;">
-          <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+        
+        <!-- 🔴 จุดที่แก้: ลบ style="overflow: visible;" ออก เหลือแค่ class -->
+        <div class="print-table-wrapper">
+          
+          <!-- 🔴 จุดที่แก้: บังคับ min-width 750px เพื่อให้เกิดการเลื่อนบนจอมือถือ -->
+          <table style="width:100%; min-width:750px; border-collapse:collapse; font-size:13.5px;">
             <thead>
               <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
                 <th style="padding:10px; border-radius:8px 0 0 8px; width:5%;">#</th>
@@ -1408,7 +1412,6 @@ function renderDetail(data) {
     else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
     else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
 
-    // 🔴 ขยายขนาดรูปรวมถึงใส่ขอบและพื้นหลังสีขาวเพื่อให้ดูเป็นระเบียบ
     let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:85px; max-width:120px; object-fit:contain; background:#fff; padding:2px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
     
     html += `
