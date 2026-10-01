@@ -282,6 +282,17 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
   }
 }
 
+/* 🌟 ดึงตารางให้ชิดกับเส้น SOP และแสดงหัวตารางทุกหน้า */
+  .print-table-wrapper {
+    overflow: visible !important;
+  }
+  table {
+    margin-top: 0 !important;
+  }
+  thead {
+    display: table-header-group !important;
+  }
+
 /* ป้องกันการตัดขาดครึ่งเมื่อขึ้นหน้าใหม่สำหรับ PDF */
 #docContent img, #docContent table, #docContent tr {
   page-break-inside: avoid !important;
