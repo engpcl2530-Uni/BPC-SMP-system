@@ -280,6 +280,18 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
     size: A4 portrait;
     margin: 10mm;
   }
+
+  /* บังคับไม่ให้หัวข้อถูกหั่นแยกกับตาราง */
+  .print-new-page > div:first-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  
+  /* ปลดล็อคความกว้างตารางให้ไหลลงหน้าต่อไปได้ */
+  .print-table-wrapper {
+    overflow: visible !important;
+    display: block !important;
+  }
 }
 
 /* 🌟 ดึงตารางให้ชิดกับเส้น SOP และแสดงหัวตารางทุกหน้า */
