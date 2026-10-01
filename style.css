@@ -226,6 +226,47 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
     font-size: 22px;
 }
 
+/* =========================================
+   📱 Mobile Responsive & Layout Adjustments
+   ========================================= */
+/* ทำให้ตารางเลื่อนซ้ายขวาได้บนหน้าจอ */
+.print-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* 📱 ปรับการแสดงผลสำหรับหน้าจอมือถือ (กว้างไม่เกิน 768px) */
+@media (max-width: 768px) {
+  .action-header-mobile {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 15px;
+  }
+  .action-buttons-mobile {
+    justify-content: center !important;
+  }
+  .action-buttons-mobile button {
+    flex: 1 1 calc(50% - 10px); /* จัดปุ่มเป็น 2 แถว */
+    justify-content: center;
+    font-size: 13px;
+    padding: 10px 8px !important;
+  }
+  .action-buttons-mobile button[onclick="printPDF()"] {
+    flex: 1 1 100%; /* ให้ปุ่ม PDF ยาวเต็มบรรทัดเด่นๆ */
+  }
+  .detail-info-grid {
+    grid-template-columns: repeat(2, 1fr); /* ข้อมูลลดเหลือ 2 คอลัมน์ ไม่ให้ข้อความเบียด */
+  }
+}
 
 /* ==========================================
    🖨️ Print & PDF Export Styles
