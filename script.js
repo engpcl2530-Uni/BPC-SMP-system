@@ -1628,27 +1628,29 @@ function downloadPDF() {
 
   const element = document.getElementById('docContent');
   
-  // ตั้งค่าการออก PDF (ปรับแต่งแก้ปัญหาสระลอยภาษาไทย)
+  // 🔴 ทริคแก้สระลอย: แอบเปลี่ยนฟอนต์เป็น Tahoma ชั่วคราวก่อนสร้าง PDF
+  const originalFont = element.style.fontFamily;
+  element.style.fontFamily = "'Tahoma', sans-serif";
+
   const opt = {
     margin:       [10, 10, 10, 10], 
     filename:     `SMP_${currentDetailData.main.smpId}.pdf`,
     image:        { type: 'jpeg', quality: 1.0 },
-    // เอา letterRendering ออกเพื่อแก้ปัญหาสระลอย
     html2canvas:  { scale: 2, useCORS: true }, 
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'legacy'] } 
   };
 
-  // ใช้ document.fonts.ready เพื่อรอให้ฟอนต์โหลดเสร็จสมบูรณ์ก่อนค่อยถ่ายรูปทำ PDF
-  document.fonts.ready.then(() => {
-    html2pdf().set(opt).from(element).save().then(() => {
-      btn.innerHTML = originalText;
-      btn.disabled = false;
-    }).catch(err => {
-      console.error("PDF Error:", err);
-      alert("เกิดข้อผิดพลาดในการแปลงไฟล์ PDF");
-      btn.innerHTML = originalText;
-      btn.disabled = false;
-    });
+  html2pdf().set(opt).from(element).save().then(() => {
+    // 🔴 พอเซฟเสร็จ คืนค่าฟอนต์เดิมให้หน้าเว็บกลับมาสวยเหมือนเดิม
+    element.style.fontFamily = originalFont;
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }).catch(err => {
+    element.style.fontFamily = originalFont;
+    console.error("PDF Error:", err);
+    alert("เกิดข้อผิดพลาดในการแปลงไฟล์ PDF");
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   });
 }
