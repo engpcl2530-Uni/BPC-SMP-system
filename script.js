@@ -1387,19 +1387,19 @@ function renderDetail(data) {
       <div style="text-align:center; margin-bottom:25px;">${mainImgHtml}</div>
 
         <div class="print-new-page" style="margin-top: 20px;">
-        <div style="color:var(--primary); font-weight:700; font-size:15px; border-bottom:2px solid var(--secondary); padding-bottom:4px; margin-bottom:0;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
-        <div class="print-table-wrapper" style="overflow-x:auto;">
+        <div style="color:var(--primary); font-weight:700; font-size:15px; border-bottom:2px solid var(--secondary); padding-bottom:4px; margin-bottom:0; page-break-after: avoid; break-after: avoid;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
+        <div class="print-table-wrapper" style="overflow: visible;">
           <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-          <thead>
-            <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
-              <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
-              <th style="padding:10px;">ขั้นตอน</th>
-              <th style="padding:10px;">ประเภท</th>
-              <th style="padding:10px; min-width:200px;">รายละเอียด</th>
-              <th style="padding:10px; border-radius:0 8px 8px 0;">รูปภาพแนบ</th>
-            </tr>
-          </thead>
-          <tbody>
+            <thead>
+              <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
+                <th style="padding:10px; border-radius:8px 0 0 8px; width:5%;">#</th>
+                <th style="padding:10px; width:25%;">ขั้นตอน</th>
+                <th style="padding:10px; width:15%;">ประเภท</th>
+                <th style="padding:10px; width:30%;">รายละเอียด</th>
+                <th style="padding:10px; border-radius:0 8px 8px 0; width:25%;">รูปภาพแนบ</th>
+              </tr>
+            </thead>
+            <tbody>
   `;
 
   data.steps.forEach(s => {
@@ -1408,7 +1408,8 @@ function renderDetail(data) {
     else if(s.typeSymbol.includes('คุณภาพ')) { bCol = "#005EB8"; bBg = "#EBF8FF"; }
     else if(s.typeSymbol.includes('สิ่งแวดล้อม')) { bCol = "#38A169"; bBg = "#F0FFF4"; }
 
-    let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:60px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
+    // 🔴 ขยายขนาดรูปรวมถึงใส่ขอบและพื้นหลังสีขาวเพื่อให้ดูเป็นระเบียบ
+    let imgs = s.images.map(url => `<a href="${url}" target="_blank"><img src="${url}" style="height:85px; max-width:120px; object-fit:contain; background:#fff; padding:2px; border-radius:6px; border:1px solid var(--border); margin-top:5px; margin-right:5px;"></a>`).join('');
     
     html += `
              <tr style="border-bottom:1px solid var(--border);">
@@ -1420,7 +1421,7 @@ function renderDetail(data) {
              </tr>`;
   });
   
-  html += `</tbody></table></div></div></div>`; // 🔴 เพิ่ม </div> ปิดท้ายอีก 1 ตัว
+  html += `</tbody></table></div></div>`;
   let docCont = document.getElementById('docContent');
   if(docCont) docCont.innerHTML = html;
 }
