@@ -1625,14 +1625,16 @@ function printPDF() {
   const m = currentDetailData.main;
   const originalTitle = document.title;
   
-  // แอบเปลี่ยนชื่อหน้าเว็บเพื่อหลอกให้เบราว์เซอร์ตั้งชื่อไฟล์ตามนี้ตอนกด Save as PDF
+  // 1. เปลี่ยนชื่อหน้าเว็บเป็น รหัส_ชื่อเรื่อง (เพื่อบังคับเบราว์เซอร์ตั้งเป็นชื่อไฟล์)
   document.title = `SMP_${m.smpId}_${m.title}`;
   
-  // เรียกคำสั่ง Print ของเบราว์เซอร์
-  window.print();
+  // 2. สั่งให้เบราว์เซอร์ "รอ" จนกว่าหน้าต่าง Print จะถูกปิดลง ค่อยเปลี่ยนชื่อเว็บกลับ
+  window.onafterprint = () => {
+    document.title = originalTitle;
+  };
   
-  // คืนค่าชื่อเว็บกลับเป็นเหมือนเดิม
-  document.title = originalTitle;
+  // 3. เปิดหน้าต่าง Print
+  window.print();
 }
 
 
