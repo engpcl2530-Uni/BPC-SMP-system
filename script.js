@@ -1626,16 +1626,21 @@ function printPDF() {
   const m = currentDetailData.main;
   const originalTitle = document.title;
   
-  // 1. เปลี่ยนชื่อหน้าเว็บเป็น รหัส_ชื่อเรื่อง (เพื่อบังคับเบราว์เซอร์ตั้งเป็นชื่อไฟล์)
+  // 1. เปลี่ยนชื่อหน้าเว็บเพื่อตั้งเป็นชื่อไฟล์
   document.title = `SMP_${m.smpId}_${m.title}`;
   
-  // 2. สั่งให้เบราว์เซอร์ "รอ" จนกว่าหน้าต่าง Print จะถูกปิดลง ค่อยเปลี่ยนชื่อเว็บกลับ
+  // 2. หน่วงเวลา 0.5 วินาที (500ms) ให้เบราว์เซอร์อัปเดตชื่อแท็บให้เสร็จก่อน
+  setTimeout(() => {
+    
+    // 3. เปิดหน้าต่าง Print
+    window.print();
+    
+  }, 500);
+  
+  // 4. รอจนกว่าผู้ใช้จะกดเซฟหรือปิดหน้าต่าง Print ค่อยคืนค่าชื่อเว็บเดิม
   window.onafterprint = () => {
     document.title = originalTitle;
   };
-  
-  // 3. เปิดหน้าต่าง Print
-  window.print();
 }
 
 
