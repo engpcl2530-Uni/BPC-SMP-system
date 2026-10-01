@@ -1386,9 +1386,10 @@ function renderDetail(data) {
       </div>
       <div style="text-align:center; margin-bottom:25px;">${mainImgHtml}</div>
 
-      <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
-      <div style="overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+        <div class="print-new-page">
+        <div style="color:var(--primary); font-weight:700; font-size:15px; margin-bottom:10px; border-bottom:2px solid var(--secondary); padding-bottom:5px;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
           <thead>
             <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
               <th style="padding:10px; border-radius:8px 0 0 8px;">#</th>
@@ -1419,7 +1420,7 @@ function renderDetail(data) {
              </tr>`;
   });
   
-  html += `</tbody></table></div></div>`; 
+  html += `</tbody></table></div></div></div>`; // 🔴 เพิ่ม </div> ปิดท้ายอีก 1 ตัว
   let docCont = document.getElementById('docContent');
   if(docCont) docCont.innerHTML = html;
 }
