@@ -1365,8 +1365,18 @@ function renderDetail(data) {
     </div>
     
     <div style="padding:25px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
-        <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div><div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div><div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div><div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div><div><span style="color:var(--text-muted); font-size:12px;">ไลน์การผลิต</span><br><b>${m.line || '-'}</b></div><div><span style="color:var(--text-muted); font-size:12px;">เครื่องจักร</span><br><b>${m.machine || '-'}</b></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px; font-family: 'Tahoma', 'Prompt', sans-serif;">
+        <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">ประเภทงานซ่อม</span><br><b style="color:#D69E2E;">${m.maintType || '-'}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div>
+        
+        <div><span style="color:var(--text-muted); font-size:12px;">ผู้จัดทำ (ช่าง)</span><br><b>${m.presenter}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">ผู้อนุมัติ</span><br><b>${m.approver || '-'}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">ระยะเวลาซ่อมจริง</span><br><b style="color:#E53E3E;">${m.workTime ? m.workTime + ' นาที' : '-'}</b></div>
+        
+        <div><span style="color:var(--text-muted); font-size:12px;">ไลน์การผลิต</span><br><b>${m.line || '-'}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">เครื่องจักร</span><br><b>${m.machine || '-'}</b></div>
+        <div><span style="color:var(--text-muted); font-size:12px;">เวลาหยุดเครื่องจักร</span><br><b>${m.downtime ? m.downtime + ' นาที' : '-'}</b></div>
       </div>
 
       <div style="background:#FFF5F5; border:1px solid #FC8181; border-radius:12px; padding:15px; margin-bottom:20px;">
@@ -1607,40 +1617,38 @@ async function downloadExcel() {
   }
 }
 
-// ======================== PDF EXPORT (html2pdf) ========================
+// ======================== PDF EXPORT ========================
 function downloadPDF() {
   if (!currentDetailData) return;
   
-  // ค้นหาปุ่มที่กดเพื่อแสดงสถานะกำลังโหลด
   const btn = document.querySelector('button[onclick="downloadPDF()"]');
   const originalText = btn.innerHTML;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> กำลังสร้าง PDF...';
   btn.disabled = true;
 
-  // เลือกเฉพาะกล่องเนื้อหาเอกสาร (ไม่เอาปุ่มลบ/แก้ไขด้านบน)
   const element = document.getElementById('docContent');
   
-  // ตั้งค่าการออกหน้ากระดาษ PDF
+  // ตั้งค่าการออก PDF (ปรับแต่งแก้ปัญหาสระลอยภาษาไทย)
   const opt = {
-    margin:       [10, 10, 10, 10], // ขอบกระดาษ บน ซ้าย ล่าง ขวา (หน่วย mm)
-    filename:     `SMP_${currentDetailData.main.smpId}.pdf`, // ชื่อไฟล์ที่จะเซฟ
-    image:        { type: 'jpeg', quality: 0.98 },
-    // useCORS: true สำคัญมาก เพื่อให้ระบบสามารถดึงรูปภาพจาก Google Drive มาโชว์ใน PDF ได้
-    html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, 
+    margin:       [10, 10, 10, 10], 
+    filename:     `SMP_${currentDetailData.main.smpId}.pdf`,
+    image:        { type: 'jpeg', quality: 1.0 },
+    // เอา letterRendering ออกเพื่อแก้ปัญหาสระลอย
+    html2canvas:  { scale: 2, useCORS: true }, 
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    // สั่งไม่ให้ตัดขาดครึ่งรูปภาพหรือตาราง
     pagebreak:    { mode: ['css', 'legacy'] } 
   };
 
-  // สั่งแปลงเป็น PDF และดาวน์โหลด
-  html2pdf().set(opt).from(element).save().then(() => {
-    // คืนค่าปุ่มกลับเป็นเหมือนเดิมเมื่อโหลดเสร็จ
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }).catch(err => {
-    console.error("PDF Export Error:", err);
-    alert("เกิดข้อผิดพลาดในการสร้าง PDF");
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+  // ใช้ document.fonts.ready เพื่อรอให้ฟอนต์โหลดเสร็จสมบูรณ์ก่อนค่อยถ่ายรูปทำ PDF
+  document.fonts.ready.then(() => {
+    html2pdf().set(opt).from(element).save().then(() => {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }).catch(err => {
+      console.error("PDF Error:", err);
+      alert("เกิดข้อผิดพลาดในการแปลงไฟล์ PDF");
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    });
   });
 }
