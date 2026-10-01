@@ -1625,22 +1625,26 @@ function printPDF() {
   
   const m = currentDetailData.main;
   const originalTitle = document.title;
+  // สร้างชื่อไฟล์ตามที่ต้องการ
+  const newTitle = `SMP_${m.smpId}_${m.title}`;
   
-  // 1. เปลี่ยนชื่อหน้าเว็บเพื่อตั้งเป็นชื่อไฟล์
-  document.title = `SMP_${m.smpId}_${m.title}`;
+  // 1. เปลี่ยนชื่อหน้าเว็บ (แบบฝังลึกถึงแท็ก <title> ใน HTML)
+  document.title = newTitle;
+  const titleTag = document.querySelector('title');
+  if (titleTag) titleTag.innerText = newTitle;
   
-  // 2. หน่วงเวลา 0.5 วินาที (500ms) ให้เบราว์เซอร์อัปเดตชื่อแท็บให้เสร็จก่อน
+  // 2. เบรกเวลา 1 วินาทีเต็ม (1000ms) บังคับให้เบราว์เซอร์รับรู้ชื่อใหม่
   setTimeout(() => {
-    
-    // 3. เปิดหน้าต่าง Print
     window.print();
-    
-  }, 500);
+  }, 1000);
   
-  // 4. รอจนกว่าผู้ใช้จะกดเซฟหรือปิดหน้าต่าง Print ค่อยคืนค่าชื่อเว็บเดิม
-  window.onafterprint = () => {
+  // 3. ใช้ Event Listener ดักจับตอนที่หน้าต่าง Print ปิดลงอย่างสมบูรณ์ค่อยคืนค่า
+  window.addEventListener('afterprint', function revertTitle() {
     document.title = originalTitle;
-  };
+    if (titleTag) titleTag.innerText = originalTitle;
+    
+    // คืนค่าเสร็จก็ล้างตัวดักจับทิ้งเพื่อไม่ให้รกระบบ
+    window.removeEventListener('afterprint', revertTitle); 
+  });
 }
-
 
