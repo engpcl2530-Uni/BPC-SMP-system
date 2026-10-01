@@ -1389,23 +1389,23 @@ function renderDetail(data) {
         <div class="print-new-page" style="margin-top: 20px;">
         <div style="color:var(--primary); font-weight:700; font-size:15px; border-bottom:2px solid var(--secondary); padding-bottom:4px; margin-bottom:0; page-break-after: avoid; break-after: avoid;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
         
-        <!-- 🔴 จุดที่แก้: ลบ style="overflow: visible;" ออก เหลือแค่ class -->
-        <div class="print-table-wrapper">
+        <!-- 🌟 จุดที่แก้: ฝัง style บังคับให้เกิดแถบเลื่อน (Scroll) บนเว็บมือถือโดยตรง -->
+        <div class="print-table-wrapper" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
           
-          <!-- 🔴 จุดที่แก้: บังคับ min-width 750px เพื่อให้เกิดการเลื่อนบนจอมือถือ -->
-          <table style="width:100%; min-width:750px; border-collapse:collapse; font-size:13.5px;">
+          <!-- บังคับ min-width ให้กว้างพอที่จะเลื่อนดูเนื้อหาและรูปภาพได้สบายๆ -->
+          <table style="width:100%; min-width:800px; border-collapse:collapse; font-size:13.5px;">
             <thead>
               <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
                 <th style="padding:10px; border-radius:8px 0 0 8px; width:5%;">#</th>
-                <th style="padding:10px; width:25%;">ขั้นตอน</th>
+                <th style="padding:10px; width:20%;">ขั้นตอน</th>
                 <th style="padding:10px; width:15%;">ประเภท</th>
-                <th style="padding:10px; width:30%;">รายละเอียด</th>
+                <th style="padding:10px; width:35%;">รายละเอียด</th>
                 <th style="padding:10px; border-radius:0 8px 8px 0; width:25%;">รูปภาพแนบ</th>
               </tr>
             </thead>
             <tbody>
   `;
-
+  
   data.steps.forEach(s => {
     let bCol = "#4A5568"; let bBg = "#EDF2F7";
     if(s.typeSymbol.includes('ความปลอดภัย')) { bCol = "#E53E3E"; bBg = "#FFF5F5"; }
