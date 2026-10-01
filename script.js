@@ -1606,3 +1606,41 @@ async function downloadExcel() {
       btn.disabled = false; 
   }
 }
+
+// ======================== PDF EXPORT (html2pdf) ========================
+function downloadPDF() {
+  if (!currentDetailData) return;
+  
+  // ค้นหาปุ่มที่กดเพื่อแสดงสถานะกำลังโหลด
+  const btn = document.querySelector('button[onclick="downloadPDF()"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> กำลังสร้าง PDF...';
+  btn.disabled = true;
+
+  // เลือกเฉพาะกล่องเนื้อหาเอกสาร (ไม่เอาปุ่มลบ/แก้ไขด้านบน)
+  const element = document.getElementById('docContent');
+  
+  // ตั้งค่าการออกหน้ากระดาษ PDF
+  const opt = {
+    margin:       [10, 10, 10, 10], // ขอบกระดาษ บน ซ้าย ล่าง ขวา (หน่วย mm)
+    filename:     `SMP_${currentDetailData.main.smpId}.pdf`, // ชื่อไฟล์ที่จะเซฟ
+    image:        { type: 'jpeg', quality: 0.98 },
+    // useCORS: true สำคัญมาก เพื่อให้ระบบสามารถดึงรูปภาพจาก Google Drive มาโชว์ใน PDF ได้
+    html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, 
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    // สั่งไม่ให้ตัดขาดครึ่งรูปภาพหรือตาราง
+    pagebreak:    { mode: ['css', 'legacy'] } 
+  };
+
+  // สั่งแปลงเป็น PDF และดาวน์โหลด
+  html2pdf().set(opt).from(element).save().then(() => {
+    // คืนค่าปุ่มกลับเป็นเหมือนเดิมเมื่อโหลดเสร็จ
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }).catch(err => {
+    console.error("PDF Export Error:", err);
+    alert("เกิดข้อผิดพลาดในการสร้าง PDF");
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+}
