@@ -1617,40 +1617,21 @@ async function downloadExcel() {
   }
 }
 
-// ======================== PDF EXPORT ========================
-function downloadPDF() {
+// ======================== PDF EXPORT (Native Print) ========================
+function printPDF() {
   if (!currentDetailData) return;
   
-  const btn = document.querySelector('button[onclick="downloadPDF()"]');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> กำลังสร้าง PDF...';
-  btn.disabled = true;
-
-  const element = document.getElementById('docContent');
+  const m = currentDetailData.main;
+  const originalTitle = document.title;
   
-  // 🔴 ทริคแก้สระลอย: แอบเปลี่ยนฟอนต์เป็น Tahoma ชั่วคราวก่อนสร้าง PDF
-  const originalFont = element.style.fontFamily;
-  element.style.fontFamily = "'Tahoma', sans-serif";
-
-  const opt = {
-    margin:       [10, 10, 10, 10], 
-    filename:     `SMP_${currentDetailData.main.smpId}.pdf`,
-    image:        { type: 'jpeg', quality: 1.0 },
-    html2canvas:  { scale: 2, useCORS: true }, 
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['css', 'legacy'] } 
-  };
-
-  html2pdf().set(opt).from(element).save().then(() => {
-    // 🔴 พอเซฟเสร็จ คืนค่าฟอนต์เดิมให้หน้าเว็บกลับมาสวยเหมือนเดิม
-    element.style.fontFamily = originalFont;
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  }).catch(err => {
-    element.style.fontFamily = originalFont;
-    console.error("PDF Error:", err);
-    alert("เกิดข้อผิดพลาดในการแปลงไฟล์ PDF");
-    btn.innerHTML = originalText;
-    btn.disabled = false;
-  });
+  // แอบเปลี่ยนชื่อหน้าเว็บเพื่อหลอกให้เบราว์เซอร์ตั้งชื่อไฟล์ตามนี้ตอนกด Save as PDF
+  document.title = `SMP_${m.smpId}_${m.title}`;
+  
+  // เรียกคำสั่ง Print ของเบราว์เซอร์
+  window.print();
+  
+  // คืนค่าชื่อเว็บกลับเป็นเหมือนเดิม
+  document.title = originalTitle;
 }
+
+
