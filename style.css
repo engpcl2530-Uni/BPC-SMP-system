@@ -226,50 +226,56 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
     font-size: 22px;
 }
 
+
 /* ==========================================
    🖨️ Print & PDF Export Styles
    ========================================== */
 @media print {
-  /* 1. ซ่อน UI ที่ไม่จำเป็นต้องติดไปในเอกสาร (ปุ่มกด, แถบเมนูบน, เมนูลอย) */
+  /* 1. ซ่อน UI ที่ไม่จำเป็น */
   .no-print, .app-header, .fab-wrapper, .fab-main, .fab-draft, .header, button, input[type="file"] {
     display: none !important;
   }
   
-  /* 2. บังคับให้เบราว์เซอร์พิมพ์สีและเงาของ Tailwind CSS ให้ออกมาครบ */
+  /* 2. บังคับพิมพ์สีพื้นหลัง */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   
-  /* 3. ปรับพื้นหลังหน้ากระดาษเป็นสีขาว ลบขอบกวนใจ */
+  /* 3. ล้างขอบกระดาษที่ทำให้เกิดหน้าขาว */
   body {
     background-color: #FFFFFF !important;
     padding: 0 !important;
     margin: 0 !important;
   }
-
-  /* 4. ป้องกันรูปภาพ กราฟ หรือตาราง โดนตัดขาดครึ่งเมื่อขึ้นหน้าใหม่ */
-  img, table, .p-4, .rounded-2xl, .card, tr {
-    page-break-inside: avoid !important;
-
-    /* บังคับขึ้นหน้าใหม่สำหรับส่วนตาราง SOP */
-  .print-new-page {
-    page-break-before: always !important;
-    break-before: page !important;
-  }
-  
-  /* ล้างขอบและเงาที่ก่อให้เกิดหน้าขาวแผ่นแรก */
   #docContent, .container, .card, .section-view {
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
-    
   }
-    
+
+  /* 4. บังคับขึ้นหน้าใหม่สำหรับส่วน SOP */
+  .print-new-page {
+    page-break-before: always !important;
+    break-before: page !important;
   }
   
-  /* 5. จัดขนาดกระดาษให้เป็น A4 แนวตั้ง */
+  /* 🌟 5. แก้ปัญหาหัวข้อแยกกับตาราง (ตัวการทำให้หน้าขาว) */
+  /* ปลดล็อค Scrollbar เพื่อให้ตารางไหลลงหน้าถัดไปได้อย่างอิสระ */
+  .print-new-page div {
+    overflow: visible !important;
+  }
+  /* ยอมให้ตัวตารางโดนแบ่งหน้ากระดาษได้ตามความยาวข้อมูล */
+  table {
+    page-break-inside: auto !important;
+  }
+  /* แต่ "ห้าม" หั่นครึ่งกลางเนื้อหาในแต่ละแถว (tr) หรือรูปภาพ */
+  tr, img, .p-4, .rounded-2xl {
+    page-break-inside: avoid !important;
+  }
+
+  /* 6. ตั้งค่ากระดาษ A4 */
   @page {
     size: A4 portrait;
     margin: 10mm;
