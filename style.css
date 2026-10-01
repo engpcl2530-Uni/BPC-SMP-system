@@ -259,3 +259,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
     margin: 10mm;
   }
 }
+
+/* ป้องกันการตัดขาดครึ่งเมื่อขึ้นหน้าใหม่สำหรับ PDF */
+#docContent img, #docContent table, #docContent tr {
+  page-break-inside: avoid !important;
+}
