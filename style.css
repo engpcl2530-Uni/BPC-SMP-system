@@ -225,37 +225,3 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
 .draft-del-btn .material-symbols-rounded {
     font-size: 22px;
 }
-
-/* ==========================================
-       🖨️ Print & PDF Export Styles
-       ========================================== */
-    @media print {
-      /* 1. ซ่อน UI ที่ไม่จำเป็นต้องติดไปในเอกสาร (ปุ่มกด, แถบเมนูบน, เมนูลอย) */
-      .no-print, .app-header, .fab-wrapper, button, input[type="file"] {
-        display: none !important;
-      }
-      
-      /* 2. บังคับให้เบราว์เซอร์พิมพ์สีและเงาของ Tailwind CSS ให้ออกมาครบ */
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      
-      /* 3. ปรับพื้นหลังหน้ากระดาษเป็นสีขาว ลบขอบกวนใจ */
-      body {
-        background-color: #FFFFFF !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-
-      /* 4. ป้องกันรูปภาพ กราฟ หรือตาราง โดนตัดขาดครึ่งเมื่อขึ้นหน้าใหม่ */
-      img, table, .p-4, .rounded-2xl {
-        page-break-inside: avoid !important;
-      }
-      
-      /* 5. จัดขนาดกระดาษให้เป็น A4 แนวตั้ง (ปรับเป็น landscape ได้ถ้าต้องการแนวนอน) */
-      @page {
-        size: A4 portrait;
-        margin: 10mm;
-      }
-    }
