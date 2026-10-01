@@ -1365,7 +1365,7 @@ function renderDetail(data) {
     </div>
     
     <div style="padding:25px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px; font-family: 'Tahoma', 'Prompt', sans-serif;">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:20px; font-size:14px;">
         <div><span style="color:var(--text-muted); font-size:12px;">ประเภท SMP</span><br><b style="color:var(--secondary);">${m.smpType}</b></div>
         <div><span style="color:var(--text-muted); font-size:12px;">ประเภทงานซ่อม</span><br><b style="color:#D69E2E;">${m.maintType || '-'}</b></div>
         <div><span style="color:var(--text-muted); font-size:12px;">วันที่อัปเดต</span><br><b>${(m.date||'').split(' ')[0]}</b></div>
