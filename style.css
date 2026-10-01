@@ -328,25 +328,22 @@ input:focus, select:focus, textarea:focus { border-color: var(--secondary); back
     break-after: avoid !important;
   }
   
-  /* ปลดล็อคความกว้างตารางให้ไหลลงหน้าต่อไปได้ */
+  /* ปลดล็อคความกว้างตารางให้ไหลลงหน้าต่อไปได้ และดึงตารางให้ชิดเส้น SOP */
   .print-table-wrapper {
     overflow: visible !important;
     display: block !important;
   }
-}
-
-/* 🌟 ดึงตารางให้ชิดกับเส้น SOP และแสดงหัวตารางทุกหน้า */
-  .print-table-wrapper {
-    overflow: visible !important;
-  }
+  
   table {
     margin-top: 0 !important;
   }
+  
   thead {
     display: table-header-group !important;
   }
 
-/* ป้องกันการตัดขาดครึ่งเมื่อขึ้นหน้าใหม่สำหรับ PDF */
-#docContent img, #docContent table, #docContent tr {
-  page-break-inside: avoid !important;
+  /* ป้องกันการตัดขาดครึ่งเมื่อขึ้นหน้าใหม่สำหรับ PDF */
+  #docContent img, #docContent table, #docContent tr {
+    page-break-inside: avoid !important;
+  }
 }
