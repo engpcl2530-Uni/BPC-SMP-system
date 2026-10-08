@@ -348,6 +348,10 @@ function showForm() {
   
   let smpIdContainer = document.getElementById('smpIdContainer');
   if(smpIdContainer) smpIdContainer.style.display = 'none'; 
+
+  // 🔴 ซ่อนกล่อง Approval และรีเซ็ตสถานะเมื่อกดสร้างใหม่
+  if(document.getElementById('approvalSection')) document.getElementById('approvalSection').style.display = 'none';
+  if(document.getElementById('f_approvalStatus')) document.getElementById('f_approvalStatus').value = 'Pending';
   
   mainImagesArray = []; 
   let preview = document.getElementById('mainImagePreview');
@@ -584,6 +588,19 @@ function proceedToEdit() {
       if(document.getElementById('f_downtime')) document.getElementById('f_downtime').value = m.downtime || '';
       if(document.getElementById('f_maintType')) document.getElementById('f_maintType').value = m.maintType || '';
       if(document.getElementById('f_status')) document.getElementById('f_status').value = m.status || 'Finished';
+
+      // 🔴 โชว์กล่อง Approve เฉพาะตอนที่สถานะเอกสารเป็น Finished และยังไม่อนุมัติ
+      let appSec = document.getElementById('approvalSection');
+      if(appSec) {
+          if((m.status === 'Finished' || !m.status) && m.approvalStatus !== 'Approved') {
+              appSec.style.display = 'block';
+          } else {
+              appSec.style.display = 'none';
+          }
+      }
+      if(document.getElementById('f_approvalStatus')) document.getElementById('f_approvalStatus').value = m.approvalStatus || 'Pending';
+      if(document.getElementById('f_approveDate')) document.getElementById('f_approveDate').value = m.approveDate || '';
+      if(document.getElementById('f_rejectRemark')) document.getElementById('f_rejectRemark').value = m.rejectRemark || '';
 
       let typeRadios = document.querySelectorAll('input[name="smpTypeGrp"]');
       let typeFound = false;
@@ -944,8 +961,8 @@ function applyFilters() {
 
     let matchStatus = true;
     if(statusFilter === 'Draft') matchStatus = o.isDraft;
-    else if(statusFilter === 'Finished') matchStatus = (!o.isDraft && (!o.status || o.status === 'Finished'));
-    else if(statusFilter === 'Unfinished') matchStatus = (!o.isDraft && o.status === 'Unfinished');
+    else if(statusFilter === 'Finished') matchStatus = (!o.isDraft && (!o.status || o.status === 'Finished') && o.approvalStatus === 'Approved');
+    else if(statusFilter === 'Unfinished') matchStatus = (!o.isDraft && (o.status === 'Unfinished' || o.approvalStatus !== 'Approved'));
 
     return matchKw && matchP && matchL && matchT && matchD && matchStatus;
   });
@@ -981,11 +998,19 @@ function renderPaginatedList() {
     if((item.type || '').includes('เครื่องกล')) cardClass = 'card-type-me';
     else if((item.type || '').includes('ไฟฟ้า')) cardClass = 'card-type-ee';
     
-    let statusBadge = (!item.status || item.status === 'Finished') ? `<span class="badge-status-finish">Finished</span>` : `<span class="badge-status-unfinish">Unfinished</span>`;
-    
+    // 🔴 เปลี่ยนระบบโชว์ป้ายสถานะ (Badge) หน้าแรก ให้สัมพันธ์กับการอนุมัติ
+    let statusBadge = '';
     if(item.isDraft) {
         cardClass = 'card-type-draft';
         statusBadge = `<span class="badge-status-unfinish" style="background:#EDF2F7; color:#718096; border-color:#CBD5E0;">📝 แบบร่าง</span>`;
+    } else if (item.approvalStatus === 'Approved') {
+        statusBadge = `<span class="badge-status-finish">✅ Approved</span>`;
+    } else if (item.approvalStatus === 'Rejected') {
+        statusBadge = `<span class="badge-status-unfinish" style="background:#FFF5F5; color:#C53030; border-color:#FEB2B2;">❌ Rejected</span>`;
+    } else if (!item.status || item.status === 'Finished') {
+        statusBadge = `<span class="badge-status-finish" style="background:#EBF8FF; color:#2B6CB0; border-color:#90CDF4;">⏳ รออนุมัติ</span>`;
+    } else {
+        statusBadge = `<span class="badge-status-unfinish">⚠️ Unfinished</span>`;
     }
 
     let clickAction = item.isDraft ? `loadDraftIntoForm('${item.smpId}')` : `showDetail('${item.smpId}')`;
@@ -1259,7 +1284,11 @@ function collectFormData() {
     ppe: Array.from(document.querySelectorAll('#ppeBox .icon-checkbox')).map(el => ({name: el.dataset.val, used: !el.classList.contains('not-used')})),
     risks: Array.from(document.querySelectorAll('#riskBox .icon-checkbox')).map(el => ({name: el.dataset.val, risk: !el.classList.contains('not-used')})),
     loto: lotoReq ? lotoReq.value : '', 
-    riskAssessed: riskReq ? riskReq.value : ''
+    riskAssessed: riskReq ? riskReq.value : '',
+    // 🔴 เพิ่ม 3 ช่องสำหรับเก็บข้อมูลการอนุมัติส่งไปหลังบ้าน
+    approvalStatus: document.getElementById('f_approvalStatus') ? document.getElementById('f_approvalStatus').value : 'Pending',
+    approveDate: document.getElementById('f_approveDate') ? document.getElementById('f_approveDate').value : '',
+    rejectRemark: document.getElementById('f_rejectRemark') ? document.getElementById('f_rejectRemark').value : ''
   };
 
   let stepsData = [];
@@ -1337,10 +1366,38 @@ function renderDetail(data) {
   currentDetailData = data; 
   let m = data.main;
   
+  // 🔴 ซ่อน/โชว์ปุ่มส่งออกเอกสาร (ต้องอนุมัติก่อนถึงจะส่งออกได้)
+  let btnExcel = document.getElementById('btnDownloadExcel');
+  let btnPdf = document.querySelector('button[onclick="printPDF()"]');
+  if (m.approvalStatus === 'Approved') {
+      if(btnExcel) btnExcel.style.display = 'flex';
+      if(btnPdf) btnPdf.style.display = 'flex';
+  } else {
+      if(btnExcel) btnExcel.style.display = 'none';
+      if(btnPdf) btnPdf.style.display = 'none';
+  }
+
+  // 🔴 สร้างป้ายสถานะและหมายเหตุการอนุมัติใต้ชื่อเอกสาร
+  let statusBadge = '';
+  if (m.approvalStatus === 'Approved') {
+      statusBadge = `<span class="badge-status-finish">✅ Approved (อนุมัติแล้ว)</span>`;
+  } else if (m.approvalStatus === 'Rejected') {
+      statusBadge = `<span class="badge-status-unfinish" style="background:#FFF5F5; color:#C53030; border-color:#FEB2B2;">❌ Rejected (ไม่อนุมัติ)</span>`;
+  } else if (!m.status || m.status === 'Finished') {
+      statusBadge = `<span class="badge-status-finish" style="background:#EBF8FF; color:#2B6CB0; border-color:#90CDF4;">⏳ รออนุมัติ (Pending)</span>`;
+  } else {
+      statusBadge = `<span class="badge-status-unfinish">⚠️ Unfinished (ยังไม่สมบูรณ์)</span>`;
+  }
+
+  let approvalHtml = '';
+  if (m.approvalStatus === 'Approved') {
+      approvalHtml = `<div style="background:#F0FFF4; border:1px solid #9AE6B4; padding:10px; border-radius:8px; margin-top:10px; color:#2F855A; font-size:13px; font-weight:600;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">verified</span> อนุมัติโดย: ${m.approver} (เมื่อ ${m.approveDate})</div>`;
+  } else if (m.approvalStatus === 'Rejected') {
+      approvalHtml = `<div style="background:#FFF5F5; border:1px solid #FEB2B2; padding:10px; border-radius:8px; margin-top:10px; color:#C53030; font-size:13px;"><div style="font-weight:700;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cancel</span> เอกสารไม่ผ่านการอนุมัติ (Rejected)</div><div style="margin-top:5px;"><b>สิ่งที่ต้องแก้ไข:</b> ${m.rejectRemark}</div></div>`;
+  }
+
   let ppeHtml = m.ppe.filter(p => p.used).map(p => `<div style="display:flex; flex-direction:column; align-items:center; width:65px;"><img src="${getPPEIcon(p.name)}" style="width:50px; height:50px; object-fit:contain;"><span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${p.name}</span></div>`).join('') || '<span class="text-muted small">ไม่มีการระบุ PPE</span>';
   let riskHtml = m.risks.filter(r => r.risk).map(r => `<div style="display:flex; flex-direction:column; align-items:center; width:65px;"><img src="${getRiskIcon(r.name)}" style="width:50px; height:50px; object-fit:contain;"><span style="font-size:11px; text-align:center; font-weight:600; color:var(--text-muted); margin-top:5px;">${r.name}</span></div>`).join('') || '<span class="text-muted small">ไม่มีความเสี่ยง</span>';
-
-  let statusBadge = (!m.status || m.status === 'Finished') ? `<span class="badge-status-finish">Finished (พร้อมใช้งาน)</span>` : `<span class="badge-status-unfinish">Unfinished (ยังไม่สมบูรณ์)</span>`;
 
   let mainImgHtml = '';
   if (m.mainImage) {
@@ -1359,7 +1416,7 @@ function renderDetail(data) {
   let html = `
     <div style="padding:25px; border-bottom:1px solid #E2E8F0; background:#F8FAFC;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div><h3 style="margin:0 0 5px 0; color:var(--primary); font-weight:700;">#${m.smpId}</h3><p style="margin:0; font-size:15px; font-weight:600;">${m.title}</p><div style="margin-top:8px;">${statusBadge}</div></div>
+        <div><h3 style="margin:0 0 5px 0; color:var(--primary); font-weight:700;">#${m.smpId}</h3><p style="margin:0; font-size:15px; font-weight:600;">${m.title}</p><div style="margin-top:8px;">${statusBadge}</div>${approvalHtml}</div>
         <img src="images/logo.png" style="height:40px; object-fit:contain;" onerror="this.style.display='none'">
       </div>
     </div>
@@ -1389,10 +1446,7 @@ function renderDetail(data) {
         <div class="print-new-page" style="margin-top: 20px;">
         <div style="color:var(--primary); font-weight:700; font-size:15px; border-bottom:2px solid var(--secondary); padding-bottom:4px; margin-bottom:0; page-break-after: avoid; break-after: avoid;">ขั้นตอนการปฏิบัติงาน (SOP)</div>
         
-        <!-- 🌟 จุดที่แก้: ฝัง style บังคับให้เกิดแถบเลื่อน (Scroll) บนเว็บมือถือโดยตรง -->
         <div class="print-table-wrapper" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-          
-          <!-- บังคับ min-width ให้กว้างพอที่จะเลื่อนดูเนื้อหาและรูปภาพได้สบายๆ -->
           <table style="width:100%; min-width:800px; border-collapse:collapse; font-size:13.5px;">
             <thead>
               <tr style="background:#F1F5F9; color:var(--text-muted); text-align:left;">
@@ -1651,3 +1705,33 @@ function printPDF() {
   });
 }
 
+// ======================== APPROVAL SYSTEM ========================
+function approveDocument() {
+    let approver = document.getElementById('f_approver').value;
+    if(!approver) {
+        showModal("ข้อมูลไม่ครบ", "กรุณาเลือกชื่อผู้อนุมัติจาก Dropdown ก่อนกด Approve", "warning", "#D69E2E");
+        return;
+    }
+    document.getElementById('f_approvalStatus').value = 'Approved';
+    document.getElementById('f_approveDate').value = new Date().toLocaleString('th-TH');
+    document.getElementById('f_rejectRemark').value = '';
+    executeSubmitSMP(); 
+}
+
+function openRejectModal() {
+    document.getElementById('rejectRemarkInput').value = '';
+    document.getElementById('rejectModal').style.display = 'flex';
+}
+
+function confirmReject() {
+    let remark = document.getElementById('rejectRemarkInput').value.trim();
+    if(!remark) {
+        alert("กรุณาระบุหมายเหตุหรือสิ่งที่ต้องแก้ไข");
+        return;
+    }
+    document.getElementById('f_approvalStatus').value = 'Rejected';
+    document.getElementById('f_rejectRemark').value = remark;
+    document.getElementById('f_approveDate').value = new Date().toLocaleString('th-TH');
+    document.getElementById('rejectModal').style.display = 'none';
+    executeSubmitSMP();
+}
