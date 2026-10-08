@@ -14,12 +14,14 @@
 </head>
 <body>
   
+  <!-- Loading Screen -->
   <div id="loadingScreen" style="display:none;">
     <div class="modern-spinner"></div>
     <h3 class="loading-pulse" style="margin-top:25px; color:var(--primary); font-weight:700;">กำลังประมวลผล...</h3>
     <p style="color:var(--text-muted); font-size:14px;">กรุณารอสักครู่</p>
   </div>
 
+  <!-- Modals -->
   <div class="custom-modal-overlay" id="customModal">
     <div class="custom-modal-box">
       <span class="material-symbols-rounded custom-modal-icon" id="modalIcon">info</span>
@@ -75,7 +77,23 @@
       <p class="text-muted-sm text-center mt-3">แบบร่างจะถูกเก็บไว้ในเครื่องของคุณเท่านั้น</p>
     </div>
   </div>
-
+  
+  <div class="custom-modal-overlay" id="rejectModal" style="z-index: 9999;">
+    <div class="custom-modal-box">
+      <span class="material-symbols-rounded custom-modal-icon" style="color:#E53E3E;">cancel</span>
+      <h3 class="custom-modal-title" style="color:#E53E3E;">ไม่อนุมัติเอกสาร (Reject)</h3>
+      <div style="text-align:left; margin-bottom:15px;">
+          <label>หมายเหตุ / สิ่งที่ต้องแก้ไข <span class="required-star">*</span></label>
+          <textarea id="rejectRemarkInput" rows="3" style="width:100%; border-radius:8px; padding:10px; border:1px solid #CBD5E0;"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="custom-modal-btn" style="background:#E2E8F0; color:var(--text-main);" onclick="document.getElementById('rejectModal').style.display='none'">ยกเลิก</button>
+        <button class="custom-modal-btn" style="background:#E53E3E;" onclick="confirmReject()">ยืนยัน Reject</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Header -->
   <div class="header" id="mainHeader">
     <div class="header-left">
       <div class="header-icon"><span class="material-symbols-rounded">engineering</span></div>
@@ -92,6 +110,7 @@
 
   <div class="container mt-4">
 
+    <!-- ================= VIEW 1: Home ================= -->
     <div id="homeView" class="section-view active">
       <div id="offlineBanner" style="display:none; background: #FFF3CD; color: #854D0E; padding: 10px; border-radius: 8px; font-size: 0.9rem; text-align: center; margin-bottom: 20px; border: 1px solid #FEF08A;"><span class="material-symbols-rounded" style="vertical-align:bottom; font-size:18px;">cloud_off</span> โหมดออฟไลน์: ข้อมูลจะถูกเก็บไว้ในเครื่อง</div>
       
@@ -173,6 +192,7 @@
       <button class="fab-main" onclick="showForm()"><span class="material-symbols-rounded" style="font-size: 32px;">add</span></button>
     </div>
 
+    <!-- ================= VIEW 2: Form ================= -->
     <div id="formView" class="section-view">
       
       <button class="fab-draft" id="fabDraftBtn" title="บันทึกแบบร่าง" onclick="saveDataAsDraft()">
@@ -182,7 +202,19 @@
       <form id="smpForm">
         <input type="hidden" id="f_mainImageOld">
         <input type="hidden" id="f_draftId"> 
-
+        
+        <div class="card" id="approvalSection" style="display:none; border: 2px solid #D69E2E; background:#FFFFF0;">
+          <div class="card-title" style="margin-bottom:10px; border:none; padding:0; color:#D69E2E;"><span class="material-symbols-rounded">verified_user</span> ส่วนของการอนุมัติ (Approval)</div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">ตรวจสอบความถูกต้องก่อนกดอนุมัติ หากไม่อนุมัติกรุณาระบุสิ่งที่ต้องแก้ไข</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="button" class="btn-success" onclick="approveDocument()"><span class="material-symbols-rounded">check_circle</span> อนุมัติ (Approve)</button>
+            <button type="button" class="btn-danger-outline" style="background:white;" onclick="openRejectModal()"><span class="material-symbols-rounded">cancel</span> ไม่อนุมัติ (Reject)</button>
+          </div>
+          <input type="hidden" id="f_approvalStatus" value="Pending">
+          <input type="hidden" id="f_approveDate" value="">
+          <input type="hidden" id="f_rejectRemark" value="">
+        </div>
+        
         <div class="card">
           <div class="card-title"><span class="material-symbols-rounded">assignment</span> ส่วนที่ 1: ข้อมูลทั่วไป (General Info)</div>
           
@@ -234,7 +266,15 @@
           </div>
           
           <div class="form-row">
-            <div class="form-group"><label>ผู้อนุมัติ (Approved By)</label><input type="text" id="f_approver"></div>
+            <div class="form-group">
+              <label>ผู้อนุมัติ (Approved By)</label>
+              <select id="f_approver">
+                <option value="">-- เลือกผู้อนุมัติ --</option>
+                <option value="เศรษฐศักดิ์">1 Sedtasak Somsri (เศรษฐศักดิ์)</option>
+                <option value="ภัทรพร">2 Phattaraphorn Sangsawang (ภัทรพร)</option>
+                <option value="สมเกียรติ">3 Somkiat Suwaphan (สมเกียรติ)</option>
+              </select>
+            </div>
             <div class="form-group">
               <label>Line</label>
               <select id="f_line_sel" onchange="toggleOtherInput(this, 'f_line_other')">
@@ -384,13 +424,12 @@
          <div>กำลังมีผู้ใช้งานท่านอื่นเปิดแก้ไขเอกสารฉบับนี้อยู่ เพื่อป้องกันข้อมูลทับซ้อน กรุณารอสักครู่...</div>
       </div>
 
-<!-- เพิ่ม class action-header-mobile และ no-print -->
+      <!-- ปุ่ม Action -->
       <div class="d-flex justify-content-between align-items-center mb-4 action-header-mobile no-print">
         <button class="btn-danger-outline" onclick="deleteCurrentSMP()">
           <span class="material-symbols-rounded" style="font-size:18px; vertical-align:bottom;">delete</span> ลบเอกสาร
         </button>
         
-        <!-- เพิ่ม class action-buttons-mobile -->
         <div class="action-buttons-mobile" style="display:flex; gap:10px; flex-wrap: wrap; justify-content: flex-end;">
           <button type="button" class="btn-duplicate" onclick="duplicateCurrentSMP()">
             <span class="material-symbols-rounded" style="font-size:18px;">content_copy</span> คัดลอกงานนี้
@@ -404,7 +443,6 @@
             <span class="material-symbols-rounded" style="font-size:20px;">download</span> โหลด Excel
           </button>
           
-        <!-- ปุ่ม Export PDF แบบ Native (สระไม่ลอย + ล็อคชื่อไฟล์) -->
           <button type="button" onclick="printPDF()" style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(239, 68, 68, 0.3)'">
             <span class="material-symbols-rounded" style="font-size:20px;">picture_as_pdf</span> Export PDF
           </button>
@@ -422,7 +460,6 @@
     <span>คุณมีแบบร่างค้างอยู่ <b id="draftCountBadge">0</b> รายการ<br><small style="opacity:0.8;">แตะเพื่อเปิดดูแบบร่าง</small></span>
   </div>
 
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
