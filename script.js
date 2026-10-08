@@ -1008,7 +1008,7 @@ function renderPaginatedList() {
     } else if (item.approvalStatus === 'Rejected') {
         statusBadge = `<span class="badge-status-unfinish" style="background:#FFF5F5; color:#C53030; border-color:#FEB2B2;">❌ Rejected</span>`;
     } else if (!item.status || item.status === 'Finished') {
-        statusBadge = `<span class="badge-status-finish" style="background:#EBF8FF; color:#2B6CB0; border-color:#90CDF4;">⏳ รออนุมัติ</span>`;
+        statusBadge = `<span class="badge-status-finish" style="background:#EBF8FF; color:#2B6CB0; border-color:#90CDF4;">⏳ Pending</span>`;
     } else {
         statusBadge = `<span class="badge-status-unfinish">⚠️ Unfinished</span>`;
     }
