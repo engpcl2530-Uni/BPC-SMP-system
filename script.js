@@ -1010,7 +1010,7 @@ function renderPaginatedList() {
     } else if (!item.status || item.status === 'Finished') {
         statusBadge = `<span class="badge-status-finish" style="background:#EBF8FF; color:#2B6CB0; border-color:#90CDF4;">⏳ Pending</span>`;
     } else {
-        statusBadge = `<span class="badge-status-unfinish">⚠️ Unfinished</span>`;
+        statusBadge = `<span class="badge-status-unfinish"> Unfinished</span>`;
     }
 
     let clickAction = item.isDraft ? `loadDraftIntoForm('${item.smpId}')` : `showDetail('${item.smpId}')`;
